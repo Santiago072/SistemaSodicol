@@ -1,0 +1,5 @@
+dompdf/vendor/
+vendor/
+node_modules/
+.env
+uploads/
