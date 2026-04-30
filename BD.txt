@@ -1,0 +1,61 @@
+CREATE DATABASE IF NOT EXISTS sistema_sodicol;
+USE sistema_sodicol;
+
+CREATE TABLE usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    documento VARCHAR(20) UNIQUE NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    correo VARCHAR(100) UNIQUE NOT NULL,
+    telefono VARCHAR(20),
+    rol ENUM('admin', 'usuario') DEFAULT 'usuario',
+    estado ENUM('activo', 'inactivo') DEFAULT 'activo'
+);
+
+-- Tabla principal de cotizaciones
+CREATE TABLE IF NOT EXISTS cotizaciones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_nombre VARCHAR(255) NOT NULL,
+    fecha_creacion DATE DEFAULT CURRENT_DATE,
+    profesion VARCHAR(255),
+    nombre_cliente VARCHAR(255),
+    especialidad VARCHAR(255),
+    entidad VARCHAR(255),
+    ciudad VARCHAR(255),
+    numero_cotizacion VARCHAR(50) DEFAULT NULL  
+);
+
+-- Tabla de ítems de cada cotización
+CREATE TABLE IF NOT EXISTS cotizacion_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cotizacion_id INT NOT NULL,
+    titulo VARCHAR(100) NOT NULL,
+    foto VARCHAR(255) DEFAULT NULL,
+    descripcion TEXT NOT NULL,
+    cantidad INT NOT NULL,
+    iva ENUM('si', 'no') NOT NULL DEFAULT 'si',
+    precio DECIMAL(20,2) NOT NULL,
+    FOREIGN KEY (cotizacion_id) REFERENCES cotizaciones(id)
+);
+
+-- Tabla de productos
+CREATE TABLE IF NOT EXISTS productos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    foto VARCHAR(255) DEFAULT NULL,
+    descripcion TEXT NOT NULL,
+    cantidad INT NOT NULL,
+    iva ENUM('si', 'no') NOT NULL DEFAULT 'si',
+    precio DECIMAL(20,2) NOT NULL
+);
+
+--Tabla de Tareas(Cotizaciones) para Empleados
+CREATE TABLE IF NOT EXISTS tareas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    descripcion_tarea VARCHAR(255) NOT NULL,
+    estado ENUM('pendiente', 'completo') NOT NULL DEFAULT 'pendiente',
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
+
+INSERT INTO usuarios (documento, nombre, correo, telefono, rol, estado) VALUES 
+('1119469827', 'Juan', 'juanperez@gmail.com', '3102516060', 'admin', 'activo')

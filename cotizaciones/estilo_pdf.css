@@ -1,0 +1,377 @@
+@page {
+    margin: 1cm 1.5cm 3cm 1.5cm;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    font-size: 10pt;
+    line-height: 1.3;
+    color: #333;
+}
+
+/* --- ENCABEZADO --- */
+.tabla-encabezado {
+    width: 100%;
+    margin-bottom: 15px;
+    border-collapse: collapse;
+}
+
+.tabla-encabezado td {
+    vertical-align: top;
+}
+
+.celda-logo {
+    width: 20%;
+}
+
+.img-logo {
+    width: 140px;
+    display: block;
+}
+
+.info-empresa {
+    text-align: center;
+    width: 80%;
+    padding-top: 14px;
+}
+
+.info-empresa h2 {
+    font-size: 10pt;
+    font-weight: bold;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-empresa h3 {
+    font-size: 9pt;
+    font-weight: bold;
+    margin: 2px 0 8px 0;
+}
+
+.linea-encabezado {
+    border-top: 2px solid black;
+    margin-top: 3px;
+    width: 100%;
+}
+
+/* --- INFORMACIÓN --- */
+.seccion-info {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.fila-fecha-cot {
+    margin-bottom: 15px;
+    font-size: 10pt;
+    overflow: hidden;
+}
+
+.fecha-izq {
+    float: left;
+}
+
+.cot-der {
+    float: right;
+    font-weight: bold;
+    font-size: 10pt;
+}
+
+.datos-cliente {
+    margin-bottom: 10px;
+    font-weight: bold;
+    line-height: 1.4;
+    font-size: 15px;
+}
+
+.datos-cliente span {
+    display: inline;
+}
+
+.texto-intro {
+    text-align: justify;
+    margin-bottom: 10px;
+    margin-top: 5px;
+    font-size: 15px;
+}
+
+/* --- TABLA ITEMS --- */
+.tabla-principal {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+    font-size: 9pt;
+}
+
+.tabla-principal th {
+    background-color: #e0e0e0;
+    border: 1.5px solid black;
+    padding: 6px 4px;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-align: center;
+    font-size: 8pt;
+}
+
+.tabla-principal td {
+    border: 1.5px solid black;
+    padding: 5px 4px;
+    vertical-align: middle;
+}
+
+.col-item {
+    width: 6%;
+    text-align: center;
+}
+
+.col-desc {
+    width: 35%;
+    text-align: left;
+}
+
+.col-cant {
+    width: 8%;
+    text-align: center;
+}
+
+.col-vu {
+    width: 17%;
+    text-align: right;
+}
+
+.col-iva {
+    width: 17%;
+    text-align: right;
+}
+
+.col-vt {
+    width: 17%;
+    text-align: right;
+}
+
+/* Totales */
+.etiqueta-total {
+    text-align: right;
+    font-weight: bold;
+    border: 1.5px solid black;
+    padding: 5px;
+    font-size: 9pt;
+}
+
+.valor-total {
+    text-align: right;
+    font-weight: bold;
+    border: 1.5px solid black;
+    padding: 5px;
+    font-size: 9pt;
+}
+
+.celda-vacia {
+    border: none !important;
+}
+
+/* --- FIRMA --- */
+.info-pago {
+    margin-bottom: 30px;
+    margin-top: 20px;
+}
+
+.seccion-firma {
+    margin-top: 20px;
+    font-weight: bold;
+    font-size: 10pt;
+}
+
+.seccion-firma p {
+    margin-bottom: 5px;
+}
+
+/* --- FOOTER --- */
+footer {
+    position: fixed;
+    bottom: -3cm;
+    left: -1.5cm;
+    right: -1.5cm;
+    height: 3cm;
+    font-size: 9pt;
+    color: #444;
+}
+
+.footer-contenedor {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* --- DISEÑO DE LA OLA (CORRECCIÓN) --- */
+.ola-fondo-marron {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 85px; /* Altura de la curva a la derecha */
+    background-color: #615043; /* Color marrón del diseño */
+    z-index: -2; /* Va al fondo */
+}
+
+.ola-mascara-blanca {
+    position: absolute;
+    bottom: 38px; /* Grosor de la línea recta a la izquierda */
+    left: -10px;
+    right: 50px; /* Espacio que queda marrón a la derecha */
+    height: 100px;
+    background-color: #ffffff; /* Debe ser el mismo color del fondo de la hoja */
+    border-bottom-right-radius: 75px; /* Crea el recorte de la curva */
+    z-index: -1; /* Va encima del marrón pero debajo del texto */
+}
+
+/* --- DATOS DEL FOOTER --- */
+.tabla-datos-footer {
+    width: 100%;
+    padding-left: 2.2cm; /* Sangría de la tabla para alinear con el margen superior */
+    padding-top: 5px; 
+    position: relative;
+    z-index: 10;
+    border-collapse: collapse;
+}
+
+.celda-footer {
+    vertical-align: middle;
+    padding: 0;
+}
+
+.pb-extra {
+    padding-bottom: 22px; /* Espaciado amplio entre la fila superior e inferior */
+}
+
+/* Logo Sodicol */
+.icono-logo-pie {
+    width: auto;
+    height: 32px; /* Más grande para destacar */
+    vertical-align: middle;
+    margin-right: 15px;
+}
+
+/* Iconos de correo, teléfono, ubicación */
+.icono-pie {
+    width: 24px; /* Aumentado a tamaño real de tu imagen */
+    height: 24px;
+    vertical-align: middle;
+    margin-right: 15px;
+}
+
+/* Texto del footer */
+.texto-footer {
+    vertical-align: middle;
+    font-weight: normal; /* Texto sin negrita */
+    font-size: 11pt;
+    color: #444444; /* Gris oscuro para mayor fidelidad */
+}
+
+/* --- FICHAS TECNICAS --- */
+.salto-pagina {
+    page-break-before: always;
+}
+
+.titulo-item-detalle {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.titulo-item-detalle h3 {
+    font-size: 12pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin: 0 0 10px 0;
+}
+
+.titulo-item-detalle h4 {
+    font-size: 11pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.contenedor-imagen-producto {
+    text-align: center;
+    margin-bottom: 25px;
+    margin-top: 15px;
+}
+
+.img-producto {
+    max-width: 70%;
+    max-height: 200px;
+    height: auto;
+    display: inline-block;
+}
+
+.tabla-detalle {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+    margin-top: 10px;
+}
+
+/* --- FICHAS TECNICAS --- */
+
+/* Encabezados de la tabla detalle */
+.tabla-detalle th {
+    border: 1.5px solid black;
+    padding: 8px;
+    text-align: center;
+    font-weight: bold;
+    background-color: transparent;
+    font-size: 9pt;
+    vertical-align: middle;
+}
+
+.th-desc {
+    width: 45%;
+    text-align: left !important; /* Descripción sigue a la izquierda */
+}
+
+.th-cant {
+    width: 10%;
+    text-align: center; /* Centrado */
+}
+
+.th-vu {
+    width: 22%;
+    text-align: center; /* Centrado */
+}
+
+.th-total {
+    width: 23%;
+    text-align: center; /* Centrado */
+}
+
+.tabla-detalle td {
+    border: 1.5px solid black;
+    padding: 8px;
+    vertical-align: middle;
+}
+
+.td-desc {
+    text-align: left; /* Descripción sigue a la izquierda */
+}
+
+.td-cant {
+    text-align: center; /* Centrado */
+    font-weight: bold;
+    vertical-align: middle;
+    font-size: 10pt;
+}
+
+.td-valores {
+    text-align: center; /* Centrado */
+    font-weight: bold;
+    vertical-align: middle;
+    font-size: 10pt;
+}
+
+.descripcion-texto {
+    text-align: justify;
+    font-size: 13.5px;
+    line-height: 1.4;
+    margin-top: 8px;
+}
