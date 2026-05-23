@@ -1,26 +1,32 @@
 <?php
-session_start();
-include '../config/conexion.php';
+require_once '../config/conexion.php';
+require_once '../config/seguridad.php';
+
+iniciar_sesion_segura();
+verificar_autenticacion();
+
 $conexion = conexion();
+$mensaje_exito = "";
+$mensaje_error = "";
 
-// Validaciones de seguridad
-if (!isset($_SESSION['usuario_nombre'])) {
-    header("Location: ../index.php");
-    exit();
-}
-
-$sql = "SELECT * FROM productos ORDER BY id ASC";
-$result = mysqli_query($conexion, $sql);
+// Mensajes de feedback
+if (isset($_GET['success'])) $mensaje_exito = "Producto creado exitosamente";
+if (isset($_GET['updated'])) $mensaje_exito = "Producto actualizado exitosamente";
+if (isset($_GET['deleted'])) $mensaje_exito = "Producto eliminado exitosamente";
+if (isset($_GET['error'])) $mensaje_error = "Error al procesar la solicitud";
 
 $busqueda = "";
 if(isset($_GET['busqueda']) && $_GET['busqueda'] != "") {
-    $busqueda = $_GET['busqueda'];
-    $sql_productos = "SELECT * FROM productos WHERE titulo LIKE '%$busqueda%' ORDER BY titulo ASC";
+    $busqueda = sanitizar_entrada($_GET['busqueda']);
+    $busqueda_param = "%$busqueda%";
+    $stmt = mysqli_prepare($conexion, "SELECT * FROM productos WHERE titulo LIKE ? ORDER BY titulo ASC");
+    mysqli_stmt_bind_param($stmt, "s", $busqueda_param);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 } else {
     $sql_productos = "SELECT * FROM productos ORDER BY titulo ASC";
+    $result = mysqli_query($conexion, $sql_productos);
 }
-
-$result = mysqli_query($conexion, $sql_productos);
 ?>
 
 <!DOCTYPE html>
@@ -57,9 +63,24 @@ $result = mysqli_query($conexion, $sql_productos);
         <div class="encabezado-pagina">
             <h1>Lista de Productos</h1>
         </div>
+        
+        <?php if ($mensaje_exito != '') { ?>
+        <div class="success-box" style="background: #d4edda; color: #155724; padding: 15px; margin: 15px 0; border-radius: 8px; border: 1px solid #c3e6cb;">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo htmlspecialchars($mensaje_exito); ?></span>
+        </div>
+        <?php } ?>
+        
+        <?php if ($mensaje_error != '') { ?>
+        <div class="error-box">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span><?php echo htmlspecialchars($mensaje_error); ?></span>
+        </div>
+        <?php } ?>
+        
         <div class="barra-busqueda">
             <form action="lista_productos.php" method="GET" class="formulario-busqueda">
-                <input type="text" name="busqueda" value="<?php echo $busqueda ?>" placeholder="Buscar producto...">
+                <input type="text" name="busqueda" value="<?php echo htmlspecialchars($busqueda) ?>" placeholder="Buscar producto...">
                 <button type="submit" class="boton-primario">Buscar</button>
                 <?php if($busqueda != ''): ?>
                 <a href="lista_productos.php" class="boton-limpiar">Limpiar</a>
@@ -80,25 +101,26 @@ $result = mysqli_query($conexion, $sql_productos);
                     <?php while ($producto = mysqli_fetch_array($result)): ?>
                     <tr>
                         <td>
-                            <?php echo $producto['titulo']; ?>
+                            <?php echo htmlspecialchars($producto['titulo']); ?>
                         </td>
                         <td>
                             <?php echo number_format($producto['precio'], 0, '', '.'); ?>
                         </td>
                         <td>
-                            <?php echo $producto['cantidad']; ?>
+                            <?php echo intval($producto['cantidad']); ?>
                         </td>
                         <td class="acciones-tabla">
-                            <a href="editar_producto.php?id=<?php echo $producto['id']; ?>" class="boton-editar">
+                            <a href="editar_producto.php?id=<?php echo intval($producto['id']); ?>" class="boton-editar">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <a href="eliminar_producto.php?id=<?php echo $producto['id']; ?>" class="boton-eliminar"
-                                onclick="return confirm('¿Eliminar este ítem?')">
+                            <a href="eliminar_producto.php?id=<?php echo intval($producto['id']); ?>" class="boton-eliminar"
+                                onclick="return confirm('¿Está seguro de eliminar este producto?')">
                                 <i class="fas fa-trash"></i>
                             </a>
                         </td>
                     </tr>
-                    <?php endwhile; ?>
+                    <?php endwhile; 
+                    if (isset($stmt)) mysqli_stmt_close($stmt); ?>
                 </tbody>
             </table>
         </div>

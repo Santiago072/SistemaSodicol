@@ -1,64 +1,101 @@
 <?php
-session_start();
-include '../config/conexion.php';
-$conexion = conexion();
+require_once '../config/conexion.php';
+require_once '../config/seguridad.php';
 
-// Validaciones de seguridad
-if (!isset($_SESSION['usuario_nombre'])) {
-    header("Location: ../index.php");
+iniciar_sesion_segura();
+verificar_autenticacion();
+
+$conexion = conexion();
+$mensaje_error = '';
+
+// Validar ID de producto
+if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
+    header("Location: lista_productos.php?error=1");
     exit();
 }
 
-$id_producto = $_GET['id'];
+$id_producto = intval($_GET['id']);
 
-$sql = "SELECT * FROM productos WHERE id = $id_producto";
-$result = mysqli_query($conexion, $sql);
+// Obtener producto usando prepared statement
+$stmt = mysqli_prepare($conexion, "SELECT * FROM productos WHERE id = ?");
+mysqli_stmt_bind_param($stmt, "i", $id_producto);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 $producto = mysqli_fetch_assoc($result);
+mysqli_stmt_close($stmt);
+
+if (!$producto) {
+    header("Location: lista_productos.php?error=1");
+    exit();
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $titulo = $_POST['titulo'];
-    $descripcion = $_POST['descripcion'];
-    $cantidad = $_POST['cantidad'];
-    $iva = $_POST['iva'];
-    $precio = $_POST['precio'];
+    // Verificar token CSRF
+    if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
+        $mensaje_error = "Token de seguridad inválido";
+    } else {
+        $titulo = sanitizar_entrada($_POST['titulo']);
+        $descripcion = sanitizar_entrada($_POST['descripcion']);
+        $cantidad = intval($_POST['cantidad']);
+        $iva = sanitizar_entrada($_POST['iva']);
+        $precio = floatval($_POST['precio']);
 
-    $ruta_final = $_POST['foto_actual'];
+        // Validaciones
+        if (!in_array($iva, ['si', 'no'])) {
+            $mensaje_error = "Valor de IVA no válido";
+        } elseif ($cantidad < 0 || $precio < 0) {
+            $mensaje_error = "Cantidad y precio deben ser valores positivos";
+        } else {
+            $ruta_final = $_POST['foto_actual'];
 
-    if(isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-        $foto_temp = $_FILES['foto']['tmp_name'];
-        $foto_nombre = basename($_FILES['foto']['name']);
-        $dir = '../uploads/';
-        
-        if (!is_dir($dir)) mkdir($dir, 0777, true);
+            // Validar y procesar archivo de imagen
+            if(isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+                $validacion = validar_imagen($_FILES['foto']);
+                
+                if ($validacion['valido']) {
+                    $extension = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+                    $nombre_archivo = generar_nombre_archivo($extension);
+                    $dir = '../uploads/';
+                    
+                    if (!is_dir($dir)) mkdir($dir, 0755, true);
 
-        $ruta_destino = $dir . $foto_nombre; 
-        if (move_uploaded_file($foto_temp, $ruta_destino)) {
-            $ruta_final = $ruta_destino;
-            
-            // Opcional: Borrar la foto anterior para limpiar servidor
-            if (!empty($_POST['foto_actual']) && file_exists($_POST['foto_actual'])) {
-                unlink($_POST['foto_actual']);
+                    $ruta_destino = $dir . $nombre_archivo;
+                    if (move_uploaded_file($_FILES['foto']['tmp_name'], $ruta_destino)) {
+                        // Eliminar foto anterior si existe
+                        if (!empty($_POST['foto_actual']) && file_exists($_POST['foto_actual'])) {
+                            unlink($_POST['foto_actual']);
+                        }
+                        $ruta_final = $nombre_archivo;
+                    } else {
+                        $mensaje_error = "Error al subir el archivo";
+                    }
+                } else {
+                    $mensaje_error = $validacion['mensaje'];
+                }
+            } else {
+                // Si no se sube nueva foto, mantener solo el nombre del archivo
+                $ruta_final = basename($_POST['foto_actual']);
+            }
+
+            if (empty($mensaje_error)) {
+                // Actualizar producto usando prepared statement
+                $stmt = mysqli_prepare($conexion, "UPDATE productos SET titulo=?, foto=?, descripcion=?, cantidad=?, iva=?, precio=? WHERE id=?");
+                mysqli_stmt_bind_param($stmt, "sssisdi", $titulo, $ruta_final, $descripcion, $cantidad, $iva, $precio, $id_producto);
+                
+                if (mysqli_stmt_execute($stmt)) {
+                    mysqli_stmt_close($stmt);
+                    header("Location: lista_productos.php?updated=1");
+                    exit();
+                } else {
+                    $mensaje_error = "Error al actualizar el producto";
+                }
+                mysqli_stmt_close($stmt);
             }
         }
-    }   
-
-    $sql = "UPDATE productos SET 
-            titulo='$titulo',
-            foto='$ruta_final',
-            descripcion='$descripcion',
-            cantidad='$cantidad',
-            iva='$iva',
-            precio='$precio'
-            WHERE id='$id_producto'";
-
-    if (mysqli_query($conexion, $sql)) {
-        header("Location: lista_productos.php");
-        exit();
-    } else {
-        $error = "Error al actualizar: " . mysqli_error($conexion);
     }
 }
 
+$csrf_token = generar_token_csrf();
 ?>
 
 <!DOCTYPE html>
@@ -95,56 +132,61 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="encabezado-pagina">
             <h1>Editar Producto</h1>
         </div>
+        
+        <?php if ($mensaje_error != '') { ?>
+        <div class="error-box">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span><?php echo htmlspecialchars($mensaje_error); ?></span>
+        </div>
+        <?php } ?>
+        
         <div class="formulario-contenedor">
             <form method="POST" enctype="multipart/form-data" class="formulario">
-                <input type="hidden" name="id" value="<?php echo $producto['id']; ?>">
-                <input type="hidden" name="foto_actual" value="<?php echo $producto['foto']; ?>">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                <input type="hidden" name="id" value="<?php echo intval($producto['id']); ?>">
+                <input type="hidden" name="foto_actual" value="<?php echo htmlspecialchars($producto['foto']); ?>">
 
                 <div class="grupo-campo">
                     <label for="titulo">Nombre del Producto *</label>
-                    <input type="text" id="titulo" name="titulo" value="<?php echo $producto['titulo']; ?>" required>
+                    <input type="text" id="titulo" name="titulo" value="<?php echo htmlspecialchars($producto['titulo']); ?>" required maxlength="255">
                 </div>
 
                 <div class="grupo-campo">
-                    <label>Foto Actula del Producto</label>
+                    <label>Foto Actual del Producto</label>
                     <?php if(!empty($producto['foto'])): ?>
                     <div style="margin-bottom: 10px;">
-                        <img src="../uploads/<?php echo $producto['foto']; ?>" width="100"
-                            style="border:1px solid #ccc;">
+                        <img src="../uploads/<?php echo htmlspecialchars($producto['foto']); ?>" width="100" style="border:1px solid #ccc; max-width: 200px;">
                     </div>
                     <?php else: ?>
                     <p>No hay foto asignada</p>
                     <?php endif; ?>
                     <label>Cambiar Foto (Opcional)</label>
-                    <input type="file" id="foto" name="foto">
+                    <input type="file" id="foto" name="foto" accept="image/jpeg,image/png,image/gif,image/webp">
+                    <small style="color: #666;">Formatos permitidos: JPG, PNG, GIF, WEBP. Tamaño máximo: 5MB</small>
                 </div>
 
                 <div class="grupo-campo">
                     <label for="descripcion">Descripción *</label>
-                    <textarea id="descripcion" name="descripcion"
-                        required><?php echo $producto['descripcion']; ?></textarea>
+                    <textarea id="descripcion" name="descripcion" required maxlength="1000"><?php echo htmlspecialchars($producto['descripcion']); ?></textarea>
                 </div>
 
                 <div class="grupo-campo">
                     <label for="cantidad">Cantidad *</label>
-                    <input type="number" id="cantidad" name="cantidad" required min="1"
-                        value="<?php echo $producto['cantidad']; ?>">
+                    <input type="number" id="cantidad" name="cantidad" required min="0" value="<?php echo intval($producto['cantidad']); ?>">
                 </div>
 
                 <div class="grupo-campo">
                     <label for="iva">Valor con IVA *</label>
                     <select id="iva" name="iva" required>
                         <option value="">Seleccione una Opción</option>
-                        <option value="si" <?php if($producto['iva']==='si' ) echo 'selected' ; ?>>Aplicar IVA</option>
-                        <option value="no" <?php if($producto['iva']==='no' ) echo 'selected' ; ?>>No Aplicar IVA
-                        </option>
+                        <option value="si" <?php if($producto['iva']==='si') echo 'selected'; ?>>Aplicar IVA</option>
+                        <option value="no" <?php if($producto['iva']==='no') echo 'selected'; ?>>No Aplicar IVA</option>
                     </select>
                 </div>
 
                 <div class="grupo-campo">
                     <label for="precio">Precio Unitario *</label>
-                    <input type="number" id="precio" name="precio" required min="0" step="0.01"
-                        value="<?php echo $producto['precio']; ?>">
+                    <input type="number" id="precio" name="precio" required min="0" step="0.01" value="<?php echo floatval($producto['precio']); ?>">
                 </div>
 
                 <div class="grupo-campo">

@@ -1,41 +1,57 @@
 <?php
-session_start();
-include '../config/conexion.php';
+require_once '../config/conexion.php';
+require_once '../config/seguridad.php';
+
+iniciar_sesion_segura();
+verificar_autenticacion();
+
 $conexion = conexion();
 
-// Verificar sesión
-if (!isset($_SESSION['usuario_nombre']) || !isset($_SESSION['cotizacion_id'])) {
-    header("Location: index.php");
+// Verificar sesión de cotización
+if (!isset($_SESSION['cotizacion_id'])) {
+    header("Location: crear_cotizacion.php?error=no_session");
     exit();
 }
 
-if (isset($_GET['id'])) {
-    $item_id = $_GET['id'];
-    $cotizacion_id = $_SESSION['cotizacion_id'];
+// Validar ID del item
+if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
+    header("Location: crear_cotizacion.php?error=invalid_id");
+    exit();
+}
 
-    // 1. Primero obtenemos la ruta de la foto para borrar el archivo físico
-    $query_foto = "SELECT foto FROM cotizacion_items WHERE id = '$item_id' AND cotizacion_id = '$cotizacion_id'";
-    $resultado = mysqli_query($conexion, $query_foto);
-    
-    if ($fila = mysqli_fetch_assoc($resultado)) {
-        $ruta_foto = $fila['foto'];
-        // Si existe una foto y el archivo existe en el servidor, lo borramos
-        if (!empty($ruta_foto) && file_exists($ruta_foto)) {
-            unlink($ruta_foto); 
+$item_id = intval($_GET['id']);
+$cotizacion_id = intval($_SESSION['cotizacion_id']);
+
+// Obtener información del item usando prepared statement
+$stmt = mysqli_prepare($conexion, "SELECT foto FROM cotizacion_items WHERE id = ? AND cotizacion_id = ?");
+mysqli_stmt_bind_param($stmt, "ii", $item_id, $cotizacion_id);
+mysqli_stmt_execute($stmt);
+$resultado = mysqli_stmt_get_result($stmt);
+$fila = mysqli_fetch_assoc($resultado);
+mysqli_stmt_close($stmt);
+
+if ($fila) {
+    // Eliminar archivo de foto si existe
+    if (!empty($fila['foto'])) {
+        $ruta_foto = '../uploads/' . $fila['foto'];
+        if (file_exists($ruta_foto)) {
+            unlink($ruta_foto);
         }
     }
 
-    // 2. Eliminamos el registro de la base de datos
-    $sql = "DELETE FROM cotizacion_items WHERE id = '$item_id' AND cotizacion_id = '$cotizacion_id'";
+    // Eliminar registro usando prepared statement
+    $stmt = mysqli_prepare($conexion, "DELETE FROM cotizacion_items WHERE id = ? AND cotizacion_id = ?");
+    mysqli_stmt_bind_param($stmt, "ii", $item_id, $cotizacion_id);
     
-    if(mysqli_query($conexion, $sql)) {
-        // Redirigir con éxito
-        header("Location: crear_cotizacion.php?mensaje=eliminado");
+    if(mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        header("Location: crear_cotizacion.php?deleted=1");
     } else {
-        echo "Error al eliminar: " . mysqli_error($conexion);
+        mysqli_stmt_close($stmt);
+        header("Location: crear_cotizacion.php?error=delete_failed");
     }
 } else {
-    header("Location: crear_cotizacion.php");
+    header("Location: crear_cotizacion.php?error=not_found");
 }
 exit();
 ?>
