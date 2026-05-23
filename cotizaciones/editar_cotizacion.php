@@ -1,83 +1,112 @@
 <?php
-session_start();
-include '../config/conexion.php';
-$conexion = conexion();
+require_once '../config/conexion.php';
+require_once '../config/seguridad.php';
 
-// Validaciones de seguridad
-if (!isset($_SESSION['usuario_nombre'])) {
-    header("Location: index.php");
+iniciar_sesion_segura();
+verificar_autenticacion();
+
+$conexion = conexion();
+$mensaje_error = '';
+
+// Verificar sesión de cotización
+if (!isset($_SESSION['cotizacion_id'])) {
+    header("Location: crear_cotizacion.php?error=no_session");
     exit();
 }
 
-$cotizacion_id = $_SESSION['cotizacion_id'];
+$cotizacion_id = intval($_SESSION['cotizacion_id']);
 
-// --- PARTE 1: PROCESAR EL FORMULARIO DE EDICIÓN (POST) ---
+// PROCESAR FORMULARIO DE EDICIÓN (POST)
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $item_id = $_POST['item_id'];
-    $titulo = $_POST['titulo'];
-    $descripcion = $_POST['descripcion'];
-    $cantidad = $_POST['cantidad'];
-    $iva = $_POST['IVA'];
-    $precio = $_POST['precio'];
+    // Verificar token CSRF
+    if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
+        $mensaje_error = "Token de seguridad inválido";
+    } else {
+        $item_id = intval($_POST['item_id']);
+        $titulo = sanitizar_entrada($_POST['titulo']);
+        $descripcion = sanitizar_entrada($_POST['descripcion']);
+        $cantidad = intval($_POST['cantidad']);
+        $iva = sanitizar_entrada($_POST['IVA']);
+        $precio = floatval($_POST['precio']);
 
-    // Lógica de actualización de foto
-    // Por defecto, conservamos la ruta anterior (hidden input)
-    $ruta_final = $_POST['foto_actual']; 
+        // Validaciones
+        if (!in_array($iva, ['si', 'no'])) {
+            $mensaje_error = "Valor de IVA no válido";
+        } elseif ($cantidad <= 0 || $precio < 0) {
+            $mensaje_error = "Cantidad y precio deben ser valores válidos";
+        } else {
+            $ruta_final = $_POST['foto_actual'];
 
-    // Si el usuario subió una NUEVA foto
-    if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-        $foto_temp = $_FILES['foto']['tmp_name'];
-        $foto_nombre = basename($_FILES['foto']['name']);
-        $dir = '../uploads/';
-        
-        if (!is_dir($dir)) mkdir($dir, 0777, true);
+            // Procesar nueva foto si se subió
+            if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+                $validacion = validar_imagen($_FILES['foto']);
+                
+                if ($validacion['valido']) {
+                    $extension = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+                    $nombre_archivo = generar_nombre_archivo($extension);
+                    $dir = '../uploads/';
+                    
+                    if (!is_dir($dir)) mkdir($dir, 0755, true);
 
-        $nombre_final = time() . "_" . $foto_nombre;
-        $ruta_destino = $dir . $nombre_final;
+                    $ruta_destino = $dir . $nombre_archivo;
+                    if (move_uploaded_file($_FILES['foto']['tmp_name'], $ruta_destino)) {
+                        // Eliminar foto anterior
+                        if (!empty($_POST['foto_actual'])) {
+                            $ruta_anterior = '../uploads/' . $_POST['foto_actual'];
+                            if (file_exists($ruta_anterior)) {
+                                unlink($ruta_anterior);
+                            }
+                        }
+                        $ruta_final = $nombre_archivo;
+                    } else {
+                        $mensaje_error = "Error al subir el archivo";
+                    }
+                } else {
+                    $mensaje_error = $validacion['mensaje'];
+                }
+            } else {
+                // Mantener solo el nombre del archivo
+                $ruta_final = basename($_POST['foto_actual']);
+            }
 
-        if (move_uploaded_file($foto_temp, $ruta_destino)) {
-            $ruta_final = $nombre_final;
-            
-            // Opcional: Borrar la foto anterior para limpiar servidor
-            if (!empty($_POST['foto_actual']) && file_exists($_POST['foto_actual'])) {
-                unlink($_POST['foto_actual']);
+            if (empty($mensaje_error)) {
+                // Actualizar usando prepared statement
+                $stmt = mysqli_prepare($conexion, "UPDATE cotizacion_items SET titulo=?, foto=?, descripcion=?, cantidad=?, iva=?, precio=? WHERE id=? AND cotizacion_id=?");
+                mysqli_stmt_bind_param($stmt, "sssissii", $titulo, $ruta_final, $descripcion, $cantidad, $iva, $precio, $item_id, $cotizacion_id);
+
+                if (mysqli_stmt_execute($stmt)) {
+                    mysqli_stmt_close($stmt);
+                    header("Location: crear_cotizacion.php?updated=1");
+                    exit();
+                } else {
+                    $mensaje_error = "Error al actualizar el ítem";
+                }
+                mysqli_stmt_close($stmt);
             }
         }
     }
-
-    // Actualizar base de datos
-    $sql_update = "UPDATE cotizacion_items SET 
-                   titulo='$titulo', 
-                   foto='$ruta_final', 
-                   descripcion='$descripcion', 
-                   cantidad='$cantidad', 
-                   iva='$iva', 
-                   precio='$precio' 
-                   WHERE id='$item_id' AND cotizacion_id='$cotizacion_id'";
-
-    if (mysqli_query($conexion, $sql_update)) {
-        header("Location: crear_cotizacion.php?mensaje=editado");
-        exit();
-    } else {
-        $error = "Error al actualizar: " . mysqli_error($conexion);
-    }
 }
 
-// --- PARTE 2: OBTENER DATOS PARA MOSTRAR EN EL FORMULARIO (GET) ---
-if (isset($_GET['id'])) {
-    $item_id = $_GET['id'];
-    $sql_get = "SELECT * FROM cotizacion_items WHERE id = '$item_id' AND cotizacion_id = '$cotizacion_id'";
-    $query = mysqli_query($conexion, $sql_get);
-    $datos = mysqli_fetch_array($query);
-
-    if (!$datos) {
-        header("Location: crear_cotizacion.php"); // Si no existe el ID, volver
-        exit();
-    }
-} else {
-    header("Location: crear_cotizacion.php");
+// OBTENER DATOS PARA MOSTRAR EN EL FORMULARIO (GET)
+if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
+    header("Location: crear_cotizacion.php?error=invalid_id");
     exit();
 }
+
+$item_id = intval($_GET['id']);
+$stmt = mysqli_prepare($conexion, "SELECT * FROM cotizacion_items WHERE id = ? AND cotizacion_id = ?");
+mysqli_stmt_bind_param($stmt, "ii", $item_id, $cotizacion_id);
+mysqli_stmt_execute($stmt);
+$query = mysqli_stmt_get_result($stmt);
+$datos = mysqli_fetch_array($query);
+mysqli_stmt_close($stmt);
+
+if (!$datos) {
+    header("Location: crear_cotizacion.php?error=not_found");
+    exit();
+}
+
+$csrf_token = generar_token_csrf();
 ?>
 
 <!DOCTYPE html>
@@ -115,51 +144,59 @@ if (isset($_GET['id'])) {
             <h1>Editar Ítem</h1>
         </div>
 
+        <?php if ($mensaje_error != '') { ?>
+        <div class="error-box">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span><?php echo htmlspecialchars($mensaje_error); ?></span>
+        </div>
+        <?php } ?>
+
         <div class="formulario-contenedor">
             <form method="POST" enctype="multipart/form-data" class="formulario">
-                <input type="hidden" name="item_id" value="<?php echo $datos['id']; ?>">
-                <input type="hidden" name="foto_actual" value="<?php echo $datos['foto']; ?>">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                <input type="hidden" name="item_id" value="<?php echo intval($datos['id']); ?>">
+                <input type="hidden" name="foto_actual" value="<?php echo htmlspecialchars($datos['foto']); ?>">
 
                 <div class="grupo-campo">
                     <label>Nombre del Producto *</label>
-                    <input type="text" name="titulo" value="<?php echo $datos['titulo']; ?>" required>
+                    <input type="text" name="titulo" value="<?php echo htmlspecialchars($datos['titulo']); ?>" required maxlength="100">
                 </div>
 
                 <div class="grupo-campo">
                     <label>Foto Actual</label>
                     <?php if(!empty($datos['foto'])): ?>
                     <div style="margin-bottom: 10px;">
-                        <img src="../uploads/<?php echo $datos['foto']; ?>" width="100" style="border:1px solid #ccc;">
+                        <img src="../uploads/<?php echo htmlspecialchars($datos['foto']); ?>" width="100" style="border:1px solid #ccc; max-width: 200px;">
                     </div>
                     <?php else: ?>
                     <p>No hay foto asignada</p>
                     <?php endif; ?>
                     <label>Cambiar Foto (Opcional)</label>
-                    <input type="file" name="foto">
+                    <input type="file" name="foto" accept="image/jpeg,image/png,image/gif,image/webp">
+                    <small style="color: #666;">Formatos permitidos: JPG, PNG, GIF, WEBP. Tamaño máximo: 5MB</small>
                 </div>
 
                 <div class="grupo-campo">
                     <label>Descripción *</label>
-                    <textarea name="descripcion" required><?php echo $datos['descripcion']; ?></textarea>
+                    <textarea name="descripcion" required maxlength="1000"><?php echo htmlspecialchars($datos['descripcion']); ?></textarea>
                 </div>
 
                 <div class="grupo-campo">
                     <label>Cantidad *</label>
-                    <input type="number" name="cantidad" value="<?php echo $datos['cantidad']; ?>" required min="1">
+                    <input type="number" name="cantidad" value="<?php echo intval($datos['cantidad']); ?>" required min="1">
                 </div>
 
                 <div class="grupo-campo">
                     <label>Valor con IVA *</label>
                     <select name="IVA" required>
-                        <option value="si" <?php if($datos['iva']=='si' ) echo 'selected' ; ?>>Aplicar IVA</option>
-                        <option value="no" <?php if($datos['iva']=='no' ) echo 'selected' ; ?>>No Aplicar IVA</option>
+                        <option value="si" <?php if($datos['iva']=='si') echo 'selected'; ?>>Aplicar IVA</option>
+                        <option value="no" <?php if($datos['iva']=='no') echo 'selected'; ?>>No Aplicar IVA</option>
                     </select>
                 </div>
 
                 <div class="grupo-campo">
                     <label>Precio Unitario *</label>
-                    <input type="number" name="precio" value="<?php echo $datos['precio']; ?>" required min="0"
-                        step="0.01">
+                    <input type="number" name="precio" value="<?php echo floatval($datos['precio']); ?>" required min="0" step="0.01">
                 </div>
 
                 <div class="grupo-campo">

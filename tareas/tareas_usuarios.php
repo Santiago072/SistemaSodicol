@@ -1,32 +1,49 @@
 <?php 
-session_start();
-include '../config/conexion.php';
+require_once '../config/conexion.php';
+require_once '../config/seguridad.php';
+
+iniciar_sesion_segura();
+verificar_admin();
+
 $conexion = conexion();
 
-if(!isset($_SESSION['usuario_nombre']) || $_SESSION['rol'] != 'admin') {
-    header('Location: ../panel.php');
-    exit();
-}
-
-$sql = "SELECT * FROM usuarios WHERE estado = 'activo'";
+// Obtener usuarios activos usando prepared statement
+$sql = "SELECT * FROM usuarios WHERE estado = 'activo' ORDER BY nombre ASC";
 $query = mysqli_query($conexion, $sql);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $usuario_id = $_POST['usuario']; // Este es el ID que viene del select
-    $descripcion_tarea = $_POST['descripcion_tarea'];
-    $estado = $_POST['estado'];
-
-    // Usamos el nombre correcto de la columna: usuario_id
-    $sql = "INSERT INTO tareas (usuario_id, descripcion_tarea, estado) VALUES ('$usuario_id', '$descripcion_tarea', '$estado')";
+    // Verificar token CSRF
+    if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
+        header("Location: tareas_usuarios.php?error=csrf");
+        exit();
+    }
     
-    if(mysqli_query($conexion, $sql)) {
-        header("Location: tareas_usuarios.php?mensaje=guardado");
+    $usuario_id = intval($_POST['usuario']);
+    $descripcion_tarea = sanitizar_entrada($_POST['descripcion_tarea']);
+    $estado = sanitizar_entrada($_POST['estado']);
+
+    // Validaciones
+    if (!in_array($estado, ['pendiente', 'completo'])) {
+        header("Location: tareas_usuarios.php?error=estado");
+        exit();
+    }
+
+    // Insertar tarea usando prepared statement
+    $stmt = mysqli_prepare($conexion, "INSERT INTO tareas (usuario_id, descripcion_tarea, estado) VALUES (?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "iss", $usuario_id, $descripcion_tarea, $estado);
+    
+    if(mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        header("Location: tareas_usuarios.php?success=1");
         exit();
     } else {
-        echo "Error: " . mysqli_error($conexion);
+        mysqli_stmt_close($stmt);
+        header("Location: tareas_usuarios.php?error=insert");
+        exit();
     }
 }
 
+$csrf_token = generar_token_csrf();
 ?>
 
 <!DOCTYPE html>
@@ -68,18 +85,33 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <p class="login-sub">Asigna una instrucción de trabajo a un empleado.</p>
                     </div>
 
-                    <?php if(isset($_GET['mensaje']) && $_GET['mensaje'] == 'guardado'): ?>
+                    <?php if(isset($_GET['success'])): ?>
                     <div style="background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); 
                                 color: #86efac; padding: 12px 16px; border-radius: 12px; font-size: 13px;">
                         <i class="bi bi-check-circle"></i> Tarea creada correctamente.
                     </div>
                     <?php endif; ?>
+                    
+                    <?php if(isset($_GET['error'])): ?>
+                    <div class="error-box">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <?php 
+                        switch($_GET['error']) {
+                            case 'csrf': echo 'Token de seguridad inválido'; break;
+                            case 'estado': echo 'Estado no válido'; break;
+                            case 'insert': echo 'Error al crear la tarea'; break;
+                            default: echo 'Error al procesar la solicitud';
+                        }
+                        ?>
+                    </div>
+                    <?php endif; ?>
 
                     <form method="POST" class="formulario">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                        
                         <div class="grupo-campo">
                             <label><i class="bi bi-card-text"></i> Descripción de la Tarea</label>
-                            <textarea name="descripcion_tarea" rows="4" required 
-                                      placeholder="Describe la instrucción de trabajo..."></textarea>
+                            <textarea name="descripcion_tarea" rows="4" required maxlength="500" placeholder="Describe la instrucción de trabajo..."></textarea>
                         </div>
                         <div class="grupo-campo">
                             <label><i class="bi bi-person"></i> Asignar a Usuario</label>
@@ -153,11 +185,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <?php endif; ?>
                         </td>
                         <td class="acciones-tabla">
-                            <a href="editar_tarea.php?id=<?php echo $row['id']; ?>" class="boton-editar">
+                            <a href="editar_tarea.php?id=<?php echo intval($row['id']); ?>" class="boton-editar">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
-                            <a href="eliminar_tarea.php?id=<?php echo $row['id']; ?>" class="boton-eliminar"
-                                onclick="return confirm('¿Estás seguro de eliminar esta tarea?')">
+                            <a href="eliminar_tarea.php?id=<?php echo intval($row['id']); ?>" class="boton-eliminar"
+                                onclick="return confirm('¿Está seguro de eliminar esta tarea?')">
                                 <i class="bi bi-trash"></i>
                             </a>
                         </td>

@@ -1,6 +1,10 @@
 <?php
-session_start();
-include '../config/conexion.php';
+require_once '../config/conexion.php';
+require_once '../config/seguridad.php';
+
+iniciar_sesion_segura();
+verificar_autenticacion();
+
 $conexion = conexion();
 
 require_once '../dompdf/autoload.inc.php';
@@ -13,112 +17,98 @@ setlocale(LC_TIME, 'es_ES.UTF-8', 'Spanish_Spain.1252');
 $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
 
 // ============================================
-// MODO 1: VER/DESCARGAR COTIZACIÓN EXISTENTE (desde consultar_cotizacion.php)
+// MODO 1: VER/DESCARGAR COTIZACIÓN EXISTENTE
 // ============================================
 if (isset($_GET['ver']) || isset($_GET['descargar'])) {
-    $numero = $_GET['ver'] ?? $_GET['descargar'] ?? '';
+    $numero = sanitizar_entrada($_GET['ver'] ?? $_GET['descargar'] ?? '');
     
     if (empty($numero)) {
         die('Número de cotización no especificado');
     }
     
-    // Buscar cotización en BD
-    $sql = "SELECT * FROM cotizaciones WHERE numero_cotizacion = '$numero' LIMIT 1";
-    $result = mysqli_query($conexion, $sql);
+    // Buscar cotización con prepared statement
+    $stmt = mysqli_prepare($conexion, "SELECT * FROM cotizaciones WHERE numero_cotizacion = ? LIMIT 1");
+    mysqli_stmt_bind_param($stmt, "s", $numero);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
     $cotizacion = mysqli_fetch_assoc($result);
+    mysqli_stmt_close($stmt);
     
     if (!$cotizacion) {
         die('Cotización no encontrada: ' . htmlspecialchars($numero));
     }
     
-    // Usar datos de la cotización encontrada
-    $cotizacion_id = $cotizacion['id'];
+    $cotizacion_id    = intval($cotizacion['id']);
     $numero_cotizacion = $cotizacion['numero_cotizacion'];
-    $profesion = $cotizacion['profesion'];
-    $nombre_cliente = $cotizacion['nombre_cliente'];
-    $especialidad = $cotizacion['especialidad'];
-    $entidad = $cotizacion['entidad'];
-    $ciudad = $cotizacion['ciudad'];
-    $fecha = $cotizacion['fecha_creacion'];
+    $profesion        = $cotizacion['profesion'];
+    $nombre_cliente   = $cotizacion['nombre_cliente'];
+    $especialidad     = $cotizacion['especialidad'];
+    $entidad          = $cotizacion['entidad'];
+    $ciudad           = $cotizacion['ciudad'];
+    $fecha            = $cotizacion['fecha_creacion'];
     
-    // Formatear fecha larga
-    $fecha_obj = new DateTime($fecha);
+    $fecha_obj  = new DateTime($fecha);
     $fecha_larga = $fecha_obj->format('d') . " de " . $meses[$fecha_obj->format('n')-1] . " del " . $fecha_obj->format('Y');
     
-    // Obtener items de esta cotización
-    $sql_items = "SELECT * FROM cotizacion_items WHERE cotizacion_id = '$cotizacion_id' ORDER BY id ASC";
-    $query_items = mysqli_query($conexion, $sql_items);
+    // Obtener ítems con prepared statement
+    $stmt_items = mysqli_prepare($conexion, "SELECT * FROM cotizacion_items WHERE cotizacion_id = ? ORDER BY id ASC");
+    mysqli_stmt_bind_param($stmt_items, "i", $cotizacion_id);
+    mysqli_stmt_execute($stmt_items);
+    $query_items = mysqli_stmt_get_result($stmt_items);
     
-    // Verificar si hay items
     if (mysqli_num_rows($query_items) == 0) {
         die('La cotización no tiene ítems');
     }
     
-    // Generar PDF (código común al final del archivo)
     generarPDF($query_items, $numero_cotizacion, $profesion, $nombre_cliente, $especialidad, $entidad, $ciudad, $fecha_larga, isset($_GET['descargar']));
     exit();
 }
 
 // ============================================
-// MODO 2: GENERAR NUEVA COTIZACIÓN (desde crear_cotizacion.php)
+// MODO 2: GENERAR NUEVA COTIZACIÓN
 // ============================================
-
-// Verificar sesión solo para modo normal
-if(!isset($_SESSION['usuario_nombre'])) {
-    header('Location: index.php');
-    exit();
-}
-
 if (!isset($_SESSION['cotizacion_id'])) {
     die('No hay cotización activa.');
 }
-$cotizacion_id = $_SESSION['cotizacion_id'];
+$cotizacion_id = intval($_SESSION['cotizacion_id']);
 
-// 1. Obtenemos el prefijo del MES actual (AñoMes -> ej: 202512)
-$prefijo_mes = date('Ym'); 
-
-// 2. Contamos cuántas cotizaciones existen ya en ESTE MES
-$sql_conteo = "SELECT COUNT(*) as total FROM cotizaciones 
-               WHERE numero_cotizacion LIKE '$prefijo_mes%'";
-$res_conteo = mysqli_query($conexion, $sql_conteo);
+// Generar número de cotización único
+$prefijo_mes = date('Ym');
+$stmt_conteo = mysqli_prepare($conexion, "SELECT COUNT(*) as total FROM cotizaciones WHERE numero_cotizacion LIKE ?");
+$prefijo_like = $prefijo_mes . '%';
+mysqli_stmt_bind_param($stmt_conteo, "s", $prefijo_like);
+mysqli_stmt_execute($stmt_conteo);
+$res_conteo = mysqli_stmt_get_result($stmt_conteo);
 $fila_conteo = mysqli_fetch_assoc($res_conteo);
+mysqli_stmt_close($stmt_conteo);
 
-// 3. El consecutivo será el total encontrado + 1
 $consecutivo_mensual = $fila_conteo['total'] + 1;
+$numero_cotizacion   = date('Ymd') . str_pad($consecutivo_mensual, 2, '0', STR_PAD_LEFT);
 
-// 4. Generamos el número final:
-$numero_cotizacion = date('Ymd') . str_pad($consecutivo_mensual, 2, '0', STR_PAD_LEFT);
+// Sanitizar datos del formulario
+$profesion      = sanitizar_entrada($_POST['profesion'] ?? '');
+$nombre_cliente = sanitizar_entrada($_POST['nombre_cliente'] ?? '');
+$especialidad   = sanitizar_entrada($_POST['especialidad'] ?? '');
+$entidad        = sanitizar_entrada($_POST['entidad'] ?? '');
+$ciudad         = sanitizar_entrada($_POST['ciudad'] ?? '');
+$fecha          = sanitizar_entrada($_POST['fecha'] ?? '');
 
-// Recibimos datos del formulario
-$profesion      = $_POST['profesion'] ?? '';
-$nombre_cliente = $_POST['nombre_cliente'] ?? '';
-$especialidad   = $_POST['especialidad'] ?? '';
-$entidad        = $_POST['entidad'] ?? '';
-$ciudad         = $_POST['ciudad'] ?? '';
-$fecha          = $_POST['fecha'] ?? '';
+// Actualizar cotización con prepared statement
+$stmt_upd = mysqli_prepare($conexion, "UPDATE cotizaciones SET fecha_creacion=?, profesion=?, nombre_cliente=?, especialidad=?, entidad=?, ciudad=?, numero_cotizacion=? WHERE id=?");
+mysqli_stmt_bind_param($stmt_upd, "sssssssi", $fecha, $profesion, $nombre_cliente, $especialidad, $entidad, $ciudad, $numero_cotizacion, $cotizacion_id);
+mysqli_stmt_execute($stmt_upd);
+mysqli_stmt_close($stmt_upd);
 
-// Actualizar BD
-$sql_update = "UPDATE cotizaciones SET 
-                fecha_creacion='$fecha',
-                profesion='$profesion',
-                nombre_cliente='$nombre_cliente',
-                especialidad='$especialidad',
-                entidad='$entidad',
-                ciudad='$ciudad',
-                numero_cotizacion='$numero_cotizacion'
-               WHERE id='$cotizacion_id'";
-mysqli_query($conexion, $sql_update);
-
-// Obtener items
-$sql_items = "SELECT * FROM cotizacion_items WHERE cotizacion_id = '$cotizacion_id' ORDER BY id ASC";
-$query_items = mysqli_query($conexion, $sql_items);
+// Obtener ítems con prepared statement
+$stmt_items = mysqli_prepare($conexion, "SELECT * FROM cotizacion_items WHERE cotizacion_id = ? ORDER BY id ASC");
+mysqli_stmt_bind_param($stmt_items, "i", $cotizacion_id);
+mysqli_stmt_execute($stmt_items);
+$query_items = mysqli_stmt_get_result($stmt_items);
 
 $fecha_larga = date('d') . " de " . $meses[date('n')-1] . " del " . date('Y');
 
-// Generar PDF
 generarPDF($query_items, $numero_cotizacion, $profesion, $nombre_cliente, $especialidad, $entidad, $ciudad, $fecha_larga, true);
 
-// Limpiar sesión
 unset($_SESSION['cotizacion_id']);
 
 // ============================================

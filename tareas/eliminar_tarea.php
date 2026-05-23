@@ -1,20 +1,30 @@
 <?php
-session_start();
-include '../config/conexion.php';
+require_once '../config/conexion.php';
+require_once '../config/seguridad.php';
+
+iniciar_sesion_segura();
+verificar_admin();
+
 $conexion = conexion();
 
-// Validaciones de seguridad
-if (!isset($_SESSION['usuario_nombre']) || $_SESSION['rol'] != 'admin') {
-    header("Location: ../index.php");
+// Validar ID de tarea
+if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
+    header("Location: tareas_usuarios.php?error=invalid_id");
     exit();
 }
 
-$id_tarea = $_GET['id'];
+$id_tarea = intval($_GET['id']);
 
-/* Eliminar Usuario */
-$sql = "DELETE FROM tareas WHERE id = $id_tarea";
-mysqli_query($conexion, $sql);
+// Eliminar tarea usando prepared statement
+$stmt = mysqli_prepare($conexion, "DELETE FROM tareas WHERE id = ?");
+mysqli_stmt_bind_param($stmt, "i", $id_tarea);
 
-header("Location: tareas_usuarios.php");
+if (mysqli_stmt_execute($stmt)) {
+    mysqli_stmt_close($stmt);
+    header("Location: tareas_usuarios.php?deleted=1");
+} else {
+    mysqli_stmt_close($stmt);
+    header("Location: tareas_usuarios.php?error=delete_failed");
+}
 exit();
 ?>  

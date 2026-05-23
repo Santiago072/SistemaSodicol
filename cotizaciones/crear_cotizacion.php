@@ -1,131 +1,150 @@
 <?php
-session_start();
-include '../config/conexion.php';
+require_once '../config/conexion.php';
+require_once '../config/seguridad.php';
+
+iniciar_sesion_segura();
+verificar_autenticacion();
+
 $conexion = conexion();
+$usuario = $_SESSION['usuario_nombre'];
+$usuario_id = $_SESSION['usuario_id'];
 
-if (!isset($_SESSION['usuario_nombre'])) {
-    header("Location: index.php");
-    exit();
-}
-
+// Búsqueda de productos con prepared statement
 $busqueda = '';
-
 if (isset($_GET['busqueda']) && $_GET['busqueda'] !== '') {
-    $busqueda = $_GET['busqueda'];
-    $sql_prd = "SELECT * FROM productos WHERE titulo LIKE '%$busqueda%' ORDER BY titulo ASC";
+    $busqueda = sanitizar_entrada($_GET['busqueda']);
+    $busqueda_param = "%$busqueda%";
+    $stmt_prd = mysqli_prepare($conexion, "SELECT * FROM productos WHERE titulo LIKE ? ORDER BY titulo ASC");
+    mysqli_stmt_bind_param($stmt_prd, "s", $busqueda_param);
+    mysqli_stmt_execute($stmt_prd);
+    $query_prd = mysqli_stmt_get_result($stmt_prd);
 } else {
-    $sql_prd = "SELECT * FROM productos ORDER BY titulo ASC";
+    $query_prd = mysqli_query($conexion, "SELECT * FROM productos ORDER BY titulo ASC");
 }
 
-$query_prd = mysqli_query($conexion, $sql_prd);
-
+// Cargar producto seleccionado con prepared statement
 $producto = null;
-
-if (isset($_GET['producto_id']) && $_GET['producto_id'] != '') { // Si existe el producto_id en la URL se carga el producto
-    $id_producto = $_GET['producto_id'];
-
-    $sql_prod = "SELECT * FROM productos WHERE id = '$id_producto' LIMIT 1";
-    $result_prod = mysqli_query($conexion, $sql_prod);
-
+if (isset($_GET['producto_id']) && validar_numero($_GET['producto_id'])) {
+    $id_producto = intval($_GET['producto_id']);
+    $stmt_prod = mysqli_prepare($conexion, "SELECT * FROM productos WHERE id = ? LIMIT 1");
+    mysqli_stmt_bind_param($stmt_prod, "i", $id_producto);
+    mysqli_stmt_execute($stmt_prod);
+    $result_prod = mysqli_stmt_get_result($stmt_prod);
     if ($result_prod && mysqli_num_rows($result_prod) > 0) {
         $producto = mysqli_fetch_assoc($result_prod);
     }
+    mysqli_stmt_close($stmt_prod);
 }
 
-// Crear cotización si no existe y LÓGICA DE RECUPERACIÓN DE SESIÓN 
-if (!isset($_SESSION['cotizacion_id'])) { // El metodo isset sirve para verificar que cotización_id esté definida
-    $usuario = $_SESSION['usuario_nombre'];
-
-    // PASO 1: Buscar la última cotización QUE TENGA ÍTEMS Y QUE NO HAYA SIDO GENERADA AÚN, La clave es: AND c.numero_cotizacion IS NULL
-    $sql_recuperar = "SELECT c.id
-                      FROM cotizaciones c 
+// Lógica de recuperación de sesión de cotización
+if (!isset($_SESSION['cotizacion_id'])) {
+    // Buscar borrador con ítems sin generar
+    $stmt_rec = mysqli_prepare($conexion, "SELECT c.id FROM cotizaciones c 
                       INNER JOIN cotizacion_items i ON c.id = i.cotizacion_id 
-                      WHERE c.usuario_nombre = '$usuario' 
+                      WHERE c.usuario_nombre = ? 
                       AND (c.numero_cotizacion IS NULL OR c.numero_cotizacion = '')
-                      ORDER BY c.id DESC 
-                      LIMIT 1";
-    
-    $res_recuperar = mysqli_query($conexion, $sql_recuperar);
+                      ORDER BY c.id DESC LIMIT 1");
+    mysqli_stmt_bind_param($stmt_rec, "s", $usuario);
+    mysqli_stmt_execute($stmt_rec);
+    $res_rec = mysqli_stmt_get_result($stmt_rec);
+    mysqli_stmt_close($stmt_rec);
 
-    if ($fila = mysqli_fetch_assoc($res_recuperar)) {
-        // ENCONTRADO: Recuperamos el borrador pendiente
+    if ($fila = mysqli_fetch_assoc($res_rec)) {
         $_SESSION['cotizacion_id'] = $fila['id'];
     } else {
-        // PASO 2: Si no hay borradores con items, buscamos si hay una cabecera vacía sin generar
-        $sql_vacia = "SELECT id FROM cotizaciones 
-                      WHERE usuario_nombre = '$usuario' 
+        // Buscar cabecera vacía sin generar
+        $stmt_vacia = mysqli_prepare($conexion, "SELECT id FROM cotizaciones 
+                      WHERE usuario_nombre = ? 
                       AND (numero_cotizacion IS NULL OR numero_cotizacion = '')
-                      ORDER BY id DESC LIMIT 1";
-        $res_vacia = mysqli_query($conexion, $sql_vacia);
+                      ORDER BY id DESC LIMIT 1");
+        mysqli_stmt_bind_param($stmt_vacia, "s", $usuario);
+        mysqli_stmt_execute($stmt_vacia);
+        $res_vacia = mysqli_stmt_get_result($stmt_vacia);
+        mysqli_stmt_close($stmt_vacia);
 
         if ($fila_vacia = mysqli_fetch_assoc($res_vacia)) {
             $_SESSION['cotizacion_id'] = $fila_vacia['id'];
         } else {
-            // PASO 3: Si todo lo anterior está "cerrado" (ya tiene número de cotización), CREAMOS UNA NUEVA COTIZACIÓN (Esto hará que el ID aumente y la tabla empiece vacía)
-            // IMPORTANTE!!!
-            $sql_insert = "INSERT INTO cotizaciones (usuario_nombre) VALUES ('$usuario')"; // Se Ingresa el Nombre del que va a hacer la cotizacion en la tabla
-            mysqli_query($conexion, $sql_insert);
-            $_SESSION['cotizacion_id'] = mysqli_insert_id($conexion);
+            // Crear nueva cotización
+            $stmt_ins = mysqli_prepare($conexion, "INSERT INTO cotizaciones (usuario_nombre) VALUES (?)");
+            mysqli_stmt_bind_param($stmt_ins, "s", $usuario);
+            mysqli_stmt_execute($stmt_ins);
+            $_SESSION['cotizacion_id'] = mysqli_stmt_insert_id($stmt_ins);
+            mysqli_stmt_close($stmt_ins);
         }
     }
 }
-$cotizacion_id = $_SESSION['cotizacion_id'];
+$cotizacion_id = intval($_SESSION['cotizacion_id']);
 
 // Guardar ítem
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'guardar_item') {
-    $producto_id = $_POST['producto_id']; 
+    // Verificar token CSRF
+    if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
+        header("Location: crear_cotizacion.php?error=csrf");
+        exit();
+    }
 
-    $titulo = $_POST['titulo'];
-    $descripcion = $_POST['descripcion'];
-    $cantidad = $_POST['cantidad'];
-    $iva = $_POST['IVA'];
-    $precio = $_POST['precio'];
+    $producto_id = isset($_POST['producto_id']) && validar_numero($_POST['producto_id']) ? intval($_POST['producto_id']) : 0;
+    $titulo      = sanitizar_entrada($_POST['titulo']);
+    $descripcion = sanitizar_entrada($_POST['descripcion']);
+    $cantidad    = intval($_POST['cantidad']);
+    $iva         = sanitizar_entrada($_POST['IVA']);
+    $precio      = floatval($_POST['precio']);
+
+    if (!in_array($iva, ['si', 'no'])) {
+        header("Location: crear_cotizacion.php?error=iva");
+        exit();
+    }
 
     $foto = $_POST['foto_actual'] ?? '';
     if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-        $foto_temp = $_FILES['foto']['tmp_name'];
-        $foto_nombre = basename($_FILES['foto']['name']);
-
-        $dir = '../uploads/';
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true); 
+        $validacion = validar_imagen($_FILES['foto']);
+        if ($validacion['valido']) {
+            $extension   = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+            $nombre_final = generar_nombre_archivo($extension);
+            $dir = '../uploads/';
+            if (!is_dir($dir)) mkdir($dir, 0755, true);
+            if (move_uploaded_file($_FILES['foto']['tmp_name'], $dir . $nombre_final)) {
+                $foto = $nombre_final;
+            }
         }
+    } else {
+        $foto = basename($foto);
+    }
 
-        $nombre_final = time() . "_" . $foto_nombre;
-        $ruta_destino = $dir . $nombre_final;
+    // Insertar ítem con prepared statement
+    $stmt = mysqli_prepare($conexion, "INSERT INTO cotizacion_items (cotizacion_id, titulo, foto, descripcion, cantidad, iva, precio) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "isssisd", $cotizacion_id, $titulo, $foto, $descripcion, $cantidad, $iva, $precio);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
 
-        if (move_uploaded_file($foto_temp, $ruta_destino)) {
-            $foto = $nombre_final;
+    // Registrar en catálogo de productos si no existe
+    if ($producto_id == 0) {
+        $stmt_check = mysqli_prepare($conexion, "SELECT id FROM productos WHERE titulo = ? LIMIT 1");
+        mysqli_stmt_bind_param($stmt_check, "s", $titulo);
+        mysqli_stmt_execute($stmt_check);
+        $res_check = mysqli_stmt_get_result($stmt_check);
+        mysqli_stmt_close($stmt_check);
+
+        if (mysqli_num_rows($res_check) == 0) {
+            $stmt_ins_prod = mysqli_prepare($conexion, "INSERT INTO productos (titulo, foto, descripcion, cantidad, iva, precio) VALUES (?, ?, ?, ?, ?, ?)");
+            mysqli_stmt_bind_param($stmt_ins_prod, "sssisd", $titulo, $foto, $descripcion, $cantidad, $iva, $precio);
+            mysqli_stmt_execute($stmt_ins_prod);
+            mysqli_stmt_close($stmt_ins_prod);
         }
     }
 
-    $sql = "INSERT INTO cotizacion_items 
-            (cotizacion_id, titulo ,foto ,descripcion, cantidad, iva, precio) 
-            VALUES 
-            ('$cotizacion_id', '$titulo'  ,'$foto','$descripcion', '$cantidad', '$iva', '$precio')";
-    mysqli_query($conexion, $sql);
-
-    // Validar si existe el producto en la base de datos
-    if ($producto_id == '') {
-    $sql_productos = "SELECT id FROM productos WHERE titulo = '$titulo' LIMIT 1"; // esto es para evitar duplicados
-    $result_productos = mysqli_query($conexion, $sql_productos);
-
-    if (mysqli_num_rows($result_productos) == 0) { // esto significa que el producto no existe
-        $sql_productos = "INSERT INTO productos
-            (titulo, foto, descripcion, cantidad, iva, precio)
-            VALUES
-            ('$titulo','$foto','$descripcion','$cantidad','$iva','$precio')";
-        mysqli_query($conexion, $sql_productos);
-        }
-    }
-    
-    header("Location: crear_cotizacion.php"); 
+    header("Location: crear_cotizacion.php");
     exit();
 }
 
 // Obtener ítems de la cotización actual
-$sql_items = "SELECT * FROM cotizacion_items WHERE cotizacion_id = '$cotizacion_id' ORDER BY id ASC";
-$query_items = mysqli_query($conexion, $sql_items);
+$stmt_items = mysqli_prepare($conexion, "SELECT * FROM cotizacion_items WHERE cotizacion_id = ? ORDER BY id ASC");
+mysqli_stmt_bind_param($stmt_items, "i", $cotizacion_id);
+mysqli_stmt_execute($stmt_items);
+$query_items = mysqli_stmt_get_result($stmt_items);
+
+$csrf_token = generar_token_csrf();
 ?>
 
 <!DOCTYPE html>
@@ -168,7 +187,7 @@ $query_items = mysqli_query($conexion, $sql_items);
 
         <div class="barra-busqueda">
             <form action="crear_cotizacion.php" method="GET" class="formulario-busqueda">
-                <input type="text" name="busqueda" value="<?php echo $busqueda ?>" placeholder="Buscar producto...">
+                <input type="text" name="busqueda" value="<?php echo htmlspecialchars($busqueda) ?>" placeholder="Buscar producto...">
                 <button type="submit" class="boton-primario">Buscar</button>
                 <?php if($busqueda != ''): ?>
                 <a href="crear_cotizacion.php" class="boton-limpiar">Limpiar</a>
@@ -178,19 +197,15 @@ $query_items = mysqli_query($conexion, $sql_items);
 
         <div class="seleccion-producto">
             <form method="GET" action="crear_cotizacion.php" class="formulario">
-                <input type="hidden" name="busqueda" value="<?php echo $busqueda ?>">
-                <!-- Esto es para que el buscador funcione -->
+                <input type="hidden" name="busqueda" value="<?php echo htmlspecialchars($busqueda) ?>">
                 <select name="producto_id" class="producto-existente" required>
                     <option value="">Seleccione un producto</option>
                     <?php while ($prd = mysqli_fetch_assoc($query_prd)): ?>
-                    <!-- Esto es para mostrar los productos que hay en la base de datos -->
-                    <option value="<?php echo $prd['id']; ?>" <?php if (isset($_GET['producto_id']) &&
-                        $_GET['producto_id']==$prd['id']) echo 'selected' ; ?>> <!-- -->
-                        <?php echo $prd['titulo']; ?>
+                    <option value="<?php echo intval($prd['id']); ?>" <?php if (isset($_GET['producto_id']) && $_GET['producto_id']==$prd['id']) echo 'selected'; ?>>
+                        <?php echo htmlspecialchars($prd['titulo']); ?>
                     </option>
                     <?php endwhile; ?>
                 </select>
-
                 <button type="submit" class="boton-primario">Usar producto</button>
                 <a href="crear_cotizacion.php" class="boton-limpiar">Limpiar</a>
             </form>
@@ -199,50 +214,49 @@ $query_items = mysqli_query($conexion, $sql_items);
         <div class="formulario-contenedor formulario-cotizacion">
             <form method="POST" enctype="multipart/form-data" class="formulario">
                 <input type="hidden" name="action" value="guardar_item">
-                <input type="hidden" name="producto_id" value="<?php echo $producto['id'] ?? '' ?>">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                <input type="hidden" name="producto_id" value="<?php echo intval($producto['id'] ?? 0) ?>">
 
                 <div class="grupo-campo">
                     <label>Nombre del Producto *</label>
-                    <input type="text" name="titulo" value="<?php echo $producto['titulo'] ?? '' ?>" required>
+                    <input type="text" name="titulo" value="<?php echo htmlspecialchars($producto['titulo'] ?? '') ?>" required maxlength="100">
                 </div>
 
                 <div class="grupo-campo">
-                    <input type="hidden" name="foto_actual" value="<?php echo $producto['foto'] ?? '' ?>">
+                    <input type="hidden" name="foto_actual" value="<?php echo htmlspecialchars($producto['foto'] ?? '') ?>">
                     <label>Foto del Producto</label>
-                    <input type="file" name="foto">
+                    <input type="file" name="foto" accept="image/jpeg,image/png,image/gif,image/webp">
+                    <small style="color: #666;">Formatos: JPG, PNG, GIF, WEBP. Máx: 5MB</small>
                     <?php if(!empty($producto['foto'])): ?>
                     <div class="grupo-campo">
                         <label>Imagen actual</label><br>
-                        <img src="../uploads/<?php echo $producto['foto']; ?>" width="150">
+                        <img src="../uploads/<?php echo htmlspecialchars($producto['foto']); ?>" width="150" style="max-width:200px;">
                     </div>
                     <?php endif; ?>
                 </div>
 
                 <div class="grupo-campo">
                     <label>Descripción *</label>
-                    <textarea name="descripcion" required><?php echo $producto['descripcion'] ?? '' ?></textarea>
+                    <textarea name="descripcion" required maxlength="1000"><?php echo htmlspecialchars($producto['descripcion'] ?? '') ?></textarea>
                 </div>
 
                 <div class="grupo-campo">
                     <label>Cantidad *</label>
-                    <input type="number" name="cantidad" value="<?php echo $producto['cantidad'] ?? 0 ?>" required>
+                    <input type="number" name="cantidad" value="<?php echo intval($producto['cantidad'] ?? 0) ?>" required min="1">
                 </div>
 
                 <div class="grupo-campo">
                     <label>Valor con IVA *</label>
                     <select name="IVA" required>
                         <option value="">Seleccione una Opción</option>
-                        <option value="si" <?php if (($producto['iva'] ?? '' )=='si' ) echo 'selected' ; ?>>Aplicar IVA
-                        </option>
-                        <option value="no" <?php if (($producto['iva'] ?? '' )=='no' ) echo 'selected' ; ?>>No Aplicar
-                            IVA</option>
+                        <option value="si" <?php if (($producto['iva'] ?? '') == 'si') echo 'selected'; ?>>Aplicar IVA</option>
+                        <option value="no" <?php if (($producto['iva'] ?? '') == 'no') echo 'selected'; ?>>No Aplicar IVA</option>
                     </select>
-
                 </div>
 
                 <div class="grupo-campo">
                     <label>Precio Unitario *</label>
-                    <input type="number" name="precio" value="<?php echo $producto['precio'] ?? '' ?>" required>
+                    <input type="number" name="precio" value="<?php echo floatval($producto['precio'] ?? 0) ?>" required min="0" step="0.01">
                 </div>
 
                 <div class="grupo-campo">
@@ -266,23 +280,15 @@ $query_items = mysqli_query($conexion, $sql_items);
                 <tbody>
                     <?php while ($item = mysqli_fetch_array($query_items)): ?>
                     <tr>
-                        <td>
-                            <?php echo $item['titulo']; ?>
-                        </td>
-                        <td>
-                            <?php echo $item['cantidad']; ?>
-                        </td>
-                        <td>
-                            <?php echo $item['iva'] === 'si' ? 'Sí' : 'No'; ?>
-                        </td>
-                        <td>
-                            <?php echo number_format($item['precio'], 0, '', '.'); ?>
-                        </td>
+                        <td><?php echo htmlspecialchars($item['titulo']); ?></td>
+                        <td><?php echo intval($item['cantidad']); ?></td>
+                        <td><?php echo $item['iva'] === 'si' ? 'Sí' : 'No'; ?></td>
+                        <td><?php echo number_format($item['precio'], 0, '', '.'); ?></td>
                         <td class="acciones-tabla">
-                            <a href="editar_cotizacion.php?id=<?php echo $item['id']; ?>" class="boton-editar">
+                            <a href="editar_cotizacion.php?id=<?php echo intval($item['id']); ?>" class="boton-editar">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <a href="eliminar_cotizacion.php?id=<?php echo $item['id']; ?>" class="boton-eliminar"
+                            <a href="eliminar_cotizacion.php?id=<?php echo intval($item['id']); ?>" class="boton-eliminar"
                                 onclick="return confirm('¿Eliminar este ítem?')">
                                 <i class="fas fa-trash"></i>
                             </a>

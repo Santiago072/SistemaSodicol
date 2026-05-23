@@ -1,45 +1,69 @@
 <?php
-session_start();
-if(!isset($_SESSION['usuario_nombre'])) {
-    header('Location: index.php');
-    exit();
-}
-include '../config/conexion.php';
+require_once '../config/conexion.php';
+require_once '../config/seguridad.php';
+
+iniciar_sesion_segura();
+verificar_autenticacion();
+
 $conexion = conexion();
 
 $query = null;
 $busqueda_fecha = '';
 $busqueda_cliente = '';
 $busqueda_numero = '';
+$mensaje_error = '';
 
 /* Buscar cotización por múltiples criterios */
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $condiciones = [];
-    
-    if (!empty($_POST['fecha'])) {
-        $fecha = $_POST['fecha'];
-        $busqueda_fecha = $fecha;
-        $condiciones[] = "fecha_creacion = '$fecha'";
-    }
-    
-    if (!empty($_POST['nombre_cliente'])) {
-        $cliente = $_POST['nombre_cliente'];
-        $busqueda_cliente = $cliente;
-        $condiciones[] = "nombre_cliente LIKE '%$cliente%'";
-    }
-    
-    if (!empty($_POST['numero_cotizacion'])) {
-        $numero = $_POST['numero_cotizacion'];
-        $busqueda_numero = $numero;
-        $condiciones[] = "numero_cotizacion LIKE '%$numero%'";
-    }
-    
-    if (count($condiciones) > 0) {
-        $where = implode(' AND ', $condiciones);
-        $sql = "SELECT * FROM cotizaciones WHERE $where ORDER BY id DESC";
-        $query = mysqli_query($conexion, $sql);
+    // Verificar token CSRF
+    if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
+        $mensaje_error = "Token de seguridad inválido";
+    } else {
+        $condiciones = [];
+        $params = [];
+        $types = '';
+        
+        if (!empty($_POST['fecha'])) {
+            $fecha = sanitizar_entrada($_POST['fecha']);
+            $busqueda_fecha = $fecha;
+            $condiciones[] = "fecha_creacion = ?";
+            $params[] = $fecha;
+            $types .= 's';
+        }
+        
+        if (!empty($_POST['nombre_cliente'])) {
+            $cliente = sanitizar_entrada($_POST['nombre_cliente']);
+            $busqueda_cliente = $cliente;
+            $condiciones[] = "nombre_cliente LIKE ?";
+            $params[] = "%$cliente%";
+            $types .= 's';
+        }
+        
+        if (!empty($_POST['numero_cotizacion'])) {
+            $numero = sanitizar_entrada($_POST['numero_cotizacion']);
+            $busqueda_numero = $numero;
+            $condiciones[] = "numero_cotizacion LIKE ?";
+            $params[] = "%$numero%";
+            $types .= 's';
+        }
+        
+        if (count($condiciones) > 0) {
+            $where = implode(' AND ', $condiciones);
+            $sql = "SELECT * FROM cotizaciones WHERE $where ORDER BY id DESC";
+            $stmt = mysqli_prepare($conexion, $sql);
+            
+            if ($stmt) {
+                mysqli_stmt_bind_param($stmt, $types, ...$params);
+                mysqli_stmt_execute($stmt);
+                $query = mysqli_stmt_get_result($stmt);
+            } else {
+                $mensaje_error = "Error en la búsqueda";
+            }
+        }
     }
 }
+
+$csrf_token = generar_token_csrf();
 ?>
 
 <!DOCTYPE html>
@@ -80,12 +104,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <h1>Consultar Cotización</h1>
         </div>
 
+        <?php if ($mensaje_error != '') { ?>
+        <div class="error-box">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span><?php echo htmlspecialchars($mensaje_error); ?></span>
+        </div>
+        <?php } ?>
+
         <!-- Formulario de búsqueda múltiple -->
         <div class="barra-busqueda">
             <form method="POST" action="consultar_cotizacion.php" class="formulario-busqueda">
-                <input type="date" name="fecha" value="<?php echo $busqueda_fecha; ?>" placeholder="Buscar por fecha...">
-                <input type="text" name="nombre_cliente" value="<?php echo htmlspecialchars($busqueda_cliente); ?>" placeholder="Buscar por cliente...">
-                <input type="text" name="numero_cotizacion" value="<?php echo htmlspecialchars($busqueda_numero); ?>" placeholder="Número cotización...">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                <input type="date" name="fecha" value="<?php echo htmlspecialchars($busqueda_fecha); ?>" placeholder="Buscar por fecha...">
+                <input type="text" name="nombre_cliente" value="<?php echo htmlspecialchars($busqueda_cliente); ?>" placeholder="Buscar por cliente..." maxlength="255">
+                <input type="text" name="numero_cotizacion" value="<?php echo htmlspecialchars($busqueda_numero); ?>" placeholder="Número cotización..." maxlength="50">
                 <button type="submit" class="boton-primario">
                     <i class="bi bi-search"></i> Buscar
                 </button>
@@ -113,15 +145,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <?php if ($query && mysqli_num_rows($query) > 0): ?>
                     <?php while ($cotizacion = mysqli_fetch_array($query)): ?>
                     <tr>
-                        <td><?php echo $cotizacion['numero_cotizacion'] ?: 'Sin número'; ?></td>
-                        <td><?php echo $cotizacion['fecha_creacion']; ?></td>
-                        <td><?php echo $cotizacion['nombre_cliente']; ?></td>
-                        <td><?php echo $cotizacion['entidad']; ?></td>
-                        <td><?php echo $cotizacion['ciudad']; ?></td>
+                        <td><?php echo htmlspecialchars($cotizacion['numero_cotizacion'] ?: 'Sin número'); ?></td>
+                        <td><?php echo htmlspecialchars($cotizacion['fecha_creacion']); ?></td>
+                        <td><?php echo htmlspecialchars($cotizacion['nombre_cliente']); ?></td>
+                        <td><?php echo htmlspecialchars($cotizacion['entidad']); ?></td>
+                        <td><?php echo htmlspecialchars($cotizacion['ciudad']); ?></td>
                         <td class="acciones-tabla">
                             <?php if (!empty($cotizacion['numero_cotizacion'])): ?>
                             <button type="button" class="btn-ver-pdf"
-                                onclick="verPDF('<?php echo $cotizacion['numero_cotizacion']; ?>', '<?php echo htmlspecialchars($cotizacion['nombre_cliente']); ?>')">
+                                onclick="verPDF('<?php echo htmlspecialchars($cotizacion['numero_cotizacion']); ?>', '<?php echo htmlspecialchars($cotizacion['nombre_cliente']); ?>')">
                                 <i class="bi bi-eye"></i> Ver
                             </button>
                             <?php else: ?>
@@ -129,7 +161,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <?php endif; ?>
                         </td>
                     </tr>
-                    <?php endwhile; ?>
+                    <?php endwhile; 
+                    if (isset($stmt)) mysqli_stmt_close($stmt); ?>
                     <?php elseif ($query && mysqli_num_rows($query) == 0): ?>
                     <tr>
                         <td colspan="6" class="tabla-mensaje-vacio">
