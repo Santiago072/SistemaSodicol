@@ -1,20 +1,21 @@
 <?php
-session_start();
-if(!isset($_SESSION['usuario_nombre'])) {
-    header('Location: index.php');
-    exit();
-}
+require_once 'config/conexion.php';
+require_once 'config/seguridad.php';
 
-include 'config/conexion.php';
+iniciar_sesion_segura();
+verificar_autenticacion();
+
 $conexion = conexion();
-$usuario_nombre = $_SESSION['usuario_nombre']; // Guardar en variable diferente para no sobrescribir
+$usuario_nombre = $_SESSION['usuario_nombre'];
+$usuario_id = $_SESSION['usuario_id'];
 
-// Obtener datos del usuario logueado
-$sql_usuario = "SELECT * FROM usuarios WHERE nombre = '$usuario_nombre'";
-$result_usuario = mysqli_query($conexion, $sql_usuario);
+// Obtener datos del usuario logueado usando prepared statement
+$stmt = mysqli_prepare($conexion, "SELECT * FROM usuarios WHERE id = ?");
+mysqli_stmt_bind_param($stmt, "i", $usuario_id);
+mysqli_stmt_execute($stmt);
+$result_usuario = mysqli_stmt_get_result($stmt);
 $usuario = mysqli_fetch_assoc($result_usuario);
-
-$id_actual = $usuario['id'];
+mysqli_stmt_close($stmt);
 
 // Conteo de administradores
 $sql_administradores = "SELECT COUNT(*) AS total_administradores FROM usuarios WHERE rol = 'admin'";
@@ -26,22 +27,19 @@ $sql_usuarios = "SELECT COUNT(*) AS total_usuarios FROM usuarios WHERE rol = 'us
 $result_usuarios = mysqli_query($conexion, $sql_usuarios);
 $sql_total_usuarios = mysqli_fetch_assoc($result_usuarios)['total_usuarios'];
 
-// CONTEO CORREGIDO DE COTIZACIONES CON FILTRO
-// Solo contar cotizaciones que:
-// 1. Tienen número de cotización generado (no NULL ni vacío)
-// 2. Tienen nombre de cliente asignado (no NULL ni vacío)
-// 3. Fueron creadas por el usuario logueado (opcional, quitar si quieres ver todas)
-
-$sql_cotizaciones = "SELECT COUNT(*) AS total_cotizaciones 
+// Conteo de cotizaciones del usuario logueado usando prepared statement
+$stmt = mysqli_prepare($conexion, "SELECT COUNT(*) AS total_cotizaciones 
                      FROM cotizaciones 
                      WHERE numero_cotizacion IS NOT NULL 
                      AND numero_cotizacion != '' 
                      AND nombre_cliente IS NOT NULL 
                      AND nombre_cliente != ''
-                     AND usuario_nombre = '$usuario_nombre'"; // Filtrar por usuario logueado
-
-$result_cotizaciones = mysqli_query($conexion, $sql_cotizaciones);
+                     AND usuario_nombre = ?");
+mysqli_stmt_bind_param($stmt, "s", $usuario_nombre);
+mysqli_stmt_execute($stmt);
+$result_cotizaciones = mysqli_stmt_get_result($stmt);
 $sql_total_cotizaciones = mysqli_fetch_assoc($result_cotizaciones)['total_cotizaciones'];
+mysqli_stmt_close($stmt);
 
 $base_path = '/PROYECTO_SODICOL/';
 ?>
@@ -137,14 +135,23 @@ $base_path = '/PROYECTO_SODICOL/';
                         </div>
 
                         <?php
+                        // Completar tarea con validación
                         if(isset($_GET['completar_id'])) {
-                            $id_tarea = mysqli_real_escape_string($conexion, $_GET['completar_id']);
-                            mysqli_query($conexion, "UPDATE tareas SET estado = 'completo' WHERE id = '$id_tarea' AND usuario_id = '$id_actual'");
-                            echo "<script>window.location='panel.php';</script>";
+                            if (validar_numero($_GET['completar_id'])) {
+                                $id_tarea = intval($_GET['completar_id']);
+                                $stmt = mysqli_prepare($conexion, "UPDATE tareas SET estado = 'completo' WHERE id = ? AND usuario_id = ?");
+                                mysqli_stmt_bind_param($stmt, "ii", $id_tarea, $usuario_id);
+                                mysqli_stmt_execute($stmt);
+                                mysqli_stmt_close($stmt);
+                                echo "<script>window.location='panel.php';</script>";
+                            }
                         }
 
-                        $sql_pendientes = "SELECT * FROM tareas WHERE usuario_id = '$id_actual' AND estado = 'pendiente'";
-                        $resultado_tareas = mysqli_query($conexion, $sql_pendientes);
+                        // Obtener tareas pendientes usando prepared statement
+                        $stmt = mysqli_prepare($conexion, "SELECT * FROM tareas WHERE usuario_id = ? AND estado = 'pendiente'");
+                        mysqli_stmt_bind_param($stmt, "i", $usuario_id);
+                        mysqli_stmt_execute($stmt);
+                        $resultado_tareas = mysqli_stmt_get_result($stmt);
 
                         if(mysqli_num_rows($resultado_tareas) > 0): ?>
                             <div class="servicios-grid">
@@ -161,7 +168,8 @@ $base_path = '/PROYECTO_SODICOL/';
                                         <i class="bi bi-check2-all"></i> Completo
                                     </a>
                                 </div>
-                                <?php endwhile; ?>
+                                <?php endwhile; 
+                                mysqli_stmt_close($stmt); ?>
                             </div>
                         <?php else: ?>
                             <div class="tareas-vacias">

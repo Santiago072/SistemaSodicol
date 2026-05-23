@@ -1,33 +1,62 @@
 <?php
-session_start();
-include 'config/conexion.php';
+require_once 'config/conexion.php';
+require_once 'config/seguridad.php';
+
+iniciar_sesion_segura();
 $conexion = conexion();
 
 // INICIALIZAR VARIABLE para evitar error
 $mensaje_error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $correo = trim($_POST['correo']);
-    $contrasena = trim($_POST['contrasena']);
-
-    if ($correo != '' && $contrasena != '') {
-        $sql = "SELECT * FROM usuarios WHERE correo = '$correo' AND estado = 'activo'";
-        $query = mysqli_query($conexion, $sql);
-        $usuario = mysqli_fetch_assoc($query);
-
-        if ($usuario && $usuario['documento'] == $contrasena) {
-            $_SESSION['usuario_id'] = $usuario['id'];
-            $_SESSION['usuario_nombre'] = $usuario['nombre'];
-            $_SESSION['rol'] = $usuario['rol'];
-            sleep(1);
-            header('Location: panel.php');
-            exit();
-        } else {
-            $mensaje_error = 'Correo o Contraseña Incorrectos o Usuario Inactivo';
-        }
+    // Verificar token CSRF
+    if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
+        $mensaje_error = 'Token de seguridad inválido. Por favor intente nuevamente.';
     } else {
-        $mensaje_error = 'Por favor complete todos los campos';
+        $correo = sanitizar_entrada($_POST['correo']);
+        $contrasena = $_POST['contrasena']; // No sanitizar la contraseña
+
+        if ($correo != '' && $contrasena != '') {
+            // Usar prepared statement para prevenir SQL injection
+            $stmt = mysqli_prepare($conexion, "SELECT id, nombre, correo, password, rol FROM usuarios WHERE correo = ? AND estado = 'activo'");
+            mysqli_stmt_bind_param($stmt, "s", $correo);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
+            $usuario = mysqli_fetch_assoc($result);
+            mysqli_stmt_close($stmt);
+
+            if ($usuario) {
+                // Verificar contraseña hasheada
+                if (password_verify($contrasena, $usuario['password'])) {
+                    // Regenerar ID de sesión para prevenir session fixation
+                    regenerar_sesion();
+                    
+                    $_SESSION['usuario_id'] = $usuario['id'];
+                    $_SESSION['usuario_nombre'] = $usuario['nombre'];
+                    $_SESSION['rol'] = $usuario['rol'];
+                    $_SESSION['LAST_ACTIVITY'] = time();
+                    
+                    sleep(1);
+                    header('Location: panel.php');
+                    exit();
+                } else {
+                    $mensaje_error = 'Correo o Contraseña Incorrectos';
+                }
+            } else {
+                $mensaje_error = 'Correo o Contraseña Incorrectos o Usuario Inactivo';
+            }
+        } else {
+            $mensaje_error = 'Por favor complete todos los campos';
+        }
     }
+}
+
+// Generar token CSRF para el formulario
+$csrf_token = generar_token_csrf();
+
+// Verificar si hay timeout
+if (isset($_GET['timeout'])) {
+    $mensaje_error = 'Su sesión ha expirado por inactividad. Por favor inicie sesión nuevamente.';
 }
 ?>
 <!DOCTYPE html>
@@ -145,6 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <div class="form-body">
                 <form action="index.php" method="POST" id="loginForm">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
 
                     <div class="fgroup">
                         <label for="correo"><i class="bi bi-person-fill"></i> Usuario</label>

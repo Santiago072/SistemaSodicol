@@ -1,24 +1,42 @@
 <?php
-session_start();
-// Verificar si el usuario tiene rol de administrador
-if(!isset($_SESSION['usuario_nombre']) || $_SESSION['rol'] != 'admin') {
-    header('Location: ../panel.php');
-    exit();
-}
-$base_path = '/PROYECTO_SODICOL/';
+require_once '../config/conexion.php';
+require_once '../config/seguridad.php';
 
-include '../config/conexion.php';
+iniciar_sesion_segura();
+verificar_admin();
+
+$base_path = '/PROYECTO_SODICOL/';
 $conexion = conexion();
 
 $busqueda = "";
-$condicion = "";
-if(isset($_GET['busqueda']) && $_GET['busqueda'] != "") {
-    $busqueda = $_GET['busqueda'];
-    $condicion .= "WHERE (u.nombre LIKE '%$busqueda%')";
+$mensaje_exito = "";
+$mensaje_error = "";
+
+// Mensajes de feedback
+if (isset($_GET['success'])) $mensaje_exito = "Usuario creado exitosamente";
+if (isset($_GET['updated'])) $mensaje_exito = "Usuario actualizado exitosamente";
+if (isset($_GET['deleted'])) $mensaje_exito = "Usuario eliminado exitosamente";
+if (isset($_GET['error'])) {
+    switch ($_GET['error']) {
+        case 'last_admin': $mensaje_error = "No se puede eliminar el último administrador"; break;
+        case 'self_delete': $mensaje_error = "No puede eliminarse a sí mismo"; break;
+        case 'delete_failed': $mensaje_error = "Error al eliminar el usuario"; break;
+        case 'invalid_id': $mensaje_error = "ID de usuario inválido"; break;
+    }
 }
 
-$sql = "SELECT * FROM usuarios u $condicion ORDER BY nombre";
-$query = mysqli_query($conexion, $sql);
+// Búsqueda con prepared statement
+if(isset($_GET['busqueda']) && $_GET['busqueda'] != "") {
+    $busqueda = sanitizar_entrada($_GET['busqueda']);
+    $busqueda_param = "%$busqueda%";
+    $stmt = mysqli_prepare($conexion, "SELECT * FROM usuarios WHERE nombre LIKE ? ORDER BY nombre");
+    mysqli_stmt_bind_param($stmt, "s", $busqueda_param);
+    mysqli_stmt_execute($stmt);
+    $query = mysqli_stmt_get_result($stmt);
+} else {
+    $sql = "SELECT * FROM usuarios ORDER BY nombre";
+    $query = mysqli_query($conexion, $sql);
+}
 
 ?>
 
@@ -56,6 +74,21 @@ $query = mysqli_query($conexion, $sql);
         <div class="encabezado-pagina">
             <h1>Gestión Usuarios</h1>
         </div>
+        
+        <?php if ($mensaje_exito != '') { ?>
+        <div class="success-box" style="background: #d4edda; color: #155724; padding: 15px; margin: 15px 0; border-radius: 8px; border: 1px solid #c3e6cb;">
+            <i class="fas fa-check-circle"></i>
+            <span><?php echo htmlspecialchars($mensaje_exito); ?></span>
+        </div>
+        <?php } ?>
+        
+        <?php if ($mensaje_error != '') { ?>
+        <div class="error-box">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span><?php echo htmlspecialchars($mensaje_error); ?></span>
+        </div>
+        <?php } ?>
+        
         <div class="barra-busqueda">
             <form action="lista_usuarios.php" method="GET" class="formulario-busqueda">
                 <input type="text" name="busqueda" value="<?php echo $busqueda; ?>" placeholder="Buscar usuario...">
@@ -80,22 +113,24 @@ $query = mysqli_query($conexion, $sql);
                     <?php while($usuario = mysqli_fetch_array($query)): ?>
                     <tr>
                         <td>
-                            <?php echo $usuario['nombre'] ?>
+                            <?php echo htmlspecialchars($usuario['nombre']) ?>
                         </td>
                         <td>
-                            <?php echo $usuario['rol'] ?>
+                            <?php echo htmlspecialchars($usuario['rol']) ?>
                         </td>
                         <td>
-                            <?php echo $usuario['estado'] ?>
+                            <?php echo htmlspecialchars($usuario['estado']) ?>
                         </td>
                         <td class="acciones-tabla">
-                            <a href="editar_usuario.php?id=<?php echo $usuario['id'] ?>" class="boton-editar"> <i
+                            <a href="editar_usuario.php?id=<?php echo intval($usuario['id']) ?>" class="boton-editar"> <i
                                     class="fas fa-edit"></i></a>
-                            <a href="eliminar_usuario.php?id=<?php echo $usuario['id'] ?>" class="boton-eliminar"> <i
+                            <a href="eliminar_usuario.php?id=<?php echo intval($usuario['id']) ?>" class="boton-eliminar" 
+                               onclick="return confirm('¿Está seguro de eliminar este usuario?');"> <i
                                     class="fas fa-trash"></i></a>
                         </td>
                     </tr>
-                    <?php endwhile; ?>
+                    <?php endwhile; 
+                    if (isset($stmt)) mysqli_stmt_close($stmt); ?>
                 </tbody>
             </table>
 

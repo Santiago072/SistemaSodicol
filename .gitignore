@@ -2,4 +2,5 @@ dompdf/vendor/
 vendor/
 node_modules/
 .env
+config/.env
 uploads/

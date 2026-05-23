@@ -1,50 +1,78 @@
 <?php
-session_start();
-include '../config/conexion.php';
-$conexion = conexion();
+require_once '../config/conexion.php';
+require_once '../config/seguridad.php';
 
-// Validaciones de seguridad
-if (!isset($_SESSION['usuario_nombre']) || $_SESSION['rol'] != 'admin') {
-    header("Location: ../index.php");
+iniciar_sesion_segura();
+verificar_admin();
+
+$conexion = conexion();
+$mensaje_error = '';
+
+// Validar ID de usuario
+if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
+    header("Location: lista_usuarios.php");
     exit();
 }
 
-$id_usuario = $_GET['id'];
+$id_usuario = intval($_GET['id']);
 
-$sql = "SELECT * FROM usuarios WHERE id = $id_usuario";
-$result = mysqli_query($conexion, $sql);
+// Obtener usuario usando prepared statement
+$stmt = mysqli_prepare($conexion, "SELECT * FROM usuarios WHERE id = ?");
+mysqli_stmt_bind_param($stmt, "i", $id_usuario);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 $usuario = mysqli_fetch_assoc($result);
+mysqli_stmt_close($stmt);
 
-/* if (!$usuario) {
-    header("Location: crear_usuario.php");
+if (!$usuario) {
+    header("Location: lista_usuarios.php");
     exit();
-} */
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $documento = $_POST['documento'];
-    $nombre = $_POST['nombre'];
-    $correo = $_POST['correo'];
-    $telefono = $_POST['telefono'];
-    $rol = $_POST['rol'];
-    $estado = $_POST['estado'];
-
-    $sql = "UPDATE usuarios SET 
-            documento='$documento',
-            nombre='$nombre',
-            correo='$correo',
-            telefono='$telefono',
-            rol='$rol',
-            estado='$estado'
-            WHERE id='$id_usuario'";
-
-    if (mysqli_query($conexion, $sql)) {
-        header("Location: lista_usuarios.php");
-        exit();
+    // Verificar token CSRF
+    if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
+        $mensaje_error = "Token de seguridad inválido";
     } else {
-        $error = "Error al actualizar: " . mysqli_error($conexion);
+        $documento = sanitizar_entrada($_POST['documento']);
+        $nombre = sanitizar_entrada($_POST['nombre']);
+        $correo = sanitizar_entrada($_POST['correo']);
+        $telefono = sanitizar_entrada($_POST['telefono']);
+        $rol = sanitizar_entrada($_POST['rol']);
+        $estado = sanitizar_entrada($_POST['estado']);
+        $nueva_password = $_POST['nueva_password'] ?? '';
+
+        // Validaciones
+        if (!validar_email($correo)) {
+            $mensaje_error = "El correo electrónico no es válido";
+        } elseif (!in_array($rol, ['admin', 'usuario'])) {
+            $mensaje_error = "Rol no válido";
+        } elseif (!in_array($estado, ['activo', 'inactivo'])) {
+            $mensaje_error = "Estado no válido";
+        } else {
+            // Si se proporciona nueva contraseña, actualizarla
+            if (!empty($nueva_password)) {
+                $password_hash = password_hash($nueva_password, PASSWORD_DEFAULT);
+                $stmt = mysqli_prepare($conexion, "UPDATE usuarios SET documento=?, nombre=?, correo=?, password=?, telefono=?, rol=?, estado=? WHERE id=?");
+                mysqli_stmt_bind_param($stmt, "sssssssi", $documento, $nombre, $correo, $password_hash, $telefono, $rol, $estado, $id_usuario);
+            } else {
+                $stmt = mysqli_prepare($conexion, "UPDATE usuarios SET documento=?, nombre=?, correo=?, telefono=?, rol=?, estado=? WHERE id=?");
+                mysqli_stmt_bind_param($stmt, "ssssssi", $documento, $nombre, $correo, $telefono, $rol, $estado, $id_usuario);
+            }
+
+            if (mysqli_stmt_execute($stmt)) {
+                mysqli_stmt_close($stmt);
+                header("Location: lista_usuarios.php?updated=1");
+                exit();
+            } else {
+                $mensaje_error = "Error al actualizar: " . mysqli_error($conexion);
+            }
+            mysqli_stmt_close($stmt);
+        }
     }
 }
 
+$csrf_token = generar_token_csrf();
 ?>
 
 <!DOCTYPE html>
@@ -81,29 +109,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="encabezado-pagina">
             <h1>Editar Usuario</h1>
         </div>
+        <?php if ($mensaje_error != '') { ?>
+        <br>
+        <div class="error-box">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span><?php echo htmlspecialchars($mensaje_error); ?></span>
+        </div>
+        <br>
+        <?php } ?>
         <div class="formulario-contenedor">
             <form method="POST" class="formulario">
-                <input type="hidden" name="id" value="<?php echo $usuario['id']; ?>">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                <input type="hidden" name="id" value="<?php echo htmlspecialchars($usuario['id']); ?>">
+                
                 <div class="grupo-campo">
                     <label for="documento">Documento *</label>
-                    <input type="text" id="documento" name="documento" value="<?php echo $usuario['documento']; ?>"
-                        required>
+                    <input type="text" id="documento" name="documento" value="<?php echo htmlspecialchars($usuario['documento']); ?>" required maxlength="20">
                 </div>
 
                 <div class="grupo-campo">
                     <label for="nombre">Nombre Completo *</label>
-                    <input type="text" id="nombre" name="nombre" value="<?php echo $usuario['nombre']; ?>" required>
+                    <input type="text" id="nombre" name="nombre" value="<?php echo htmlspecialchars($usuario['nombre']); ?>" required maxlength="100">
                 </div>
 
                 <div class="grupo-campo">
                     <label for="correo">Correo Electrónico *</label>
-                    <input type="email" id="correo" name="correo" value="<?php echo $usuario['correo']; ?>" required>
+                    <input type="email" id="correo" name="correo" value="<?php echo htmlspecialchars($usuario['correo']); ?>" required maxlength="100">
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="nueva_password">Nueva Contraseña (dejar en blanco para no cambiar)</label>
+                    <input type="password" id="nueva_password" name="nueva_password" minlength="6" maxlength="50">
                 </div>
 
                 <div class="grupo-campo">
                     <label for="telefono">Teléfono *</label>
-                    <input type="text" id="telefono" name="telefono" value="<?php echo $usuario['telefono']; ?>"
-                        required>
+                    <input type="text" id="telefono" name="telefono" value="<?php echo htmlspecialchars($usuario['telefono']); ?>" required maxlength="20">
                 </div>
 
                 <div class="grupo-campo">
