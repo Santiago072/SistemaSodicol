@@ -161,6 +161,6 @@
         });
     });
 </script>
-<script src="/PROYECTO_SODICOL/includes/script.js"></script>
+<script src="/PROYECTO_SODICOL/public/js/script.js"></script>
 </body>
 </html>

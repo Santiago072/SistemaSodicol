@@ -6,6 +6,6 @@
  */
 $basePath = $basePath ?? '/PROYECTO_SODICOL/';
 ?>
-<script src="<?= $basePath ?>includes/script.js"></script>
+<script src="<?= $basePath ?>public/js/script.js"></script>
 </body>
 </html>

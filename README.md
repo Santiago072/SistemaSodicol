@@ -22,6 +22,7 @@ Sistema web de gestión interno para **Sodicol Zomac S.A.S**, empresa de diseño
 - PHP 7.4 o superior (`mysqli`, `gd`, `mbstring`, `fileinfo`)
 - MySQL 5.7 o superior
 - Servidor web Apache/Nginx (XAMPP en desarrollo)
+- mod_rewrite habilitado (para el routing MVC)
 
 ---
 
@@ -39,13 +40,15 @@ git clone https://github.com/Santiago072/SistemaSodicol.git
 mysql -u root -p < BD.txt
 ```
 
-### 3. Variables de entorno
+### 3. Variables de entorno / Conexión
+
+Si usas entorno de producción, copia `.env.example` a `config/.env`:
 
 ```bash
 cp .env.example config/.env
 ```
 
-Editar `config/.env`:
+Y edita `config/.env`:
 
 ```env
 DB_HOST=localhost
@@ -56,6 +59,8 @@ SESSION_LIFETIME=3600
 UPLOAD_MAX_SIZE=5242880
 ALLOWED_EXTENSIONS=jpg,jpeg,png,gif,webp
 ```
+
+Si estás en desarrollo y prefieres configurar directamente PHP, copia `config/conexion_example.php` a `config/conexion.php` y edita tus credenciales dentro de `conexion.php`.
 
 ### 4. Permisos
 
@@ -75,12 +80,16 @@ http://localhost/PROYECTO_SODICOL/
 
 ---
 
-## Estructura del proyecto
+## Estructura del proyecto (Patrón MVC)
 
-```
+El proyecto utiliza un patrón MVC completo con un único punto de entrada (Front Controller).
+
+```text
 PROYECTO_SODICOL/
 ├── app/
 │   ├── controllers/
+│   │   ├── AuthController.php
+│   │   ├── PanelController.php
 │   │   ├── UsuarioController.php
 │   │   ├── ProductoController.php
 │   │   ├── TareaController.php
@@ -92,41 +101,44 @@ PROYECTO_SODICOL/
 │   │   ├── TareaModel.php
 │   │   └── CotizacionModel.php
 │   └── views/
-│       └── partials/
-│           └── paginacion.php
+│       ├── auth/
+│       ├── cotizaciones/
+│       ├── layout/
+│       ├── panel/
+│       ├── partials/
+│       ├── productos/
+│       ├── tareas/
+│       └── usuarios/
 ├── config/
-│   ├── conexion.php          # Carga .env y establece conexión mysqli
+│   ├── conexion.php          # (Opcional si usas .env) Carga .env y establece conexión
+│   ├── conexion_example.php  # Plantilla de conexión pública
 │   ├── seguridad.php         # Funciones de seguridad centralizadas
-│   └── .env                  # Variables de entorno (no incluir en git)
-├── cotizaciones/
+│   └── .env                  # Variables de entorno (en .gitignore)
+├── public/                   # Recursos públicos
+│   └── js/
+│       └── script.js
 ├── css/
-├── dompdf/                   # Librería PDF (instalada manualmente)
 ├── img/                      # Imágenes del sistema (logo, firma, iconos)
-├── includes/
-│   ├── menu.php
-│   └── script.js
 ├── logo/
-├── productos/
-├── tareas/
-├── uploads/                  # Imágenes subidas por usuarios
-├── usuarios/
-├── index.php                 # Login
-├── panel.php                 # Dashboard
-├── logout.php
+├── uploads/                  # Imágenes subidas por usuarios (en .gitignore)
+├── index.php                 # Front Controller / Router (Punto de entrada único)
+├── .htaccess                 # Routing hacia index.php y bloqueos de seguridad
 ├── BD.txt                    # Script SQL
 ├── .env.example
 └── .gitignore
 ```
 
-### Arquitectura MVC ligera
+### Arquitectura MVC
 
-Los archivos en `usuarios/`, `productos/`, `tareas/` y `cotizaciones/` actúan como **entry points** que:
-1. Inician sesión y conexión
-2. Instancian el **Controller** correspondiente
-3. Reciben un array de datos
-4. Renderizan la **vista** (HTML + PHP mínimo)
+1. **Front Controller (`index.php`)**: Recibe todas las peticiones gracias a `.htaccess`. Lee los parámetros `?module=` y `?action=`.
+2. **Controladores (`app/controllers/`)**: Contienen la lógica de negocio (validaciones, redirecciones, manejo de archivos).
+3. **Modelos (`app/models/`)**: Encapsulan todas las consultas a la base de datos MySQL (con sentencias preparadas).
+4. **Vistas (`app/views/`)**: Renderizan el HTML utilizando los datos proveídos por el controlador.
 
-Los **Models** encapsulan todas las queries SQL. Los **Controllers** contienen la lógica de negocio (validaciones, redirecciones, manejo de archivos).
+**Ejemplo de rutas**:
+- Panel: `/PROYECTO_SODICOL/?module=panel`
+- Lista de Usuarios: `/PROYECTO_SODICOL/?module=usuarios&action=lista`
+- Crear Cotización: `/PROYECTO_SODICOL/?module=cotizaciones&action=crear`
 
 ---
 
@@ -141,54 +153,10 @@ Los **Models** encapsulan todas las queries SQL. Los **Controllers** contienen l
 | Nombres de archivo aleatorios | ✅ |
 | Sanitización de entradas / `htmlspecialchars` en salidas | ✅ |
 | Sesión con HttpOnly, timeout configurable, regeneración de ID | ✅ |
-| Variables de entorno para credenciales | ✅ |
-| Control de acceso por rol en cada endpoint | ✅ |
-| Protección contra eliminar último admin / auto-eliminación | ✅ |
+| Variables de entorno / Archivos ignorados | ✅ |
+| Front controller y bloqueo .htaccess | ✅ |
 | Verificación de dependencias al eliminar productos | ✅ |
 | Transacción atómica en asignación de número de cotización | ✅ |
-
----
-
-## Funciones disponibles en `config/seguridad.php`
-
-```php
-iniciar_sesion_segura()         // Inicia sesión con flags seguros y timeout
-verificar_autenticacion()       // Redirige si no hay sesión activa
-verificar_admin()               // Redirige si el rol no es admin
-regenerar_sesion()              // Regenera session_id (tras login)
-generar_token_csrf()            // Genera/retorna token CSRF de sesión
-verificar_token_csrf($token)    // Valida token CSRF
-sanitizar_entrada($data)        // trim + stripslashes + htmlspecialchars
-validar_email($email)           // filter_var FILTER_VALIDATE_EMAIL
-validar_numero($numero)         // is_numeric && > 0
-validar_imagen($archivo)        // Extensión + MIME real + tamaño
-generar_nombre_archivo($ext)    // time() + random_bytes → nombre único
-```
-
----
-
-## Roles
-
-### Administrador
-- CRUD completo de usuarios, productos y tareas
-- Crear, consultar y generar PDF de cotizaciones
-- Ver panel con contadores globales
-
-### Usuario
-- Crear cotizaciones y generar PDFs
-- Consultar sus propias cotizaciones
-- Ver y completar tareas asignadas
-
----
-
-## Paginación
-
-Las listas de **usuarios**, **productos**, **tareas** y **cotizaciones** muestran **10 registros por página**. La URL de paginación sigue el patrón:
-
-```
-lista_usuarios.php?pagina=2
-lista_usuarios.php?busqueda=Juan&pagina=3
-```
 
 ---
 
@@ -196,10 +164,11 @@ lista_usuarios.php?busqueda=Juan&pagina=3
 
 | Problema | Solución |
 |---|---|
-| Error de conexión a BD | Verificar credenciales en `config/.env` y que MySQL esté corriendo |
-| Error al subir imágenes | Verificar permisos de `uploads/` y `upload_max_filesize` en `php.ini` |
+| Error de conexión a BD | Verifica `config/.env` o `config/conexion.php` y que MySQL esté corriendo |
+| Errores "File not found" al navegar | Asegúrate de que Apache tiene `mod_rewrite` activo para `.htaccess` |
+| Error al subir imágenes | Verifica permisos de `uploads/` y `upload_max_filesize` en `php.ini` |
 | Sesión expira constantemente | Aumentar `SESSION_LIFETIME` en `config/.env` |
-| PDF no genera | Verificar que `dompdf/vendor/` esté presente (no se sube al repo) |
+| PDF no genera | Verifica que `dompdf/vendor/` esté presente (instálalo manual si falta) |
 
 ---
 

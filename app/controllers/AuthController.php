@@ -14,7 +14,7 @@ class AuthController {
 
     /**
      * Procesa el login y devuelve datos para la vista.
-     * Si el login es exitoso redirige a panel.php y termina.
+     * Si el login es exitoso redirige al panel y termina.
      */
     public function login(): array {
         $mensajeError = '';
@@ -52,7 +52,7 @@ class AuthController {
             $_SESSION['LAST_ACTIVITY']  = time();
 
             sleep(1);
-            header('Location: /PROYECTO_SODICOL/panel.php');
+            header('Location: /PROYECTO_SODICOL/?module=panel');
             exit();
         }
 
@@ -70,7 +70,7 @@ class AuthController {
         iniciar_sesion_segura();
         session_unset();
         session_destroy();
-        header('Location: /PROYECTO_SODICOL/index.php');
+        header('Location: /PROYECTO_SODICOL/');
         exit();
     }
 }
