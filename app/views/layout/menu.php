@@ -42,6 +42,11 @@ $basePath  = '/PROYECTO_SODICOL/';
                 <a href="#"><i class="bi bi-currency-dollar"></i></a>
             </li>
             <li>
+                <a href="<?= $basePath ?>?module=docs&action=manual" title="Manual de Usuario">
+                    <i class="bi bi-book-half"></i>
+                </a>
+            </li>
+            <li>
                 <a href="<?= $basePath ?>?action=logout" title="Cerrar sesión">
                     <i class="bi bi-box-arrow-right"></i>
                 </a>
