@@ -16,7 +16,7 @@ function iniciar_sesion_segura() {
         if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > $timeout)) {
             session_unset();
             session_destroy();
-            header("Location: ../index.php?timeout=1");
+            header("Location: /PROYECTO_SODICOL/?timeout=1");
             exit();
         }
         $_SESSION['LAST_ACTIVITY'] = time();
@@ -96,7 +96,7 @@ function generar_nombre_archivo($extension) {
 // Verificar si el usuario está autenticado
 function verificar_autenticacion() {
     if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['usuario_nombre'])) {
-        header("Location: ../index.php");
+        header("Location: /PROYECTO_SODICOL/");
         exit();
     }
 }
@@ -105,7 +105,7 @@ function verificar_autenticacion() {
 function verificar_admin() {
     verificar_autenticacion();
     if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
-        header("Location: ../panel.php");
+        header("Location: /PROYECTO_SODICOL/?module=panel");
         exit();
     }
 }
