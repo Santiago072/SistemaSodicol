@@ -230,12 +230,43 @@ document.getElementById('loginForm').addEventListener('submit', function (e) {
 
  /* EYE TOGGLE */
 const eyeBtn = document.getElementById('eyeBtn');
-const passIn = document.getElementById('contrasena');
-const eyeIcon = document.getElementById('eyeIcon');
-eyeBtn.addEventListener('click', () => {
-    const show = passIn.type === 'password';
-    passIn.type = show ? 'text' : 'password';
-    eyeIcon.className = show ? 'bi bi-eye' : 'bi bi-eye-slash';
-});
+if (eyeBtn) {
+    const passIn = document.getElementById('contrasena');
+    const eyeIcon = document.getElementById('eyeIcon');
+    eyeBtn.addEventListener('click', () => {
+        const show = passIn.type === 'password';
+        passIn.type = show ? 'text' : 'password';
+        eyeIcon.className = show ? 'bi bi-eye' : 'bi bi-eye-slash';
+    });
+}
 
-    
+/* ── FILTRADO AUTOMÁTICO EN BUSCADORES ── */
+(function() {
+    const formsBusqueda = document.querySelectorAll('.formulario-busqueda');
+    formsBusqueda.forEach(form => {
+        let timeoutId;
+        const inputs = form.querySelectorAll('input[type="text"], input[type="date"]');
+        
+        // Ocultar botón de "Buscar" manual ya que será automático
+        const btnBuscar = form.querySelector('button[type="submit"]');
+        if (btnBuscar) {
+            btnBuscar.style.display = 'none';
+        }
+
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    form.submit();
+                }, 600); // 600ms de retraso al escribir
+            });
+            // Si es un datepicker, enviar al cambiar
+            if (input.type === 'date') {
+                input.addEventListener('change', function() {
+                    clearTimeout(timeoutId);
+                    form.submit();
+                });
+            }
+        });
+    });
+})();

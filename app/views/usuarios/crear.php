@@ -20,7 +20,7 @@ include dirname(__DIR__) . '/layout/menu.php';
     <?php endif; ?>
 
     <div class="formulario-contenedor">
-        <form method="POST" action="/PROYECTO_SODICOL/usuarios/crear_usuario.php" class="formulario">
+        <form method="POST" action="/PROYECTO_SODICOL/?module=usuarios&action=crear" class="formulario">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
 
             <div class="grupo-campo">
@@ -54,7 +54,7 @@ include dirname(__DIR__) . '/layout/menu.php';
             </div>
             <div class="grupo-campo">
                 <button type="submit" class="boton-primario">Crear Usuario</button>
-                <a href="/PROYECTO_SODICOL/usuarios/lista_usuarios.php" class="boton-limpiar">Cancelar</a>
+                <a href="/PROYECTO_SODICOL/?module=usuarios&action=lista" class="boton-limpiar">Cancelar</a>
             </div>
         </form>
     </div>

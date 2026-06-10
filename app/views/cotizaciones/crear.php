@@ -17,19 +17,19 @@ include dirname(__DIR__) . '/layout/menu.php';
 
     <!-- Búsqueda de producto -->
     <div class="barra-busqueda">
-        <form action="/PROYECTO_SODICOL/cotizaciones/crear_cotizacion.php" method="GET" class="formulario-busqueda">
+        <form action="/PROYECTO_SODICOL/?module=cotizaciones&action=crear" method="GET" class="formulario-busqueda">
             <input type="text" name="busqueda" value="<?= htmlspecialchars($busqueda) ?>"
                    placeholder="Buscar producto...">
             <button type="submit" class="boton-primario">Buscar</button>
             <?php if ($busqueda): ?>
-            <a href="/PROYECTO_SODICOL/cotizaciones/crear_cotizacion.php" class="boton-limpiar">Limpiar</a>
+            <a href="/PROYECTO_SODICOL/?module=cotizaciones&action=crear" class="boton-limpiar">Limpiar</a>
             <?php endif; ?>
         </form>
     </div>
 
     <!-- Seleccionar producto existente -->
     <div class="seleccion-producto">
-        <form method="GET" action="/PROYECTO_SODICOL/cotizaciones/crear_cotizacion.php" class="formulario">
+        <form method="GET" action="/PROYECTO_SODICOL/?module=cotizaciones&action=crear" class="formulario">
             <input type="hidden" name="busqueda" value="<?= htmlspecialchars($busqueda) ?>">
             <select name="producto_id" class="producto-existente" required>
                 <option value="">Seleccione un producto</option>
@@ -41,7 +41,7 @@ include dirname(__DIR__) . '/layout/menu.php';
                 <?php endforeach; ?>
             </select>
             <button type="submit" class="boton-primario">Usar producto</button>
-            <a href="/PROYECTO_SODICOL/cotizaciones/crear_cotizacion.php" class="boton-limpiar">Limpiar</a>
+            <a href="/PROYECTO_SODICOL/?module=cotizaciones&action=crear" class="boton-limpiar">Limpiar</a>
         </form>
     </div>
     <br>
@@ -49,7 +49,7 @@ include dirname(__DIR__) . '/layout/menu.php';
     <!-- Formulario de ítem -->
     <div class="formulario-contenedor formulario-cotizacion">
         <form method="POST" enctype="multipart/form-data"
-              action="/PROYECTO_SODICOL/cotizaciones/crear_cotizacion.php" class="formulario">
+              action="/PROYECTO_SODICOL/?module=cotizaciones&action=crear" class="formulario">
             <input type="hidden" name="action"      value="guardar_item">
             <input type="hidden" name="csrf_token"  value="<?= htmlspecialchars($csrf_token) ?>">
             <input type="hidden" name="producto_id" value="<?= intval($producto['id'] ?? 0) ?>">
@@ -119,9 +119,9 @@ include dirname(__DIR__) . '/layout/menu.php';
                     <td><?= $item['iva'] === 'si' ? 'Sí' : 'No' ?></td>
                     <td><?= number_format($item['precio'], 0, '', '.') ?></td>
                     <td class="acciones-tabla">
-                        <a href="/PROYECTO_SODICOL/cotizaciones/editar_cotizacion.php?id=<?= intval($item['id']) ?>"
+                        <a href="/PROYECTO_SODICOL/?module=cotizaciones&action=editar_item&id=<?= intval($item['id']) ?>"
                            class="boton-editar"><i class="fas fa-edit"></i></a>
-                        <a href="/PROYECTO_SODICOL/cotizaciones/eliminar_cotizacion.php?id=<?= intval($item['id']) ?>"
+                        <a href="/PROYECTO_SODICOL/?module=cotizaciones&action=eliminar_item&id=<?= intval($item['id']) ?>"
                            class="boton-eliminar"
                            onclick="return confirm('¿Eliminar este ítem?')"><i class="fas fa-trash"></i></a>
                     </td>
@@ -142,7 +142,7 @@ include dirname(__DIR__) . '/layout/menu.php';
     <div class="modal-contenido">
         <span class="cerrar">&times;</span>
         <h2>Datos del Cliente</h2>
-        <form action="/PROYECTO_SODICOL/cotizaciones/generar_pdf.php" method="POST" target="_blank">
+        <form action="/PROYECTO_SODICOL/?module=cotizaciones&action=generar_pdf" method="POST" target="_blank">
             <div class="grupo-fila">
                 <div class="grupo-campo">
                     <label>Profesión *</label>
