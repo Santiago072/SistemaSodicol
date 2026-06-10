@@ -1,8 +1,10 @@
 <?php
 /**
- * generar_pdf.php — Entry point para generación y descarga de PDFs.
- * La lógica de negocio (incluyendo transacción atómica para el número)
- * vive en CotizacionController / CotizacionModel.
+ * generar_pdf.php — Entry point de generación/descarga de PDFs.
+ *
+ * Este archivo no tiene vista separada porque la salida es binaria (PDF stream).
+ * Toda la lógica de negocio vive en CotizacionController::generarPdf()
+ * y en CotizacionModel::finalizarCotizacion() (transacción atómica).
  */
 require_once '../config/conexion.php';
 require_once '../config/seguridad.php';
@@ -10,18 +12,16 @@ require_once '../app/controllers/CotizacionController.php';
 
 iniciar_sesion_segura();
 
-$conexion   = conexion();
-$controller = new CotizacionController($conexion);
-
 try {
-    $data = $controller->generarPdf();
+    $data = (new CotizacionController(conexion()))->generarPdf();
 } catch (Exception $e) {
     die('Error al generar la cotización: ' . htmlspecialchars($e->getMessage()));
 }
 
-$cotizacion       = $data['cotizacion'];
-$items            = $data['items'];       // array de filas
-$forzar_descarga  = $data['forzar'];
+// ── Extraer datos del controller ────────────────────────────────────────────
+$cotizacion      = $data['cotizacion'];
+$items           = $data['items'];
+$forzar_descarga = $data['forzar'];
 
 $numero_cotizacion = $cotizacion['numero_cotizacion'];
 $profesion         = $cotizacion['profesion'];
@@ -31,71 +31,52 @@ $entidad           = $cotizacion['entidad'];
 $ciudad            = $cotizacion['ciudad'];
 $fecha_raw         = $cotizacion['fecha_creacion'];
 
-// ─── Formatear fecha larga ──────────────────────────────────────────────────
-date_default_timezone_set('America/Bogota');
-setlocale(LC_TIME, 'es_ES.UTF-8', 'Spanish_Spain.1252');
-$meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio",
-          "Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-$fecha_obj   = new DateTime($fecha_raw);
-$fecha_larga = $fecha_obj->format('d') . " de " . $meses[(int)$fecha_obj->format('n') - 1]
-             . " del " . $fecha_obj->format('Y');
-
-// ─── Verificar que hay ítems ────────────────────────────────────────────────
 if (empty($items)) {
     die('La cotización no tiene ítems.');
 }
 
-// ─── Librerías PDF ──────────────────────────────────────────────────────────
+// ── Fecha en español ────────────────────────────────────────────────────────
+date_default_timezone_set('America/Bogota');
+$meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+          'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+$fecha_obj   = new DateTime($fecha_raw);
+$fecha_larga = $fecha_obj->format('d') . ' de '
+             . $meses[(int)$fecha_obj->format('n') - 1]
+             . ' del ' . $fecha_obj->format('Y');
+
+// ── DomPDF ──────────────────────────────────────────────────────────────────
 require_once '../dompdf/autoload.inc.php';
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-// ─── Helper: imagen → base64 ────────────────────────────────────────────────
+// ── Helper: imagen a base64 ─────────────────────────────────────────────────
 function convertirImagen(string $ruta): string {
-    if (file_exists($ruta)) {
-        $type = pathinfo($ruta, PATHINFO_EXTENSION);
-        $data = file_get_contents($ruta);
-        return 'data:image/' . $type . ';base64,' . base64_encode($data);
-    }
-    return '';
+    if (!file_exists($ruta)) return '';
+    $ext  = strtolower(pathinfo($ruta, PATHINFO_EXTENSION));
+    $mime = $ext === 'svg' ? 'svg+xml' : $ext;
+    return 'data:image/' . $mime . ';base64,' . base64_encode(file_get_contents($ruta));
 }
 
-$ruta_base_img = dirname(__DIR__) . '/img/';
-$img_logo      = convertirImagen($ruta_base_img . 'logo.png');
-$img_firma     = convertirImagen($ruta_base_img . 'firma.png');
-$img_correo    = convertirImagen($ruta_base_img . 'correo.png');
-$img_ubicacion = convertirImagen($ruta_base_img . 'ubicacion.png');
-$img_celular   = convertirImagen($ruta_base_img . 'celular.png');
-$img_logo_small = convertirImagen($ruta_base_img . 'logo_small.png');
-if (empty($img_logo_small)) $img_logo_small = $img_logo;
+$imgDir        = dirname(__DIR__) . '/img/';
+$img_logo      = convertirImagen($imgDir . 'logo.png');
+$img_firma     = convertirImagen($imgDir . 'firma.png');
+$img_correo    = convertirImagen($imgDir . 'correo.png');
+$img_ubicacion = convertirImagen($imgDir . 'ubicacion.png');
+$img_celular   = convertirImagen($imgDir . 'celular.png');
+$img_logo_small = convertirImagen($imgDir . 'logo_small.png') ?: $img_logo;
 
-// ─── Calcular totales ───────────────────────────────────────────────────────
+// ── Totales ─────────────────────────────────────────────────────────────────
 $valor_base_total = 0;
 $valor_iva_total  = 0;
-
 foreach ($items as $it) {
     $pu = (float)$it['precio'];
     $q  = (int)$it['cantidad'];
-    $iva_u = ($it['iva'] === 'si') ? $pu * 0.19 : 0;
     $valor_base_total += $pu * $q;
-    $valor_iva_total  += $iva_u;
+    $valor_iva_total  += ($it['iva'] === 'si') ? $pu * 0.19 : 0;
 }
 $gran_total = $valor_base_total + $valor_iva_total;
 
-// ─── Construir HTML del PDF ─────────────────────────────────────────────────
-ob_start();
-?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Cotización <?= $numero_cotizacion ?></title>
-    <style><?php include 'estilo_pdf.css'; ?></style>
-</head>
-<body>
-
-<?php
-// Helper: encabezado de empresa
+// ── Helper interno: encabezado de página ────────────────────────────────────
 function imprimirHeader(string $img_logo): void { ?>
 <table class="tabla-encabezado">
     <tr>
@@ -107,14 +88,25 @@ function imprimirHeader(string $img_logo): void { ?>
         </td>
     </tr>
 </table>
-<?php } ?>
+<?php }
+
+// ── Plantilla HTML del PDF ───────────────────────────────────────────────────
+ob_start(); ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cotización <?= htmlspecialchars($numero_cotizacion) ?></title>
+    <style><?php include 'estilo_pdf.css'; ?></style>
+</head>
+<body>
 
 <?php imprimirHeader($img_logo); ?>
 
 <div class="seccion-info">
     <div class="fila-fecha-cot">
         <div class="fecha-izq">Florencia, <?= $fecha_larga ?>.</div>
-        <div class="cot-der">Cotización No: <?= $numero_cotizacion ?></div>
+        <div class="cot-der">Cotización No: <?= htmlspecialchars($numero_cotizacion) ?></div>
         <div style="clear:both;"></div>
     </div>
     <div class="datos-cliente">
@@ -125,9 +117,11 @@ function imprimirHeader(string $img_logo): void { ?>
         <?= htmlspecialchars($ciudad) ?>.
     </div>
     <p class="texto-intro">Cordial saludo</p>
-    <p class="texto-intro">Para Sodicol Zomac S.A.S es muy grato presentar esta propuesta económica con el fin de atender sus requerimientos y necesidades, quedamos atentos a cualquier inquietud.</p>
+    <p class="texto-intro">Para Sodicol Zomac S.A.S es muy grato presentar esta propuesta económica
+       con el fin de atender sus requerimientos y necesidades, quedamos atentos a cualquier inquietud.</p>
 </div>
 
+<!-- Tabla resumen de ítems -->
 <table class="tabla-principal">
     <thead>
         <tr>
@@ -140,47 +134,48 @@ function imprimirHeader(string $img_logo): void { ?>
         </tr>
     </thead>
     <tbody>
-    <?php $contador = 1; foreach ($items as $item):
-        $pu      = (float)$item['precio'];
-        $qty     = (int)$item['cantidad'];
-        $iva_u   = ($item['iva'] === 'si') ? $pu * 0.19 : 0;
-        $vt      = $pu * $qty;
-    ?>
-    <tr>
-        <td class="col-item"><?= $contador++ ?></td>
-        <td class="col-desc"><?= htmlspecialchars($item['titulo']) ?></td>
-        <td class="col-cant"><?= $qty ?></td>
-        <td class="col-vu">$ <?= number_format($pu, 0, '', '.') ?></td>
-        <td class="col-iva">$ <?= number_format($iva_u, 0, '', '.') ?></td>
-        <td class="col-vt">$ <?= number_format($vt, 0, '', '.') ?></td>
-    </tr>
-    <?php endforeach; ?>
+        <?php $contador = 1; foreach ($items as $item):
+            $pu    = (float)$item['precio'];
+            $qty   = (int)$item['cantidad'];
+            $iva_u = ($item['iva'] === 'si') ? $pu * 0.19 : 0;
+            $vt    = $pu * $qty;
+        ?>
+        <tr>
+            <td class="col-item"><?= $contador++ ?></td>
+            <td class="col-desc"><?= htmlspecialchars($item['titulo']) ?></td>
+            <td class="col-cant"><?= $qty ?></td>
+            <td class="col-vu">$&nbsp;<?= number_format($pu, 0, '', '.') ?></td>
+            <td class="col-iva">$&nbsp;<?= number_format($iva_u, 0, '', '.') ?></td>
+            <td class="col-vt">$&nbsp;<?= number_format($vt, 0, '', '.') ?></td>
+        </tr>
+        <?php endforeach; ?>
     </tbody>
     <tfoot>
         <tr>
             <td colspan="4" class="celda-vacia"></td>
             <td class="etiqueta-total">VALOR BASE</td>
-            <td class="valor-total">$ <?= number_format($valor_base_total, 0, '', '.') ?></td>
+            <td class="valor-total">$&nbsp;<?= number_format($valor_base_total, 0, '', '.') ?></td>
         </tr>
         <tr>
             <td colspan="4" class="celda-vacia"></td>
             <td class="etiqueta-total">VALOR IVA</td>
-            <td class="valor-total">$ <?= number_format($valor_iva_total, 0, '', '.') ?></td>
+            <td class="valor-total">$&nbsp;<?= number_format($valor_iva_total, 0, '', '.') ?></td>
         </tr>
         <tr>
             <td colspan="4" class="celda-vacia"></td>
             <td class="etiqueta-total">TOTAL</td>
-            <td class="valor-total">$ <?= number_format($gran_total, 0, '', '.') ?></td>
+            <td class="valor-total">$&nbsp;<?= number_format($gran_total, 0, '', '.') ?></td>
         </tr>
     </tfoot>
 </table>
 
 <div class="info-pago">
-    <p style="font-size:15px;">Para todos los efectos informo a ustedes que toda la correspondencia relacionada con esta cotización la recibiremos en:</p>
+    <p style="font-size:15px;">Para todos los efectos informo a ustedes que toda la correspondencia
+       relacionada con esta cotización la recibiremos en:</p>
     <p style="font-size:15px;">
         <strong>Teléfono:</strong> 310 251 6060<br>
         <strong>Correo Electrónico:</strong>
-        <span style="color:#0066cc;border-bottom:1px solid #0066cc;padding-bottom:1px;">sodicolsas@gmail.com</span>
+        <span style="color:#0066cc;border-bottom:1px solid #0066cc;">sodicolsas@gmail.com</span>
     </p>
 </div>
 
@@ -226,36 +221,34 @@ function imprimirHeader(string $img_logo): void { ?>
 </footer>
 
 <?php
-// ─── Fichas técnicas (una por ítem, página nueva) ────────────────────────────
-$es_primer_item = true;
-foreach ($items as $item_det):
-    $pu_det    = (float)$item_det['precio'];
-    $qty_det   = (int)$item_det['cantidad'];
-    $iva_det   = ($item_det['iva'] === 'si') ? $pu_det * 0.19 : 0;
-    $pu_iva    = $pu_det + $iva_det;
-    $total_det = $pu_iva * $qty_det;
-
-    $img_prod = '';
-    if (!empty($item_det['foto'])) {
-        $img_prod = convertirImagen(dirname(__DIR__) . '/uploads/' . $item_det['foto']);
-    }
+// ── Fichas técnicas (una por ítem) ───────────────────────────────────────────
+$esPrimero = true;
+foreach ($items as $det):
+    $pu_d    = (float)$det['precio'];
+    $qty_d   = (int)$det['cantidad'];
+    $iva_d   = ($det['iva'] === 'si') ? $pu_d * 0.19 : 0;
+    $pu_iva  = $pu_d + $iva_d;
+    $total_d = $pu_iva * $qty_d;
+    $imgProd = !empty($det['foto'])
+               ? convertirImagen(dirname(__DIR__) . '/uploads/' . $det['foto'])
+               : '';
 ?>
 <div class="salto-pagina"></div>
 <?php imprimirHeader($img_logo); ?>
 
 <div class="titulo-item-detalle">
-    <?php if ($es_primer_item): ?>
+    <?php if ($esPrimero): ?>
     <h3 style="margin-bottom:1rem;">FICHAS TECNICAS</h3>
-    <h4><?= htmlspecialchars($item_det['titulo']) ?></h4>
-    <?php $es_primer_item = false; ?>
+    <h4><?= htmlspecialchars($det['titulo']) ?></h4>
+    <?php $esPrimero = false; ?>
     <?php else: ?>
-    <h3><?= htmlspecialchars($item_det['titulo']) ?></h3>
+    <h3><?= htmlspecialchars($det['titulo']) ?></h3>
     <?php endif; ?>
 </div>
 
-<?php if ($img_prod): ?>
+<?php if ($imgProd): ?>
 <div class="contenedor-imagen-producto">
-    <img src="<?= $img_prod ?>" class="img-producto">
+    <img src="<?= $imgProd ?>" class="img-producto">
 </div>
 <?php endif; ?>
 
@@ -271,13 +264,12 @@ foreach ($items as $item_det):
     <tbody>
         <tr>
             <td class="td-desc">
-                <strong><?= htmlspecialchars($item_det['titulo']) ?></strong>
-                <br><br>
-                <div class="descripcion-texto"><?= htmlspecialchars($item_det['descripcion']) ?></div>
+                <strong><?= htmlspecialchars($det['titulo']) ?></strong><br><br>
+                <div class="descripcion-texto"><?= htmlspecialchars($det['descripcion']) ?></div>
             </td>
-            <td class="td-cant"><?= $qty_det ?></td>
-            <td class="td-valores">$ <?= number_format($pu_iva, 0, '', '.') ?></td>
-            <td class="td-valores">$ <?= number_format($total_det, 0, '', '.') ?></td>
+            <td class="td-cant"><?= $qty_d ?></td>
+            <td class="td-valores">$&nbsp;<?= number_format($pu_iva, 0, '', '.') ?></td>
+            <td class="td-valores">$&nbsp;<?= number_format($total_d, 0, '', '.') ?></td>
         </tr>
     </tbody>
 </table>
@@ -290,7 +282,7 @@ $html = ob_get_clean();
 
 $options = new Options();
 $options->set('isRemoteEnabled', true);
-$dompdf = new Dompdf($options);
+$dompdf  = new Dompdf($options);
 $dompdf->loadHtml($html);
 $dompdf->setPaper('A4', 'portrait');
 $dompdf->render();

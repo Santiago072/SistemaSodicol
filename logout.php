@@ -1,9 +1,7 @@
 <?php
+require_once 'config/conexion.php';
 require_once 'config/seguridad.php';
+require_once 'app/controllers/AuthController.php';
 
 iniciar_sesion_segura();
-session_unset();
-session_destroy();
-header("location: index.php");
-exit();
-?>
+(new AuthController(conexion()))->logout();

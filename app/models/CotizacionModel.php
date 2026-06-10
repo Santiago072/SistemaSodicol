@@ -9,6 +9,23 @@ class CotizacionModel {
         $this->db = $conexion;
     }
 
+    // ──────────────────── CONTADORES ────────────────────
+
+    /** Total de cotizaciones generadas de un usuario (para dashboard) */
+    public function contarDelUsuario(string $usuarioNombre): int {
+        $stmt = mysqli_prepare($this->db,
+            "SELECT COUNT(*) AS total FROM cotizaciones
+             WHERE numero_cotizacion IS NOT NULL AND numero_cotizacion != ''
+             AND nombre_cliente IS NOT NULL AND nombre_cliente != ''
+             AND usuario_nombre = ?");
+        mysqli_stmt_bind_param($stmt, 's', $usuarioNombre);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        $row    = mysqli_fetch_assoc($result);
+        mysqli_stmt_close($stmt);
+        return (int)($row['total'] ?? 0);
+    }
+
     // ──────────────────── CABECERA ────────────────────
 
     public function buscarPorId(int $id): ?array {

@@ -4,6 +4,4 @@ require_once '../config/seguridad.php';
 require_once '../app/controllers/ProductoController.php';
 
 iniciar_sesion_segura();
-$conexion   = conexion();
-$controller = new ProductoController($conexion);
-$controller->eliminar();
+(new ProductoController(conexion()))->eliminar();

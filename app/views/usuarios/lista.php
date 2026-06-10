@@ -1,0 +1,76 @@
+<?php
+/**
+ * Vista: Lista de usuarios
+ * Variables: $usuarios, $busqueda, $paginaActual, $totalPaginas, $total,
+ *            $mensajeExito, $mensajeError, $urlBase
+ */
+$pageTitle = 'Lista Usuarios';
+$basePath  = '/PROYECTO_SODICOL/';
+include dirname(__DIR__) . '/layout/header.php';
+include dirname(dirname(dirname(__DIR__))) . '/includes/menu.php';
+?>
+
+<div class="contenido-principal">
+    <?php $pageHeading = 'Gestión de Usuarios';
+    include dirname(__DIR__) . '/layout/topbar.php'; ?>
+
+    <div class="encabezado-pagina"><h1>Gestión Usuarios</h1></div>
+
+    <?php if ($mensajeExito): ?>
+    <div class="success-box" style="background:#d4edda;color:#155724;padding:15px;margin:15px 0;border-radius:8px;border:1px solid #c3e6cb;">
+        <i class="fas fa-check-circle"></i> <?= htmlspecialchars($mensajeExito) ?>
+    </div>
+    <?php endif; ?>
+    <?php if ($mensajeError): ?>
+    <div class="error-box"><i class="fas fa-exclamation-triangle"></i> <?= htmlspecialchars($mensajeError) ?></div>
+    <?php endif; ?>
+
+    <div class="barra-busqueda">
+        <form action="/PROYECTO_SODICOL/usuarios/lista_usuarios.php" method="GET" class="formulario-busqueda">
+            <input type="text" name="busqueda" value="<?= htmlspecialchars($busqueda) ?>" placeholder="Buscar usuario...">
+            <button type="submit" class="boton-primario">Buscar</button>
+            <?php if ($busqueda): ?>
+            <a href="/PROYECTO_SODICOL/usuarios/lista_usuarios.php" class="boton-limpiar">Limpiar</a>
+            <?php endif; ?>
+        </form>
+    </div>
+
+    <div class="tabla-contenedor">
+        <table class="tabla-datos">
+            <thead>
+                <tr><th>Nombre</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr>
+            </thead>
+            <tbody>
+                <?php foreach ($usuarios as $u): ?>
+                <tr>
+                    <td><?= htmlspecialchars($u['nombre']) ?></td>
+                    <td><?= htmlspecialchars($u['rol']) ?></td>
+                    <td><?= htmlspecialchars($u['estado']) ?></td>
+                    <td class="acciones-tabla">
+                        <a href="/PROYECTO_SODICOL/usuarios/editar_usuario.php?id=<?= intval($u['id']) ?>" class="boton-editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="/PROYECTO_SODICOL/usuarios/eliminar_usuario.php?id=<?= intval($u['id']) ?>"
+                           class="boton-eliminar"
+                           onclick="return confirm('¿Está seguro de eliminar este usuario?');">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+                <?php if (empty($usuarios)): ?>
+                <tr><td colspan="4" style="text-align:center;padding:30px;color:var(--gold-light);">
+                    <i class="bi bi-search"></i> No se encontraron usuarios.
+                </td></tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+
+    <?php include dirname(__DIR__) . '/partials/paginacion.php'; ?>
+    <?php if ($total > 0): ?>
+    <p class="pag-info">Mostrando página <?= $paginaActual ?> de <?= $totalPaginas ?> (<?= $total ?> usuarios)</p>
+    <?php endif; ?>
+</div>
+
+<?php include dirname(__DIR__) . '/layout/footer.php'; ?>
