@@ -2277,6 +2277,25 @@ body.modo-dia .cabecera-superior {
     border-bottom-color: rgba(139, 74, 14, .15);
 }
 
+/* ── Título de bienvenida del panel ───────────────────────────────────────── */
+.bienvenida-titulo {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    background: linear-gradient(135deg, var(--white), var(--gold-light));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body.modo-dia .bienvenida-titulo {
+    background: linear-gradient(135deg, #1a0a00, #6b2f00);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
 body.modo-dia .cabecera-bienvenida h3 {
     background: linear-gradient(135deg, #2d1a0a, #8b4a0e);
     background-clip: text;
