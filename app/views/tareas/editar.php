@@ -20,7 +20,7 @@ include dirname(__DIR__) . '/layout/menu.php';
     <?php endif; ?>
 
     <div class="formulario-contenedor">
-        <form method="POST" action="/PROYECTO_SODICOL/tareas/editar_tarea.php?id=<?= intval($tarea['id']) ?>" class="formulario">
+        <form method="POST" action="/PROYECTO_SODICOL/?module=tareas&action=editar&id=<?= intval($tarea['id']) ?>" class="formulario">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
             <input type="hidden" name="id" value="<?= intval($tarea['id']) ?>">
 
@@ -51,7 +51,7 @@ include dirname(__DIR__) . '/layout/menu.php';
             </div>
             <div class="grupo-campo">
                 <button type="submit" class="boton-primario">Actualizar Tarea</button>
-                <a href="/PROYECTO_SODICOL/tareas/tareas_usuarios.php" class="boton-limpiar">Cancelar</a>
+                <a href="/PROYECTO_SODICOL/?module=tareas&action=gestion" class="boton-limpiar">Cancelar</a>
             </div>
         </form>
     </div>

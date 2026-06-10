@@ -23,7 +23,7 @@ include dirname(__DIR__) . '/layout/menu.php';
 
     <!-- Filtros de búsqueda -->
     <div class="barra-busqueda">
-        <form method="POST" action="/PROYECTO_SODICOL/cotizaciones/consultar_cotizacion.php"
+        <form method="POST" action="/PROYECTO_SODICOL/?module=cotizaciones&action=consultar"
               class="formulario-busqueda">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
             <input type="date"   name="fecha"              value="<?= htmlspecialchars($busquedaFecha) ?>">
@@ -35,7 +35,7 @@ include dirname(__DIR__) . '/layout/menu.php';
                 <i class="bi bi-search"></i> Buscar
             </button>
             <?php if (!empty($cotizaciones) || $busquedaFecha || $busquedaCliente || $busquedaNumero): ?>
-            <a href="/PROYECTO_SODICOL/cotizaciones/consultar_cotizacion.php?limpiar=1" class="boton-limpiar">
+            <a href="/PROYECTO_SODICOL/?module=cotizaciones&action=consultar&limpiar=1" class="boton-limpiar">
                 <i class="bi bi-x-circle"></i> Limpiar
             </a>
             <?php endif; ?>

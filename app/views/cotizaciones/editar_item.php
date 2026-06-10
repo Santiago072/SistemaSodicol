@@ -21,7 +21,7 @@ include dirname(__DIR__) . '/layout/menu.php';
 
     <div class="formulario-contenedor">
         <form method="POST"
-              action="/PROYECTO_SODICOL/cotizaciones/editar_cotizacion.php?id=<?= intval($datos['id']) ?>"
+              action="/PROYECTO_SODICOL/?module=cotizaciones&action=editar_item&id=<?= intval($datos['id']) ?>"
               enctype="multipart/form-data" class="formulario">
             <input type="hidden" name="csrf_token"  value="<?= htmlspecialchars($csrf_token) ?>">
             <input type="hidden" name="item_id"     value="<?= intval($datos['id']) ?>">
@@ -67,7 +67,7 @@ include dirname(__DIR__) . '/layout/menu.php';
             </div>
             <div class="grupo-campo">
                 <button type="submit" class="boton-primario">Actualizar Ítem</button>
-                <a href="/PROYECTO_SODICOL/cotizaciones/crear_cotizacion.php" class="boton-secundario">Cancelar</a>
+                <a href="/PROYECTO_SODICOL/?module=cotizaciones&action=crear" class="boton-secundario">Cancelar</a>
             </div>
         </form>
     </div>

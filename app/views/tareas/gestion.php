@@ -38,7 +38,7 @@ include dirname(__DIR__) . '/layout/menu.php';
                 </div>
                 <?php endif; ?>
 
-                <form method="POST" action="/PROYECTO_SODICOL/tareas/tareas_usuarios.php" class="formulario">
+                <form method="POST" action="/PROYECTO_SODICOL/?module=tareas&action=gestion" class="formulario">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
 
                     <div class="grupo-campo">
@@ -96,9 +96,9 @@ include dirname(__DIR__) . '/layout/menu.php';
                             <?php endif; ?>
                         </td>
                         <td class="acciones-tabla">
-                            <a href="/PROYECTO_SODICOL/tareas/editar_tarea.php?id=<?= intval($row['id']) ?>"
+                            <a href="/PROYECTO_SODICOL/?module=tareas&action=editar&id=<?= intval($row['id']) ?>"
                                class="boton-editar"><i class="bi bi-pencil-square"></i></a>
-                            <a href="/PROYECTO_SODICOL/tareas/eliminar_tarea.php?id=<?= intval($row['id']) ?>"
+                            <a href="/PROYECTO_SODICOL/?module=tareas&action=eliminar&id=<?= intval($row['id']) ?>"
                                class="boton-eliminar"
                                onclick="return confirm('¿Está seguro de eliminar esta tarea?')">
                                 <i class="bi bi-trash"></i>

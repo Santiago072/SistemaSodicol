@@ -3319,3 +3319,39 @@ body.modo-dia .tabla-mensaje-vacio i {
     align-items: center;
     gap: 10px;
 }
+
+/* ════════════════════════════════════════════════════════════
+   PAGINACIÓN - MODO DÍA
+════════════════════════════════════════════════════════════ */
+body.modo-dia .pag-btn {
+    color: rgba(45, 26, 10, .75);
+    background: rgba(45, 26, 10, .06);
+    border: 1px solid rgba(139, 74, 14, .2);
+}
+
+body.modo-dia .pag-btn:hover {
+    background: rgba(139, 74, 14, .15);
+    border-color: rgba(139, 74, 14, .4);
+    color: #8b4a0e;
+    box-shadow: 0 6px 18px rgba(139, 74, 14, .15);
+}
+
+body.modo-dia .pag-activo {
+    background: linear-gradient(135deg, rgba(200, 132, 62, .4), rgba(139, 74, 14, .3));
+    border-color: #8b4a0e;
+    color: #4a2008;
+    box-shadow: 0 4px 14px rgba(139, 74, 14, .2);
+}
+
+body.modo-dia .pag-disabled {
+    opacity: .35;
+    color: rgba(45, 26, 10, .5);
+}
+
+body.modo-dia .pag-dots {
+    color: rgba(45, 26, 10, .5);
+}
+
+body.modo-dia .pag-info {
+    color: rgba(45, 26, 10, .6);
+}
