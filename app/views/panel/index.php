@@ -16,10 +16,8 @@ include dirname(dirname(dirname(__DIR__))) . '/includes/menu.php';
     include dirname(__DIR__) . '/layout/topbar.php';
     ?>
 
-    <div class="cabecera-bienvenida" style="margin-bottom: 24px;">
-        <h3 style="font-family:var(--font-display);font-size:22px;font-weight:700;
-                   background:linear-gradient(135deg,#fff,var(--gold-light));
-                   background-clip:text;-webkit-text-fill-color:transparent;">
+    <div class="cabecera-bienvenida panel-bienvenida" style="margin-bottom: 24px;">
+        <h3 class="bienvenida-titulo">
             ¡Bienvenido, <?= htmlspecialchars($usuario['nombre']) ?>!
         </h3>
         <?php if ($usuario['rol'] === 'admin'): ?>
