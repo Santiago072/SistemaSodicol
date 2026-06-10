@@ -4,7 +4,7 @@
  * Requiere sesión activa con $_SESSION['rol'] y $_SESSION['usuario_nombre'].
  */
 if (!isset($_SESSION['usuario_nombre'])) {
-    header('Location: /PROYECTO_SODICOL/index.php');
+    header('Location: /PROYECTO_SODICOL/');
     exit();
 }
 $rol       = $_SESSION['rol'];
@@ -29,7 +29,7 @@ $basePath  = '/PROYECTO_SODICOL/';
 
         <ul class="lista-menu-lateral">
             <li>
-                <a href="<?= $basePath ?>panel.php" title="Panel">
+                <a href="<?= $basePath ?>?module=panel" title="Panel">
                     <i class="bi bi-house-door-fill"></i>
                 </a>
             </li>
@@ -42,7 +42,7 @@ $basePath  = '/PROYECTO_SODICOL/';
                 <a href="#"><i class="bi bi-currency-dollar"></i></a>
             </li>
             <li>
-                <a href="<?= $basePath ?>logout.php" title="Cerrar sesión">
+                <a href="<?= $basePath ?>?action=logout" title="Cerrar sesión">
                     <i class="bi bi-box-arrow-right"></i>
                 </a>
             </li>
@@ -63,15 +63,15 @@ $basePath  = '/PROYECTO_SODICOL/';
     const menus = {
         usuarios: `
             <h3>Usuarios</h3>
-            <li><a href="<?= $basePath ?>usuarios/lista_usuarios.php"><i class="fas fa-user-friends"></i> Lista de Usuarios</a></li>
-            <li><a href="<?= $basePath ?>usuarios/crear_usuario.php"><i class="fas fa-user-plus"></i> Nuevo Usuario</a></li>
-            <li><a href="<?= $basePath ?>tareas/tareas_usuarios.php"><i class="fas fa-tasks"></i> Tareas Usuarios</a></li>
+            <li><a href="<?= $basePath ?>?module=usuarios&action=lista"><i class="fas fa-user-friends"></i> Lista de Usuarios</a></li>
+            <li><a href="<?= $basePath ?>?module=usuarios&action=crear"><i class="fas fa-user-plus"></i> Nuevo Usuario</a></li>
+            <li><a href="<?= $basePath ?>?module=tareas&action=gestion"><i class="fas fa-tasks"></i> Tareas Usuarios</a></li>
         `,
         cotizaciones: `
             <h3>Cotizaciones</h3>
-            <li><a href="<?= $basePath ?>cotizaciones/crear_cotizacion.php"><i class="fas fa-dollar-sign"></i> Crear Cotización</a></li>
-            <li><a href="<?= $basePath ?>cotizaciones/consultar_cotizacion.php"><i class="fas fa-list"></i> Consultar Cotización</a></li>
-            <li><a href="<?= $basePath ?>productos/lista_productos.php"><i class="fas fa-box"></i> Lista de Productos</a></li>
+            <li><a href="<?= $basePath ?>?module=cotizaciones&action=crear"><i class="fas fa-dollar-sign"></i> Crear Cotización</a></li>
+            <li><a href="<?= $basePath ?>?module=cotizaciones&action=consultar"><i class="fas fa-list"></i> Consultar Cotización</a></li>
+            <li><a href="<?= $basePath ?>?module=productos&action=lista"><i class="fas fa-box"></i> Lista de Productos</a></li>
         `
     };
 

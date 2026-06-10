@@ -1,24 +1,19 @@
 <?php
 /**
- * generar_pdf.php — Entry point de generación/descarga de PDFs.
+ * generar_pdf.php — Vista de generación/descarga de PDFs.
  *
- * Este archivo no tiene vista separada porque la salida es binaria (PDF stream).
- * Toda la lógica de negocio vive en CotizacionController::generarPdf()
- * y en CotizacionModel::finalizarCotizacion() (transacción atómica).
+ * Este archivo es incluido por el Front Controller (index.php)
+ * cuando ?module=cotizaciones&action=generar_pdf.
+ * El controlador CotizacionController ya fue instanciado en index.php.
  */
-require_once '../config/conexion.php';
-require_once '../config/seguridad.php';
-require_once '../app/controllers/CotizacionController.php';
-
-iniciar_sesion_segura();
 
 try {
-    $data = (new CotizacionController(conexion()))->generarPdf();
+    $data = $ctrl->generarPdf();
 } catch (Exception $e) {
     die('Error al generar la cotización: ' . htmlspecialchars($e->getMessage()));
 }
 
-// ── Extraer datos del controller ────────────────────────────────────────────
+// ── Extraer datos del controller ─────────────────────────────────────────────
 $cotizacion      = $data['cotizacion'];
 $items           = $data['items'];
 $forzar_descarga = $data['forzar'];
@@ -35,7 +30,7 @@ if (empty($items)) {
     die('La cotización no tiene ítems.');
 }
 
-// ── Fecha en español ────────────────────────────────────────────────────────
+// ── Fecha en español ─────────────────────────────────────────────────────────
 date_default_timezone_set('America/Bogota');
 $meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
           'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -44,12 +39,12 @@ $fecha_larga = $fecha_obj->format('d') . ' de '
              . $meses[(int)$fecha_obj->format('n') - 1]
              . ' del ' . $fecha_obj->format('Y');
 
-// ── DomPDF ──────────────────────────────────────────────────────────────────
-require_once '../dompdf/autoload.inc.php';
+// ── DomPDF ───────────────────────────────────────────────────────────────────
+require_once dirname(__DIR__, 3) . '/dompdf/autoload.inc.php';
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-// ── Helper: imagen a base64 ─────────────────────────────────────────────────
+// ── Helper: imagen a base64 ──────────────────────────────────────────────────
 function convertirImagen(string $ruta): string {
     if (!file_exists($ruta)) return '';
     $ext  = strtolower(pathinfo($ruta, PATHINFO_EXTENSION));
@@ -57,15 +52,15 @@ function convertirImagen(string $ruta): string {
     return 'data:image/' . $mime . ';base64,' . base64_encode(file_get_contents($ruta));
 }
 
-$imgDir        = dirname(__DIR__) . '/img/';
-$img_logo      = convertirImagen($imgDir . 'logo.png');
-$img_firma     = convertirImagen($imgDir . 'firma.png');
-$img_correo    = convertirImagen($imgDir . 'correo.png');
-$img_ubicacion = convertirImagen($imgDir . 'ubicacion.png');
-$img_celular   = convertirImagen($imgDir . 'celular.png');
+$imgDir         = dirname(__DIR__, 3) . '/img/';
+$img_logo       = convertirImagen($imgDir . 'logo.png');
+$img_firma      = convertirImagen($imgDir . 'firma.png');
+$img_correo     = convertirImagen($imgDir . 'correo.png');
+$img_ubicacion  = convertirImagen($imgDir . 'ubicacion.png');
+$img_celular    = convertirImagen($imgDir . 'celular.png');
 $img_logo_small = convertirImagen($imgDir . 'logo_small.png') ?: $img_logo;
 
-// ── Totales ─────────────────────────────────────────────────────────────────
+// ── Totales ──────────────────────────────────────────────────────────────────
 $valor_base_total = 0;
 $valor_iva_total  = 0;
 foreach ($items as $it) {
@@ -76,7 +71,7 @@ foreach ($items as $it) {
 }
 $gran_total = $valor_base_total + $valor_iva_total;
 
-// ── Helper interno: encabezado de página ────────────────────────────────────
+// ── Helper interno: encabezado de página ─────────────────────────────────────
 function imprimirHeader(string $img_logo): void { ?>
 <table class="tabla-encabezado">
     <tr>
@@ -97,7 +92,7 @@ ob_start(); ?>
 <head>
     <meta charset="UTF-8">
     <title>Cotización <?= htmlspecialchars($numero_cotizacion) ?></title>
-    <style><?php include 'estilo_pdf.css'; ?></style>
+    <style><?php include __DIR__ . '/estilo_pdf.css'; ?></style>
 </head>
 <body>
 
@@ -230,7 +225,7 @@ foreach ($items as $det):
     $pu_iva  = $pu_d + $iva_d;
     $total_d = $pu_iva * $qty_d;
     $imgProd = !empty($det['foto'])
-               ? convertirImagen(dirname(__DIR__) . '/uploads/' . $det['foto'])
+               ? convertirImagen(dirname(__DIR__, 3) . '/uploads/' . $det['foto'])
                : '';
 ?>
 <div class="salto-pagina"></div>

@@ -1,0 +1,35 @@
+Options -Indexes
+
+# ── Front Controller Routing ─────────────────────────────────────────────────
+# Redirige todas las peticiones al index.php excepto archivos y directorios reales.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /PROYECTO_SODICOL/
+
+    # No reescribir si el archivo/directorio existe
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Reescribir todo lo demás al front controller
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+# ── Seguridad adicional ───────────────────────────────────────────────────────
+# Bloquear acceso directo a archivos .env
+<FilesMatch "^\.env">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Bloquear acceso a archivos de configuración sensibles
+<FilesMatch "^(conexion\.php|seguridad\.php)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Cabeceras de seguridad
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>

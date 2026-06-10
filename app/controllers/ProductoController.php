@@ -54,14 +54,14 @@ class ProductoController {
         $csrf_token   = generar_token_csrf();
 
         if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
-            header("Location: /PROYECTO_SODICOL/productos/lista_productos.php?error=default");
+            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&error=default");
             exit();
         }
 
         $id      = intval($_GET['id']);
         $producto = $this->model->buscarPorId($id);
         if (!$producto) {
-            header("Location: /PROYECTO_SODICOL/productos/lista_productos.php?error=default");
+            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&error=default");
             exit();
         }
 
@@ -107,7 +107,7 @@ class ProductoController {
 
                     if (empty($mensajeError)) {
                         if ($this->model->actualizar($id, $titulo, $rutaFinal, $descripcion, $cantidad, $iva, $precio)) {
-                            header("Location: /PROYECTO_SODICOL/productos/lista_productos.php?updated=1");
+                            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&updated=1");
                             exit();
                         }
                         $mensajeError = "Error al actualizar el producto";
@@ -124,7 +124,7 @@ class ProductoController {
         verificar_autenticacion();
 
         if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
-            header("Location: /PROYECTO_SODICOL/productos/lista_productos.php?error=default");
+            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&error=default");
             exit();
         }
 
@@ -133,7 +133,7 @@ class ProductoController {
 
         // Verificar dependencias con cotizaciones
         if ($this->model->tieneEnCotizaciones($id)) {
-            header("Location: /PROYECTO_SODICOL/productos/lista_productos.php?error=en_uso");
+            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&error=en_uso");
             exit();
         }
 
@@ -143,9 +143,9 @@ class ProductoController {
                 $ruta = dirname(__DIR__, 2) . '/uploads/' . $producto['foto'];
                 if (file_exists($ruta)) unlink($ruta);
             }
-            header("Location: /PROYECTO_SODICOL/productos/lista_productos.php?deleted=1");
+            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&deleted=1");
         } else {
-            header("Location: /PROYECTO_SODICOL/productos/lista_productos.php?error=default");
+            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&error=default");
         }
         exit();
     }

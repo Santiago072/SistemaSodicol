@@ -34,7 +34,7 @@ class TareaController {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
-                header("Location: /PROYECTO_SODICOL/tareas/tareas_usuarios.php?error=csrf");
+                header("Location: /PROYECTO_SODICOL/?module=tareas&action=gestion&error=csrf");
                 exit();
             }
 
@@ -43,14 +43,14 @@ class TareaController {
             $estado      = sanitizar_entrada($_POST['estado'] ?? '');
 
             if (!in_array($estado, ['pendiente', 'completo'])) {
-                header("Location: /PROYECTO_SODICOL/tareas/tareas_usuarios.php?error=estado");
+                header("Location: /PROYECTO_SODICOL/?module=tareas&action=gestion&error=estado");
                 exit();
             }
 
             if ($this->model->crear($usuarioId, $descripcion, $estado)) {
-                header("Location: /PROYECTO_SODICOL/tareas/tareas_usuarios.php?success=1");
+                header("Location: /PROYECTO_SODICOL/?module=tareas&action=gestion&success=1");
             } else {
-                header("Location: /PROYECTO_SODICOL/tareas/tareas_usuarios.php?error=insert");
+                header("Location: /PROYECTO_SODICOL/?module=tareas&action=gestion&error=insert");
             }
             exit();
         }
@@ -79,14 +79,14 @@ class TareaController {
         $csrf_token   = generar_token_csrf();
 
         if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
-            header("Location: /PROYECTO_SODICOL/tareas/tareas_usuarios.php?error=invalid_id");
+            header("Location: /PROYECTO_SODICOL/?module=tareas&action=gestion&error=invalid_id");
             exit();
         }
 
         $id    = intval($_GET['id']);
         $tarea = $this->model->buscarPorId($id);
         if (!$tarea) {
-            header("Location: /PROYECTO_SODICOL/tareas/tareas_usuarios.php?error=not_found");
+            header("Location: /PROYECTO_SODICOL/?module=tareas&action=gestion&error=not_found");
             exit();
         }
 
@@ -103,7 +103,7 @@ class TareaController {
                 if (!in_array($estado, ['pendiente', 'completo'])) {
                     $mensajeError = "Estado no válido";
                 } elseif ($this->model->actualizar($id, $usuarioId, $descripcion, $estado)) {
-                    header("Location: /PROYECTO_SODICOL/tareas/tareas_usuarios.php?updated=1");
+                    header("Location: /PROYECTO_SODICOL/?module=tareas&action=gestion&updated=1");
                     exit();
                 } else {
                     $mensajeError = "Error al actualizar la tarea";
@@ -119,15 +119,15 @@ class TareaController {
         verificar_admin();
 
         if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
-            header("Location: /PROYECTO_SODICOL/tareas/tareas_usuarios.php?error=invalid_id");
+            header("Location: /PROYECTO_SODICOL/?module=tareas&action=gestion&error=invalid_id");
             exit();
         }
 
         $id = intval($_GET['id']);
         if ($this->model->eliminar($id)) {
-            header("Location: /PROYECTO_SODICOL/tareas/tareas_usuarios.php?deleted=1");
+            header("Location: /PROYECTO_SODICOL/?module=tareas&action=gestion&deleted=1");
         } else {
-            header("Location: /PROYECTO_SODICOL/tareas/tareas_usuarios.php?error=delete_failed");
+            header("Location: /PROYECTO_SODICOL/?module=tareas&action=gestion&error=delete_failed");
         }
         exit();
     }

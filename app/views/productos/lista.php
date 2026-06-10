@@ -7,7 +7,7 @@
 $pageTitle = 'Lista de Productos';
 $basePath  = '/PROYECTO_SODICOL/';
 include dirname(__DIR__) . '/layout/header.php';
-include dirname(dirname(dirname(__DIR__))) . '/includes/menu.php';
+include dirname(__DIR__) . '/layout/menu.php';
 ?>
 
 <div class="contenido-principal">
