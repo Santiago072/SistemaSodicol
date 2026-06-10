@@ -17,7 +17,9 @@ include dirname(__DIR__) . '/layout/menu.php';
 
     <!-- Búsqueda de producto -->
     <div class="barra-busqueda">
-        <form action="/PROYECTO_SODICOL/?module=cotizaciones&action=crear" method="GET" class="formulario-busqueda">
+        <form action="/PROYECTO_SODICOL/" method="GET" class="formulario-busqueda">
+            <input type="hidden" name="module" value="cotizaciones">
+            <input type="hidden" name="action" value="crear">
             <input type="text" name="busqueda" value="<?= htmlspecialchars($busqueda) ?>"
                    placeholder="Buscar producto...">
             <button type="submit" class="boton-primario">Buscar</button>
@@ -29,7 +31,9 @@ include dirname(__DIR__) . '/layout/menu.php';
 
     <!-- Seleccionar producto existente -->
     <div class="seleccion-producto">
-        <form method="GET" action="/PROYECTO_SODICOL/?module=cotizaciones&action=crear" class="formulario">
+        <form method="GET" action="/PROYECTO_SODICOL/" class="formulario">
+            <input type="hidden" name="module" value="cotizaciones">
+            <input type="hidden" name="action" value="crear">
             <input type="hidden" name="busqueda" value="<?= htmlspecialchars($busqueda) ?>">
             <select name="producto_id" class="producto-existente" required>
                 <option value="">Seleccione un producto</option>
