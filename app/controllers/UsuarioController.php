@@ -1,0 +1,173 @@
+<?php
+require_once dirname(__DIR__) . '/models/UsuarioModel.php';
+require_once dirname(__DIR__, 2) . '/config/seguridad.php';
+
+/**
+ * UsuarioController — toda la lógica de negocio de usuarios.
+ * Devuelve arrays de datos que las vistas consumen.
+ */
+class UsuarioController {
+    private UsuarioModel $model;
+    private int $porPagina = 10;
+
+    public function __construct($conexion) {
+        $this->model = new UsuarioModel($conexion);
+    }
+
+    // ── LISTAR ──────────────────────────────────────────────
+    public function listar(): array {
+        verificar_admin();
+
+        $busqueda   = '';
+        $paginaActual = max(1, (int)($_GET['pagina'] ?? 1));
+        $offset     = ($paginaActual - 1) * $this->porPagina;
+
+        if (isset($_GET['busqueda']) && $_GET['busqueda'] !== '') {
+            $busqueda = sanitizar_entrada($_GET['busqueda']);
+        }
+
+        $total    = $this->model->contar($busqueda);
+        $usuarios = $this->model->listar($offset, $this->porPagina, $busqueda);
+        $totalPaginas = (int)ceil($total / $this->porPagina);
+
+        $mensajeExito = '';
+        $mensajeError = '';
+        if (isset($_GET['success']))  $mensajeExito = "Usuario creado exitosamente";
+        if (isset($_GET['updated']))  $mensajeExito = "Usuario actualizado exitosamente";
+        if (isset($_GET['deleted']))  $mensajeExito = "Usuario eliminado exitosamente";
+        if (isset($_GET['error'])) {
+            $map = [
+                'last_admin'   => "No se puede eliminar el último administrador",
+                'self_delete'  => "No puede eliminarse a sí mismo",
+                'delete_failed'=> "Error al eliminar el usuario",
+                'invalid_id'   => "ID de usuario inválido",
+            ];
+            $mensajeError = $map[$_GET['error']] ?? "Error al procesar la solicitud";
+        }
+
+        return compact('usuarios', 'busqueda', 'paginaActual', 'totalPaginas', 'total',
+                        'mensajeExito', 'mensajeError');
+    }
+
+    // ── CREAR ────────────────────────────────────────────────
+    public function crear(): array {
+        verificar_admin();
+
+        $mensajeError = '';
+        $mensajeExito = '';
+        $csrf_token   = generar_token_csrf();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
+                $mensajeError = "Token de seguridad inválido";
+            } else {
+                $doc      = sanitizar_entrada($_POST['documento'] ?? '');
+                $nombre   = sanitizar_entrada($_POST['nombre'] ?? '');
+                $correo   = sanitizar_entrada($_POST['correo'] ?? '');
+                $telefono = sanitizar_entrada($_POST['telefono'] ?? '');
+                $rol      = sanitizar_entrada($_POST['rol'] ?? '');
+                $password = $_POST['password'] ?? '';
+
+                if (!$doc || !$nombre || !$correo || !$telefono || !$rol) {
+                    $mensajeError = "Todos los campos son obligatorios";
+                } elseif (!validar_email($correo)) {
+                    $mensajeError = "El correo electrónico no es válido";
+                } elseif (!in_array($rol, ['admin', 'usuario'])) {
+                    $mensajeError = "Rol no válido";
+                } elseif ($this->model->existeDocumentoOCorreo($doc, $correo)) {
+                    $mensajeError = "El documento o correo ya está registrado";
+                } else {
+                    $hash = password_hash(!empty($password) ? $password : $doc, PASSWORD_DEFAULT);
+                    if ($this->model->crear($doc, $nombre, $correo, $hash, $telefono, $rol)) {
+                        header("Location: /PROYECTO_SODICOL/usuarios/lista_usuarios.php?success=1");
+                        exit();
+                    }
+                    $mensajeError = "Error al crear el usuario";
+                }
+            }
+        }
+
+        return compact('mensajeError', 'mensajeExito', 'csrf_token');
+    }
+
+    // ── EDITAR ───────────────────────────────────────────────
+    public function editar(): array {
+        verificar_admin();
+
+        $mensajeError = '';
+        $csrf_token   = generar_token_csrf();
+
+        if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
+            header("Location: /PROYECTO_SODICOL/usuarios/lista_usuarios.php");
+            exit();
+        }
+
+        $id      = intval($_GET['id']);
+        $usuario = $this->model->buscarPorId($id);
+        if (!$usuario) {
+            header("Location: /PROYECTO_SODICOL/usuarios/lista_usuarios.php");
+            exit();
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
+                $mensajeError = "Token de seguridad inválido";
+            } else {
+                $doc      = sanitizar_entrada($_POST['documento'] ?? '');
+                $nombre   = sanitizar_entrada($_POST['nombre'] ?? '');
+                $correo   = sanitizar_entrada($_POST['correo'] ?? '');
+                $telefono = sanitizar_entrada($_POST['telefono'] ?? '');
+                $rol      = sanitizar_entrada($_POST['rol'] ?? '');
+                $estado   = sanitizar_entrada($_POST['estado'] ?? '');
+                $nuevaPass= $_POST['nueva_password'] ?? '';
+
+                if (!validar_email($correo)) {
+                    $mensajeError = "El correo electrónico no es válido";
+                } elseif (!in_array($rol, ['admin', 'usuario'])) {
+                    $mensajeError = "Rol no válido";
+                } elseif (!in_array($estado, ['activo', 'inactivo'])) {
+                    $mensajeError = "Estado no válido";
+                } else {
+                    $hash = !empty($nuevaPass) ? password_hash($nuevaPass, PASSWORD_DEFAULT) : null;
+                    if ($this->model->actualizar($id, $doc, $nombre, $correo, $telefono, $rol, $estado, $hash)) {
+                        header("Location: /PROYECTO_SODICOL/usuarios/lista_usuarios.php?updated=1");
+                        exit();
+                    }
+                    $mensajeError = "Error al actualizar";
+                }
+            }
+        }
+
+        return compact('usuario', 'mensajeError', 'csrf_token');
+    }
+
+    // ── ELIMINAR ─────────────────────────────────────────────
+    public function eliminar(): void {
+        verificar_admin();
+
+        if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
+            header("Location: /PROYECTO_SODICOL/usuarios/lista_usuarios.php?error=invalid_id");
+            exit();
+        }
+
+        $id      = intval($_GET['id']);
+        $usuario = $this->model->buscarPorId($id);
+
+        if ($usuario && $usuario['rol'] === 'admin' && $this->model->contarAdmins() <= 1) {
+            header("Location: /PROYECTO_SODICOL/usuarios/lista_usuarios.php?error=last_admin");
+            exit();
+        }
+
+        if ($id === (int)$_SESSION['usuario_id']) {
+            header("Location: /PROYECTO_SODICOL/usuarios/lista_usuarios.php?error=self_delete");
+            exit();
+        }
+
+        if ($this->model->eliminar($id)) {
+            header("Location: /PROYECTO_SODICOL/usuarios/lista_usuarios.php?deleted=1");
+        } else {
+            header("Location: /PROYECTO_SODICOL/usuarios/lista_usuarios.php?error=delete_failed");
+        }
+        exit();
+    }
+}
