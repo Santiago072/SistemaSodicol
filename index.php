@@ -179,14 +179,6 @@ if ($module === 'cotizaciones') {
     exit();
 }
 
-// ── Módulo: docs ─────────────────────────────────────────────────────────────
-if ($module === 'docs') {
-    if ($action === 'manual') {
-        include __DIR__ . '/app/views/docs/manual.php';
-        exit();
-    }
-}
-
 // ── Módulo desconocido → redirigir al login ──────────────────────────────────
 header('Location: /PROYECTO_SODICOL/');
 exit();
