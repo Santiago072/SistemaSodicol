@@ -313,4 +313,37 @@ class CotizacionController {
             'forzar' => true,
         ];
     }
+
+    // ── AJAX ENDPOINTS ───────────────────────────────────────
+    public function ajaxBuscarProductos(): void {
+        verificar_autenticacion();
+        header('Content-Type: application/json');
+        
+        $busqueda = '';
+        if (isset($_GET['busqueda']) && $_GET['busqueda'] !== '') {
+            $busqueda = sanitizar_entrada($_GET['busqueda']);
+        }
+        
+        $productos = $this->productoModel->listarTodos($busqueda);
+        echo json_encode(['status' => 'success', 'data' => $productos]);
+        exit();
+    }
+
+    public function ajaxGetProducto(): void {
+        verificar_autenticacion();
+        header('Content-Type: application/json');
+        
+        if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
+            echo json_encode(['status' => 'error', 'message' => 'ID inválido']);
+            exit();
+        }
+        
+        $producto = $this->productoModel->buscarPorId(intval($_GET['id']));
+        if ($producto) {
+            echo json_encode(['status' => 'success', 'data' => $producto]);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Producto no encontrado']);
+        }
+        exit();
+    }
 }

@@ -15,27 +15,20 @@ include dirname(__DIR__) . '/layout/menu.php';
 
     <div class="encabezado-pagina"><h1>Crear Nueva Cotización</h1></div>
 
-    <!-- Búsqueda de producto -->
+    <!-- Búsqueda de producto (AJAX) -->
     <div class="barra-busqueda">
-        <form action="/PROYECTO_SODICOL/" method="GET" class="formulario-busqueda">
-            <input type="hidden" name="module" value="cotizaciones">
-            <input type="hidden" name="action" value="crear">
-            <input type="text" name="busqueda" value="<?= htmlspecialchars($busqueda) ?>"
-                   placeholder="Buscar producto...">
-            <button type="submit" class="boton-primario">Buscar</button>
-            <?php if ($busqueda): ?>
-            <a href="/PROYECTO_SODICOL/?module=cotizaciones&action=crear" class="boton-limpiar">Limpiar</a>
-            <?php endif; ?>
+        <form id="form-busqueda-ajax" class="formulario-busqueda" onsubmit="return false;">
+            <input type="text" id="input-busqueda" value="<?= htmlspecialchars($busqueda) ?>"
+                   placeholder="Buscar producto..." autocomplete="off">
+            <button type="button" id="btn-buscar-ajax" class="boton-primario">Buscar</button>
+            <button type="button" id="btn-limpiar-busqueda" class="boton-limpiar" style="display:none;">Limpiar</button>
         </form>
     </div>
 
-    <!-- Seleccionar producto existente -->
+    <!-- Seleccionar producto existente (AJAX) -->
     <div class="seleccion-producto">
-        <form method="GET" action="/PROYECTO_SODICOL/" class="formulario">
-            <input type="hidden" name="module" value="cotizaciones">
-            <input type="hidden" name="action" value="crear">
-            <input type="hidden" name="busqueda" value="<?= htmlspecialchars($busqueda) ?>">
-            <select name="producto_id" class="producto-existente" required>
+        <form id="form-usar-producto" class="formulario" onsubmit="return false;">
+            <select id="select-producto" class="producto-existente" required>
                 <option value="">Seleccione un producto</option>
                 <?php foreach ($productos as $prd): ?>
                 <option value="<?= intval($prd['id']) ?>"
@@ -44,8 +37,8 @@ include dirname(__DIR__) . '/layout/menu.php';
                 </option>
                 <?php endforeach; ?>
             </select>
-            <button type="submit" class="boton-primario">Usar producto</button>
-            <a href="/PROYECTO_SODICOL/?module=cotizaciones&action=crear" class="boton-limpiar">Limpiar</a>
+            <button type="button" id="btn-usar-producto" class="boton-primario">Usar producto</button>
+            <button type="button" id="btn-limpiar-form" class="boton-limpiar">Limpiar Campos</button>
         </form>
     </div>
     <br>
@@ -68,13 +61,13 @@ include dirname(__DIR__) . '/layout/menu.php';
                 <label>Foto del Producto</label>
                 <input type="file" name="foto" accept="image/jpeg,image/png,image/gif,image/webp">
                 <small style="color:#888;">Formatos: JPG, PNG, GIF, WEBP. Máx: 5MB</small>
-                <?php if (!empty($producto['foto'])): ?>
-                <div class="grupo-campo">
+                <div id="img-preview-container" class="grupo-campo" style="margin-top:10px;">
+                    <?php if (!empty($producto['foto'])): ?>
                     <label>Imagen actual</label><br>
                     <img src="/PROYECTO_SODICOL/uploads/<?= htmlspecialchars($producto['foto']) ?>"
-                         width="150" style="max-width:200px;">
+                         width="150" style="max-width:200px; border-radius:8px;">
+                    <?php endif; ?>
                 </div>
-                <?php endif; ?>
             </div>
             <div class="grupo-campo">
                 <label>Descripción *</label>
@@ -207,6 +200,103 @@ include dirname(__DIR__) . '/layout/menu.php';
         modal.style.display = 'none';
         setTimeout(() => window.location.reload(), 3000);
     });
+
+    // ── Lógica AJAX para búsqueda y selección de productos ──
+    const inputBusqueda = document.getElementById('input-busqueda');
+    const btnBuscar = document.getElementById('btn-buscar-ajax');
+    const btnLimpiarBusqueda = document.getElementById('btn-limpiar-busqueda');
+    const selectProducto = document.getElementById('select-producto');
+    const btnUsar = document.getElementById('btn-usar-producto');
+    const btnLimpiarForm = document.getElementById('btn-limpiar-form');
+    let timeoutBusqueda = null;
+
+    function ejecutarBusqueda() {
+        const query = inputBusqueda.value;
+        fetch('/PROYECTO_SODICOL/?module=cotizaciones&action=ajax_buscar_productos&busqueda=' + encodeURIComponent(query))
+        .then(r => r.json())
+        .then(res => {
+            if(res.status === 'success') {
+                selectProducto.innerHTML = '<option value="">Seleccione un producto</option>';
+                res.data.forEach(prd => {
+                    const opt = document.createElement('option');
+                    opt.value = prd.id;
+                    opt.textContent = prd.titulo;
+                    selectProducto.appendChild(opt);
+                });
+                btnLimpiarBusqueda.style.display = query ? 'inline-block' : 'none';
+            }
+        });
+    }
+
+    btnBuscar.addEventListener('click', ejecutarBusqueda);
+    
+    // Búsqueda en vivo (debounce)
+    inputBusqueda.addEventListener('input', () => {
+        clearTimeout(timeoutBusqueda);
+        timeoutBusqueda = setTimeout(ejecutarBusqueda, 300);
+    });
+
+    btnLimpiarBusqueda.addEventListener('click', () => {
+        inputBusqueda.value = '';
+        ejecutarBusqueda();
+    });
+
+    // Autocompletar formulario al usar producto
+    btnUsar.addEventListener('click', () => {
+        const id = selectProducto.value;
+        if(!id) {
+            alert('Por favor seleccione un producto de la lista primero.');
+            return;
+        }
+        
+        // Mostrar estado de carga en el botón
+        const txtOriginal = btnUsar.textContent;
+        btnUsar.textContent = 'Cargando...';
+        btnUsar.disabled = true;
+
+        fetch('/PROYECTO_SODICOL/?module=cotizaciones&action=ajax_get_producto&id=' + encodeURIComponent(id))
+        .then(r => r.json())
+        .then(res => {
+            if(res.status === 'success') {
+                const p = res.data;
+                document.querySelector('input[name="producto_id"]').value = p.id;
+                document.querySelector('input[name="titulo"]').value = p.titulo;
+                document.querySelector('textarea[name="descripcion"]').value = p.descripcion;
+                document.querySelector('input[name="cantidad"]').value = 1; // Valor por defecto sensato al agregar
+                document.querySelector('select[name="IVA"]').value = p.iva;
+                document.querySelector('input[name="precio"]').value = p.precio;
+                
+                const imgPreviewContainer = document.getElementById('img-preview-container');
+                if(p.foto && imgPreviewContainer) {
+                    imgPreviewContainer.innerHTML = '<label>Imagen actual</label><br><img src="/PROYECTO_SODICOL/uploads/' + p.foto + '" width="150" style="max-width:200px; border-radius:8px;">';
+                    document.querySelector('input[name="foto_actual"]').value = p.foto;
+                } else if (imgPreviewContainer) {
+                    imgPreviewContainer.innerHTML = '';
+                    document.querySelector('input[name="foto_actual"]').value = '';
+                }
+            } else {
+                alert(res.message || 'Error al cargar el producto');
+            }
+        })
+        .finally(() => {
+            btnUsar.textContent = txtOriginal;
+            btnUsar.disabled = false;
+        });
+    });
+
+    btnLimpiarForm.addEventListener('click', () => {
+        document.querySelector('input[name="producto_id"]').value = '0';
+        document.querySelector('input[name="titulo"]').value = '';
+        document.querySelector('textarea[name="descripcion"]').value = '';
+        document.querySelector('input[name="cantidad"]').value = '0';
+        document.querySelector('select[name="IVA"]').value = '';
+        document.querySelector('input[name="precio"]').value = '0';
+        document.querySelector('input[name="foto_actual"]').value = '';
+        const imgPreviewContainer = document.getElementById('img-preview-container');
+        if(imgPreviewContainer) imgPreviewContainer.innerHTML = '';
+        selectProducto.value = '';
+    });
+
 })();
 </script>
 
