@@ -896,11 +896,11 @@ body.login-page {
     background: rgba(239, 68, 68, .2);
     border: 1px solid rgba(239, 68, 68, .4);
     color: #fecaca;
-    font-size: .8rem;
-    padding: 5px;
+    font-size: .9rem;
+    padding: 12px 15px;
     border-radius: 12px;
-    margin-top: -22px;
-    margin-bottom: 5px;
+    margin-top: 15px;
+    margin-bottom: 20px;
     position: relative;
     overflow: hidden;
 }
