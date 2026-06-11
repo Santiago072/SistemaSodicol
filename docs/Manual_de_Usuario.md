@@ -203,7 +203,7 @@ Muestra todos los productos que han sido registrados en el sistema (tanto los cr
 - ✏️ **Editar producto:** Modifica nombre, foto, descripción, cantidad, IVA y precio. Se valida que no exista otro producto con el mismo nombre.
 - 🗑️ **Eliminar producto:** El sistema pedirá confirmación antes de borrar y lo eliminará de la vista en tiempo real si tiene éxito.
 
-> ⚠️ **Importante:** Si un producto ha sido utilizado en alguna cotización existente, el sistema **no permitirá eliminarlo** para proteger la integridad de los documentos. Verás un mensaje de advertencia indicando que el producto está en uso.
+> ⚠️ **Importante:** Puedes eliminar cualquier producto de tu catálogo. Las cotizaciones anteriores que ya hayan incluido este producto no se verán afectadas, mantendrán la copia exacta de los datos (e imagen) que tenían al momento de ser creadas.
 
 ---
 
