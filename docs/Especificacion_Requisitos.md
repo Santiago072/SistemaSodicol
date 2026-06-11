@@ -1,6 +1,6 @@
 # Especificación de Requisitos: Sistema de Cotizaciones SODICOL
 
-> **Versión:** 2.0 · **Empresa:** Sodicol Zomac S.A.S · **Plataforma:** Web (PHP + MySQL, Patrón MVC)
+> **Empresa:** Sodicol Zomac S.A.S · **Plataforma:** Web (PHP + MySQL, Patrón MVC)
 
 ---
 
