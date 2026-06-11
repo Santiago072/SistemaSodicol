@@ -96,14 +96,14 @@ class ProductoModel {
         return $ok;
     }
 
-    /** Verificar si un producto tiene ítems en cotizaciones generadas */
-    public function tieneEnCotizaciones(int $id): bool {
+    /** Verificar si una foto de producto está en uso en cotizaciones generadas */
+    public function fotoEnUso(string $foto): bool {
+        $fotoBase = basename($foto);
         $stmt = mysqli_prepare($this->db,
-            "SELECT COUNT(*) AS total FROM cotizacion_items ci
-             JOIN cotizaciones c ON ci.cotizacion_id = c.id
-             WHERE ci.titulo = (SELECT titulo FROM productos WHERE id = ?)
-             AND c.numero_cotizacion IS NOT NULL AND c.numero_cotizacion != ''");
-        mysqli_stmt_bind_param($stmt, "i", $id);
+            "SELECT COUNT(*) AS total FROM cotizacion_items 
+             WHERE foto LIKE ?");
+        $param = "%" . $fotoBase . "%";
+        mysqli_stmt_bind_param($stmt, "s", $param);
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
         $row = mysqli_fetch_assoc($result);

@@ -141,16 +141,13 @@ class ProductoController {
         }
 
         $id = intval($_GET['id']);
-        if ($this->model->tieneEnCotizaciones($id)) {
-            if ($esAjax) { echo json_encode(['status' => 'error', 'message' => 'No se puede eliminar porque está en uso en cotizaciones']); exit(); }
-            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&error=in_use");
-            exit();
-        }
-
         $producto = $this->model->buscarPorId($id);
+
         if ($producto && !empty($producto['foto'])) {
-            $ruta = dirname(__DIR__, 2) . '/uploads/' . basename($producto['foto']);
-            if (file_exists($ruta)) unlink($ruta);
+            if (!$this->model->fotoEnUso($producto['foto'])) {
+                $ruta = dirname(__DIR__, 2) . '/uploads/' . basename($producto['foto']);
+                if (file_exists($ruta)) unlink($ruta);
+            }
         }
 
         if ($this->model->eliminar($id)) {
