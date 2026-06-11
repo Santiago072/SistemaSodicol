@@ -32,7 +32,6 @@ include dirname(__DIR__) . '/layout/menu.php';
     <div class="barra-busqueda">
         <form action="/PROYECTO_SODICOL/" method="GET" class="formulario-busqueda">
             <input type="hidden" name="module" value="productos"><input type="hidden" name="action" value="lista"><input type="text" name="busqueda" value="<?= htmlspecialchars($busqueda) ?>" placeholder="Buscar producto...">
-            <button type="submit" class="boton-primario">Buscar</button>
             <?php if ($busqueda): ?>
             <a href="/PROYECTO_SODICOL/?module=productos&action=lista" class="boton-limpiar">Limpiar</a>
             <?php endif; ?>
