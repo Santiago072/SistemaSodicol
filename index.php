@@ -61,7 +61,14 @@ if ($module === '') {
 // ── Módulo: panel ────────────────────────────────────────────────────────────
 if ($module === 'panel') {
     require_once __DIR__ . '/app/controllers/PanelController.php';
-    $data = (new PanelController(conexion()))->index();
+    $ctrl = new PanelController(conexion());
+
+    if ($action === 'ajax_completar_tarea') {
+        $ctrl->ajaxCompletarTarea();
+        exit();
+    }
+
+    $data = $ctrl->index();
     extract($data);
     include __DIR__ . '/app/views/panel/index.php';
     exit();

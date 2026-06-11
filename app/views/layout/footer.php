@@ -7,5 +7,6 @@
 $basePath = $basePath ?? '/PROYECTO_SODICOL/';
 ?>
 <script src="<?= $basePath ?>public/js/script.js"></script>
+<script src="<?= $basePath ?>public/js/ajax_tables.js"></script>
 </body>
 </html>
