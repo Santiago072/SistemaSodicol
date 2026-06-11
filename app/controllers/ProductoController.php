@@ -132,30 +132,35 @@ class ProductoController {
     public function eliminar(): void {
         verificar_autenticacion();
 
+        $esAjax = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || isset($_GET['ajax']);
+
         if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
-            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&error=default");
+            if ($esAjax) { echo json_encode(['status' => 'error', 'message' => 'ID inválido']); exit(); }
+            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&error=invalid_id");
             exit();
         }
 
-        $id      = intval($_GET['id']);
-        $producto = $this->model->buscarPorId($id);
-
-        // Verificar dependencias con cotizaciones
+        $id = intval($_GET['id']);
         if ($this->model->tieneEnCotizaciones($id)) {
-            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&error=en_uso");
+            if ($esAjax) { echo json_encode(['status' => 'error', 'message' => 'No se puede eliminar porque está en uso en cotizaciones']); exit(); }
+            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&error=in_use");
             exit();
         }
 
-        if ($producto && $this->model->eliminar($id)) {
-            // Eliminar imagen del servidor
-            if (!empty($producto['foto'])) {
-                $ruta = dirname(__DIR__, 2) . '/uploads/' . $producto['foto'];
-                if (file_exists($ruta)) unlink($ruta);
-            }
-            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&deleted=1");
-        } else {
-            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&error=default");
+        $producto = $this->model->buscarPorId($id);
+        if ($producto && !empty($producto['foto'])) {
+            $ruta = dirname(__DIR__, 2) . '/uploads/' . basename($producto['foto']);
+            if (file_exists($ruta)) unlink($ruta);
         }
+
+        if ($this->model->eliminar($id)) {
+            if ($esAjax) { echo json_encode(['status' => 'success']); exit(); }
+            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&deleted=1");
+            exit();
+        }
+
+        if ($esAjax) { echo json_encode(['status' => 'error', 'message' => 'Error al eliminar']); exit(); }
+        header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&error=delete_failed");
         exit();
     }
 }

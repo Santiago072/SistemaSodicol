@@ -118,17 +118,23 @@ class TareaController {
     public function eliminar(): void {
         verificar_admin();
 
+        $esAjax = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || isset($_GET['ajax']);
+
         if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
+            if ($esAjax) { echo json_encode(['status' => 'error', 'message' => 'ID inválido']); exit(); }
             header("Location: /PROYECTO_SODICOL/?module=tareas&action=gestion&error=invalid_id");
             exit();
         }
 
         $id = intval($_GET['id']);
         if ($this->model->eliminar($id)) {
+            if ($esAjax) { echo json_encode(['status' => 'success']); exit(); }
             header("Location: /PROYECTO_SODICOL/?module=tareas&action=gestion&deleted=1");
-        } else {
-            header("Location: /PROYECTO_SODICOL/?module=tareas&action=gestion&error=delete_failed");
+            exit();
         }
+        
+        if ($esAjax) { echo json_encode(['status' => 'error', 'message' => 'Error al eliminar']); exit(); }
+        header("Location: /PROYECTO_SODICOL/?module=tareas&action=gestion&error=delete_failed");
         exit();
     }
 }

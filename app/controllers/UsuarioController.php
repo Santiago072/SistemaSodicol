@@ -175,29 +175,36 @@ class UsuarioController {
     public function eliminar(): void {
         verificar_admin();
 
+        $esAjax = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || isset($_GET['ajax']);
+
         if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
+            if ($esAjax) { echo json_encode(['status' => 'error', 'message' => 'ID inválido']); exit(); }
             header("Location: /PROYECTO_SODICOL/?module=usuarios&action=lista&error=invalid_id");
             exit();
         }
 
-        $id      = intval($_GET['id']);
-        $usuario = $this->model->buscarPorId($id);
+        $id = intval($_GET['id']);
 
-        if ($usuario && $usuario['rol'] === 'admin' && $this->model->contarAdmins() <= 1) {
-            header("Location: /PROYECTO_SODICOL/?module=usuarios&action=lista&error=last_admin");
-            exit();
-        }
-
-        if ($id === (int)$_SESSION['usuario_id']) {
+        if ($id === intval($_SESSION['usuario_id'])) {
+            if ($esAjax) { echo json_encode(['status' => 'error', 'message' => 'No puedes eliminar tu propia cuenta']); exit(); }
             header("Location: /PROYECTO_SODICOL/?module=usuarios&action=lista&error=self_delete");
             exit();
         }
 
-        if ($this->model->eliminar($id)) {
-            header("Location: /PROYECTO_SODICOL/?module=usuarios&action=lista&deleted=1");
-        } else {
-            header("Location: /PROYECTO_SODICOL/?module=usuarios&action=lista&error=delete_failed");
+        if ($this->model->contarAdmins() <= 1 && $this->model->buscarPorId($id)['rol'] === 'admin') {
+            if ($esAjax) { echo json_encode(['status' => 'error', 'message' => 'No se puede eliminar al último administrador']); exit(); }
+            header("Location: /PROYECTO_SODICOL/?module=usuarios&action=lista&error=last_admin");
+            exit();
         }
+
+        if ($this->model->eliminar($id)) {
+            if ($esAjax) { echo json_encode(['status' => 'success']); exit(); }
+            header("Location: /PROYECTO_SODICOL/?module=usuarios&action=lista&deleted=1");
+            exit();
+        }
+
+        if ($esAjax) { echo json_encode(['status' => 'error', 'message' => 'Error al eliminar']); exit(); }
+        header("Location: /PROYECTO_SODICOL/?module=usuarios&action=lista&error=delete_failed");
         exit();
     }
 }
