@@ -79,6 +79,8 @@ class ProductoController {
                     $mensajeError = "Valor de IVA no válido";
                 } elseif ($cantidad < 0 || $precio < 0) {
                     $mensajeError = "Cantidad y precio deben ser valores positivos";
+                } elseif ($this->model->existePorTitulo($titulo, $id)) {
+                    $mensajeError = "Ya existe otro producto con este nombre";
                 } else {
                     $rutaFinal = $_POST['foto_actual'] ?? '';
 

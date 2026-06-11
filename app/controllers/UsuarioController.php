@@ -127,6 +127,8 @@ class UsuarioController {
                     $mensajeError = "Rol no válido";
                 } elseif (!in_array($estado, ['activo', 'inactivo'])) {
                     $mensajeError = "Estado no válido";
+                } elseif ($this->model->existeDocumentoOCorreo($doc, $correo, $id)) {
+                    $mensajeError = "El documento o correo ya está registrado en otro usuario";
                 } else {
                     $hash = !empty($nuevaPass) ? password_hash($nuevaPass, PASSWORD_DEFAULT) : null;
                     if ($this->model->actualizar($id, $doc, $nombre, $correo, $telefono, $rol, $estado, $hash)) {
