@@ -31,9 +31,6 @@ include dirname(__DIR__) . '/layout/menu.php';
                    placeholder="Buscar por cliente..." maxlength="255">
             <input type="text"   name="numero_cotizacion"  value="<?= htmlspecialchars($busquedaNumero) ?>"
                    placeholder="Número cotización..." maxlength="50">
-            <button type="submit" class="boton-primario">
-                <i class="bi bi-search"></i> Buscar
-            </button>
             <?php if (!empty($cotizaciones) || $busquedaFecha || $busquedaCliente || $busquedaNumero): ?>
             <a href="/PROYECTO_SODICOL/?module=cotizaciones&action=consultar&limpiar=1" class="boton-limpiar">
                 <i class="bi bi-x-circle"></i> Limpiar

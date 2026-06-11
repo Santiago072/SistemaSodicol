@@ -30,7 +30,6 @@ include dirname(__DIR__) . '/layout/menu.php';
             <input type="hidden" name="module" value="usuarios">
             <input type="hidden" name="action" value="lista">
             <input type="text" name="busqueda" value="<?= htmlspecialchars($busqueda) ?>" placeholder="Buscar usuario...">
-            <button type="submit" class="boton-primario">Buscar</button>
             <?php if ($busqueda): ?>
             <a href="/PROYECTO_SODICOL/?module=usuarios&action=lista" class="boton-limpiar">Limpiar</a>
             <?php endif; ?>
