@@ -115,6 +115,13 @@ class ProductoController {
                         $mensajeError = "Error al actualizar el producto";
                     }
                 }
+
+                // En caso de error, retener los datos enviados en el formulario
+                $producto['titulo']      = $titulo;
+                $producto['descripcion'] = $descripcion;
+                $producto['cantidad']    = $cantidad;
+                $producto['iva']         = $iva;
+                $producto['precio']      = $precio;
             }
         }
 
