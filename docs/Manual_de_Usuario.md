@@ -64,7 +64,7 @@ Muestra contadores animados con la actividad del sistema:
 ### Columna derecha — Mis Tareas Pendientes
 Muestra las tareas de trabajo que el administrador te ha asignado. Si tienes tareas, cada una aparecerá con:
 - La descripción de la instrucción.
-- Un botón **✔ Completo** para marcarla como finalizada al instante. La tarea desaparecerá de tu lista de pendientes inmediatamente.
+- Un botón **✔ Completo** para marcarla como finalizada al instante. La tarea desaparecerá de tu lista de pendientes inmediatamente, con una suave animación y sin recargar la página.
 
 Si no tienes tareas asignadas, verás el mensaje *"No tienes tareas pendientes actualmente."*
 
@@ -108,8 +108,8 @@ El proceso tiene dos fases: **añadir ítems** y luego **completar los datos del
 La pantalla muestra tres secciones en la parte superior:
 
 **A. Buscador de productos (filtrado)**
-- Escribe en el campo de búsqueda y presiona **Buscar** para filtrar el listado de productos disponibles en el catálogo.
-- Cuando hay un filtro activo, aparece el botón **Limpiar** para resetear la búsqueda.
+- Escribe en el campo de búsqueda y el sistema filtrará automáticamente los productos disponibles en el catálogo a medida que tecleas (*live search*).
+- Cuando hay un filtro activo, aparece el botón **Limpiar** para vaciar el campo de texto y ver todos los productos nuevamente.
 
 **B. Selector rápido "Usar producto"**
 - Despliega todos los productos del catálogo en un menú seleccionable.
@@ -174,7 +174,7 @@ Usa la barra superior para buscar por:
 - 👤 **Nombre del cliente** (texto libre)
 - 🔢 **Número de cotización** (texto libre)
 
-Puedes combinar múltiples filtros. Haz clic en **🔍 Buscar** para aplicar los filtros. Aparecerá el botón **🗑 Limpiar** si hay una búsqueda activa.
+Puedes combinar múltiples filtros. La tabla de resultados **se actualizará en tiempo real** mientras cambias la fecha o escribes en los campos, sin necesidad de presionar ningún botón. Aparecerá el botón **🗑 Limpiar** si hay una búsqueda activa.
 
 #### Tabla de resultados
 Cada fila muestra: número de cotización, fecha, nombre del cliente, entidad, ciudad, y las acciones disponibles:
@@ -186,7 +186,7 @@ Cada fila muestra: número de cotización, fecha, nombre del cliente, entidad, c
 
 > El visor PDF se abre dentro del sistema sin necesidad de salir. Puedes cerrarlo con el botón ✕ o presionando la tecla **Escape**.
 
-Los resultados se muestran **paginados** (10 por página) con botones de navegación.
+Los resultados se muestran **paginados** (10 por página) con botones de navegación. Cambiar de página se hace al instante mediante tecnología asíncrona (no recarga todo el sitio).
 
 ---
 
@@ -198,10 +198,10 @@ Muestra todos los productos que han sido registrados en el sistema (tanto los cr
 
 ### Funciones disponibles
 
-- **Búsqueda:** Escribe en el campo de búsqueda y presiona Buscar para filtrar la tabla por nombre de producto. El botón **Limpiar** aparece cuando hay un filtro activo.
-- **Paginación:** La tabla muestra 10 productos por página. Usa los botones de navegación al final de la tabla para cambiar de página.
+- **Búsqueda:** Escribe en el campo de búsqueda y la tabla se filtrará instantáneamente por nombre de producto (*live search*). El botón **Limpiar** aparece cuando hay un filtro activo.
+- **Paginación:** La tabla muestra 10 productos por página. Usa los botones de navegación al final de la tabla para cambiar de página de forma rápida y sin recargas.
 - ✏️ **Editar producto:** Modifica nombre, foto, descripción, cantidad, IVA y precio. Se valida que no exista otro producto con el mismo nombre.
-- 🗑️ **Eliminar producto:** El sistema pedirá confirmación antes de borrar.
+- 🗑️ **Eliminar producto:** El sistema pedirá confirmación antes de borrar y lo eliminará de la vista en tiempo real si tiene éxito.
 
 > ⚠️ **Importante:** Si un producto ha sido utilizado en alguna cotización existente, el sistema **no permitirá eliminarlo** para proteger la integridad de los documentos. Verás un mensaje de advertencia indicando que el producto está en uso.
 
@@ -253,9 +253,9 @@ Accede desde **menú 👤 > Lista de Usuarios** o **menú 👤 > Nuevo Usuario**
 ### Lista de Usuarios
 
 - Muestra todos los empleados registrados con nombre, documento, correo, teléfono, rol y estado.
-- **Búsqueda:** filtra la tabla escribiendo el nombre del usuario.
-- **Paginación** de 10 registros por página.
-- Acciones por fila: ✏️ Editar y 🗑️ Eliminar.
+- **Búsqueda:** Filtra la tabla escribiendo el nombre del usuario (búsqueda automática sin botón).
+- **Paginación** asíncrona de 10 registros por página.
+- Acciones por fila: ✏️ Editar y 🗑️ Eliminar (en segundo plano).
 
 ### Crear Nuevo Usuario
 
