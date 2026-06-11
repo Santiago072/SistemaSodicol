@@ -70,10 +70,20 @@ class UsuarioController {
 
                 if (!$doc || !$nombre || !$correo || !$telefono || !$rol) {
                     $mensajeError = "Todos los campos son obligatorios";
+                } elseif (!preg_match('/^\d{5,20}$/', $doc)) {
+                    $mensajeError = "El documento debe ser numérico (5-20 dígitos)";
+                } elseif (mb_strlen($nombre) < 3 || mb_strlen($nombre) > 100) {
+                    $mensajeError = "El nombre debe tener entre 3 y 100 caracteres";
                 } elseif (!validar_email($correo)) {
                     $mensajeError = "El correo electrónico no es válido";
+                } elseif (mb_strlen($correo) > 100) {
+                    $mensajeError = "El correo no puede superar 100 caracteres";
+                } elseif (!preg_match('/^\d{7,20}$/', $telefono)) {
+                    $mensajeError = "El teléfono debe ser numérico (7-20 dígitos)";
                 } elseif (!in_array($rol, ['admin', 'usuario'])) {
                     $mensajeError = "Rol no válido";
+                } elseif (!empty($password) && mb_strlen($password) < 6) {
+                    $mensajeError = "La contraseña debe tener al menos 6 caracteres";
                 } elseif ($this->model->existeDocumentoOCorreo($doc, $correo)) {
                     $mensajeError = "El documento o correo ya está registrado";
                 } else {
@@ -121,12 +131,22 @@ class UsuarioController {
                 $estado   = sanitizar_entrada($_POST['estado'] ?? '');
                 $nuevaPass= $_POST['nueva_password'] ?? '';
 
-                if (!validar_email($correo)) {
+                if (!preg_match('/^\d{5,20}$/', $doc)) {
+                    $mensajeError = "El documento debe ser numérico (5-20 dígitos)";
+                } elseif (mb_strlen($nombre) < 3 || mb_strlen($nombre) > 100) {
+                    $mensajeError = "El nombre debe tener entre 3 y 100 caracteres";
+                } elseif (!validar_email($correo)) {
                     $mensajeError = "El correo electrónico no es válido";
+                } elseif (mb_strlen($correo) > 100) {
+                    $mensajeError = "El correo no puede superar 100 caracteres";
+                } elseif (!preg_match('/^\d{7,20}$/', $telefono)) {
+                    $mensajeError = "El teléfono debe ser numérico (7-20 dígitos)";
                 } elseif (!in_array($rol, ['admin', 'usuario'])) {
                     $mensajeError = "Rol no válido";
                 } elseif (!in_array($estado, ['activo', 'inactivo'])) {
                     $mensajeError = "Estado no válido";
+                } elseif (!empty($nuevaPass) && mb_strlen($nuevaPass) < 6) {
+                    $mensajeError = "La contraseña debe tener al menos 6 caracteres";
                 } elseif ($this->model->existeDocumentoOCorreo($doc, $correo, $id)) {
                     $mensajeError = "El documento o correo ya está registrado en otro usuario";
                 } else {

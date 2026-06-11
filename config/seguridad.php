@@ -8,7 +8,7 @@ function iniciar_sesion_segura() {
     if (session_status() === PHP_SESSION_NONE) {
         ini_set('session.cookie_httponly', 1);
         ini_set('session.use_only_cookies', 1);
-        ini_set('session.cookie_secure', 0); // Cambiar a 1 si se usa HTTPS
+        ini_set('session.cookie_secure', $_ENV['COOKIE_SECURE'] ?? 0); // Configurar a 1 en .env para HTTPS
         session_start();
         
         // Verificar timeout de sesión

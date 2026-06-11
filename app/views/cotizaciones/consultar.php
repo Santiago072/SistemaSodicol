@@ -125,8 +125,8 @@ function verPDF(numero, cliente) {
     err.style.display   = 'none';
     frame.style.display = 'block';
     titulo.textContent  = numero + ' - ' + cliente;
-    frame.src           = '/PROYECTO_SODICOL/cotizaciones/generar_pdf.php?ver=' + encodeURIComponent(numero);
-    btnDesc.href        = '/PROYECTO_SODICOL/cotizaciones/generar_pdf.php?descargar=' + encodeURIComponent(numero);
+    frame.src           = '/PROYECTO_SODICOL/?module=cotizaciones&action=generar_pdf&ver=' + encodeURIComponent(numero);
+    btnDesc.href        = '/PROYECTO_SODICOL/?module=cotizaciones&action=generar_pdf&descargar=' + encodeURIComponent(numero);
     btnDesc.setAttribute('download', 'cotizacion_' + numero + '.pdf');
     modal.style.display          = 'block';
     document.body.style.overflow = 'hidden';

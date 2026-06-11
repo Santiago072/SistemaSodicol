@@ -27,6 +27,13 @@
  *   ?action=logout                            → Cerrar sesión
  */
 
+// ── Manejo de errores para producción ────────────────────────────────────────
+error_reporting(E_ALL);
+ini_set('display_errors', '0');       // No mostrar errores al usuario
+ini_set('display_startup_errors', '0');
+ini_set('log_errors', '1');           // Registrar errores en archivo
+ini_set('error_log', __DIR__ . '/logs/php_errors.log');
+
 require_once __DIR__ . '/config/conexion.php';
 require_once __DIR__ . '/config/seguridad.php';
 
