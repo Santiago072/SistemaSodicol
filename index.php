@@ -178,6 +178,14 @@ if ($module === 'cotizaciones') {
             include __DIR__ . '/app/views/cotizaciones/generar_pdf.php';
             break;
 
+        case 'ajax_buscar_productos':
+            $ctrl->ajaxBuscarProductos();
+            break;
+
+        case 'ajax_get_producto':
+            $ctrl->ajaxGetProducto();
+            break;
+
         default: // crear
             $data = $ctrl->crear();
             extract($data);
