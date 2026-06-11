@@ -18,9 +18,8 @@ include dirname(__DIR__) . '/layout/menu.php';
     <!-- Búsqueda de producto (AJAX) -->
     <div class="barra-busqueda">
         <form id="form-busqueda-ajax" class="formulario-busqueda" onsubmit="return false;">
-            <input type="text" id="input-busqueda" value="<?= htmlspecialchars($busqueda) ?>"
+            <input type="text" id="input-busqueda" class="form-control" 
                    placeholder="Buscar producto..." autocomplete="off">
-            <button type="button" id="btn-buscar-ajax" class="boton-primario">Buscar</button>
             <button type="button" id="btn-limpiar-busqueda" class="boton-limpiar" style="display:none;">Limpiar</button>
         </form>
     </div>
@@ -203,7 +202,6 @@ include dirname(__DIR__) . '/layout/menu.php';
 
     // ── Lógica AJAX para búsqueda y selección de productos ──
     const inputBusqueda = document.getElementById('input-busqueda');
-    const btnBuscar = document.getElementById('btn-buscar-ajax');
     const btnLimpiarBusqueda = document.getElementById('btn-limpiar-busqueda');
     const selectProducto = document.getElementById('select-producto');
     const btnUsar = document.getElementById('btn-usar-producto');
@@ -228,8 +226,7 @@ include dirname(__DIR__) . '/layout/menu.php';
         });
     }
 
-    btnBuscar.addEventListener('click', ejecutarBusqueda);
-    
+
     // Búsqueda en vivo (debounce)
     inputBusqueda.addEventListener('input', () => {
         clearTimeout(timeoutBusqueda);
