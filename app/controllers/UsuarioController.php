@@ -137,6 +137,14 @@ class UsuarioController {
                     }
                     $mensajeError = "Error al actualizar";
                 }
+
+                // En caso de error, retener los datos enviados en el formulario
+                $usuario['documento'] = $doc;
+                $usuario['nombre']    = $nombre;
+                $usuario['correo']    = $correo;
+                $usuario['telefono']  = $telefono;
+                $usuario['rol']       = $rol;
+                $usuario['estado']    = $estado;
             }
         }
 
