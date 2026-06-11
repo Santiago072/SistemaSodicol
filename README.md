@@ -62,6 +62,7 @@ DB_USER=root
 DB_PASS=tu_contraseña
 DB_NAME=sistema_sodicol
 SESSION_LIFETIME=3600
+COOKIE_SECURE=0
 UPLOAD_MAX_SIZE=5242880
 ALLOWED_EXTENSIONS=jpg,jpeg,png,gif,webp
 ```
@@ -128,6 +129,7 @@ PROYECTO_SODICOL/
 ├── logo/
 ├── uploads/                  # Imágenes subidas por usuarios (en .gitignore)
 ├── index.php                 # Front Controller / Router (Punto de entrada único)
+├── logs/                     # Logs de errores PHP (en .gitignore)
 ├── .htaccess                 # Routing hacia index.php y bloqueos de seguridad
 ├── BD.txt                    # Script SQL
 ├── .env.example
@@ -163,6 +165,9 @@ PROYECTO_SODICOL/
 | Front controller y bloqueo .htaccess | ✅ |
 | Verificación de dependencias al eliminar productos | ✅ |
 | Transacción atómica en asignación de número de cotización | ✅ |
+| Validación de longitud y formato de campos en servidor | ✅ |
+| Supresión de display_errors y log centralizado | ✅ |
+| Cookie Secure configurable vía .env (COOKIE_SECURE) | ✅ |
 
 ---
 

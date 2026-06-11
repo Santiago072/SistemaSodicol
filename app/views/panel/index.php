@@ -70,7 +70,7 @@ include dirname(__DIR__) . '/layout/menu.php';
                                     <span><?= htmlspecialchars($tarea['descripcion_tarea']) ?></span>
                                 </div>
                             </div>
-                            <a href="/PROYECTO_SODICOL/panel.php?completar_id=<?= intval($tarea['id']) ?>"
+                            <a href="/PROYECTO_SODICOL/?module=panel&completar_id=<?= intval($tarea['id']) ?>"
                                class="boton-primario">
                                 <i class="bi bi-check2-all"></i> Completo
                             </a>
