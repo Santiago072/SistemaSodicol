@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 3. Manejar Paginación Asíncrona (PJAX style)
     function bindPaginacionAjax() {
-        const enlacesPaginacion = document.querySelectorAll('.paginacion a, .boton-limpiar');
+        const enlacesPaginacion = document.querySelectorAll('.paginacion a, .formulario-busqueda .boton-limpiar');
         
         enlacesPaginacion.forEach(enlace => {
             if (enlace.dataset.ajaxBound || !enlace.getAttribute('href') || enlace.getAttribute('href') === '#') return;
