@@ -111,9 +111,9 @@ class ProductoModel {
         return (int)($row['total'] ?? 0) > 0;
     }
 
-    public function existePorTitulo(string $titulo): bool {
-        $stmt = mysqli_prepare($this->db, "SELECT id FROM productos WHERE titulo = ? LIMIT 1");
-        mysqli_stmt_bind_param($stmt, "s", $titulo);
+    public function existePorTitulo(string $titulo, int $excluirId = 0): bool {
+        $stmt = mysqli_prepare($this->db, "SELECT id FROM productos WHERE titulo = ? AND id != ? LIMIT 1");
+        mysqli_stmt_bind_param($stmt, "si", $titulo, $excluirId);
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
         $existe = mysqli_num_rows($result) > 0;
