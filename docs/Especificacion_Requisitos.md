@@ -34,7 +34,7 @@ Estos requisitos definen los atributos de calidad y seguridad del sistema:
 - **RNF01 - Control de Acceso por Roles**: El sistema debe restringir las funciones según el tipo de cuenta; los empleados solo podrán crear cotizaciones, mientras que los administradores tendrán control total de todo.
 - **RNF02 - Integridad de Datos**: El sistema debe asegurar que la estructura de la cotización se mantenga fiel al formato manejado por la empresa.
 - **RNF03 - Persistencia de Información**: Todos los registros de usuarios y cotizaciones deben almacenarse en una base de datos centralizada para su consulta posterior.
-- **RNF04 - Eficiencia Operativa**: El sistema debe procesar las operaciones matemáticas de forma más rápida y exacta que el método manual anterior.
+- **RNF04 - Eficiencia Operativa y UX**: El sistema debe procesar las operaciones matemáticas de forma más rápida y exacta que el método manual anterior. Además, la interfaz debe estar optimizada con AJAX para evitar recargas de página completas durante búsquedas, eliminación de registros y paginación, brindando una experiencia más fluida (Live Search).
 - **RNF05 - Seguridad de Autenticación**: Las contraseñas deben almacenarse hasheadas con bcrypt y la sesión debe protegerse con cookies HttpOnly, regeneración de ID, timeout configurable y tokens CSRF en todos los formularios.
 - **RNF06 - Protección contra Inyección SQL**: Todas las consultas a la base de datos deben utilizar sentencias preparadas (prepared statements) para prevenir inyecciones SQL.
 - **RNF07 - Validación de Datos**: El sistema debe validar la entrada de datos tanto en el cliente (HTML5) como en el servidor (formato, longitud, tipo), incluyendo documentos, correos, teléfonos y archivos de imagen.
@@ -74,8 +74,9 @@ De acuerdo con el diagrama de modularización, el sistema se divide en:
 **Criterios de Aceptación:**
 - El sistema debe permitir registrar nuevos usuarios con documento, nombre, correo, contraseña (hasheada), teléfono y rol.
 - El sistema debe validar en el servidor: formato de documento (numérico, 5-20 dígitos), longitud de nombre (3-100 caracteres), formato de correo, formato de teléfono (numérico, 7-20 dígitos), longitud mínima de contraseña (6 caracteres).
-- El sistema debe permitir visualizar una lista paginada de todos los usuarios registrados.
-- El sistema debe permitir buscar usuarios específicos por nombre.
+- El sistema debe permitir visualizar una lista paginada de todos los usuarios registrados sin recargar la página al cambiar de página.
+- El sistema debe permitir buscar usuarios específicos por nombre en tiempo real (Live Search), actualizando la tabla automáticamente al escribir.
+- Las eliminaciones de usuarios se deben procesar en segundo plano desapareciendo la fila afectada suavemente.
 - Esta funcionalidad debe estar bloqueada para el rol de "Empleado".
 - No debe permitirse eliminar al último administrador ni auto-eliminarse.
 
@@ -83,8 +84,8 @@ De acuerdo con el diagrama de modularización, el sistema se divide en:
 **Como** Empleado o Administrador, **Quiero** registrar los ítems de una cotización (ya sea mediante búsqueda automática o ingreso manual) y los datos del cliente, **Para** generar un documento de cotización preciso y de manera eficiente.
 
 **Criterios de Aceptación:**
-- El sistema debe permitir buscar productos por nombre. Al escribir, se debe filtrar el listado.
-- Al seleccionar un producto y hacer clic en "Usar producto", los campos del formulario deben rellenarse automáticamente.
+- El sistema debe permitir buscar productos por nombre. Al escribir, se debe filtrar el select automáticamente mediante una petición AJAX (Live Search).
+- Al seleccionar un producto y hacer clic en "Usar producto", los campos del formulario deben rellenarse automáticamente de forma asíncrona.
 - El usuario debe poder escribir manualmente en los campos si el producto no existe.
 - Al dar clic en "Guardar ítem", el producto se añade en una lista temporal de la cotización actual.
 - Tras guardar un ítem exitosamente, los campos de entrada deben quedar vacíos para permitir la carga del siguiente producto.
@@ -116,7 +117,7 @@ De acuerdo con el diagrama de modularización, el sistema se divide en:
 - Si la cotización existe, debe mostrar los detalles en un visor PDF integrado.
 - Si no existe, debe notificar que no se encontraron resultados.
 - Debe permitir descargar el PDF nuevamente.
-- Los resultados deben mostrarse paginados.
+- Los resultados deben mostrarse paginados y la búsqueda debe ejecutarse en tiempo real sin recargar la página al cambiar los filtros.
 
 ### HU-07: Resumen General de Actividad
 **Como** Administrador o Empleado, **Quiero** ver un resumen general de la actividad y las tareas pendientes en el panel principal, **Para** tener una visión rápida del movimiento del sistema.
@@ -143,7 +144,7 @@ De acuerdo con el diagrama de modularización, el sistema se divide en:
 - El usuario debe poder modificar la información de productos o eliminarlos permanentemente.
 - No se permite eliminar un producto que esté asociado a cotizaciones existentes.
 - Los cambios se reflejan inmediatamente en el select del módulo de cotizaciones.
-- La lista debe ser paginada.
+- La lista debe ser paginada y la búsqueda de productos en la tabla se realiza en tiempo real (Live Search) sin recargar la página. La eliminación también es asíncrona.
 
 ### HU-10: Asignación de Labores Administrativas
 **Como** Administrador, **Quiero** asignar instrucciones de cotización a empleados específicos, **Para** organizar la carga de trabajo del equipo.
@@ -158,16 +159,16 @@ De acuerdo con el diagrama de modularización, el sistema se divide en:
 
 **Criterios de Aceptación:**
 - Solo se deben visualizar las tareas que coincidan con el ID del usuario en sesión.
-- Al hacer clic en "Completo", el sistema debe realizar un UPDATE del estado en la base de datos.
-- Una tarea marcada como "completo" debe desaparecer automáticamente de la vista de pendientes.
+- Al hacer clic en "Completo", el sistema debe realizar un UPDATE del estado en la base de datos de manera asíncrona (AJAX).
+- Una tarea marcada como "completo" debe desaparecer automáticamente de la vista de pendientes con una animación, sin recargar el panel.
 
 ### HU-12: Mantenimiento y Corrección de Tareas
 **Como** Administrador, **Quiero** poder editar o eliminar las tareas asignadas, **Para** corregir errores o reasignar labores.
 
 **Criterios de Aceptación:**
 - El sistema debe cargar los datos actuales de la tarea en el formulario de edición.
-- La eliminación de una tarea debe remover el registro permanentemente.
-- Tras cualquier modificación o borrado, el sistema debe redirigir al listado general.
+- La eliminación de una tarea debe remover el registro permanentemente usando peticiones en segundo plano sin recargar toda la página.
+- Tras cualquier modificación el sistema debe redirigir al listado general.
 
 ---
 
