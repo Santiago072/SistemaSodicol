@@ -45,4 +45,24 @@ class PanelController {
             'tareas_pendientes'
         );
     }
+
+    public function ajaxCompletarTarea(): void {
+        verificar_autenticacion();
+        header('Content-Type: application/json');
+
+        if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
+            echo json_encode(['status' => 'error', 'message' => 'ID inválido']);
+            exit();
+        }
+
+        $usuario_id = (int)$_SESSION['usuario_id'];
+        $tarea_id   = (int)$_GET['id'];
+
+        if ($this->tareaModel->completar($tarea_id, $usuario_id)) {
+            echo json_encode(['status' => 'success']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Error al completar la tarea o no te pertenece']);
+        }
+        exit();
+    }
 }
