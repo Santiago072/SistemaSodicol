@@ -1,6 +1,6 @@
 # 📘 Manual de Usuario — Sistema SODICOL
 
-> **Versión:** 2.0 · **Empresa:** Sodicol Zomac S.A.S · **Plataforma:** Web (PHP + MySQL)
+> **Empresa:** Sodicol Zomac S.A.S · **Plataforma:** Web (PHP + MySQL)
 
 Este documento describe paso a paso cómo utilizar el Sistema de Gestión de Cotizaciones de SODICOL. Está dirigido a los empleados y administradores de la empresa.
 
