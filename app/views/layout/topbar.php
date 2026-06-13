@@ -4,16 +4,18 @@
  * Variables esperadas:
  *   $pageHeading  string  — título h1 de la sección (opcional)
  *   $usuario      array   — datos del usuario (nombre, rol)
+ *   $esDashboard  bool    — indica si es el dashboard principal
  */
 $pageHeading = $pageHeading ?? '';
 $usuario = $usuario ?? null;
+$esDashboard = $esDashboard ?? false;
 ?>
 <div class="cabecera-superior">
     <button class="boton-menu-ocultar" id="btnMenu">
         <i class="fas fa-bars"></i> Ocultar Menú
     </button>
     <div class="cabecera-bienvenida" style="flex:1; padding-left: 16px;">
-        <?php if ($usuario): ?>
+        <?php if ($esDashboard && $usuario): ?>
         <h3 style="margin:0; font-family:var(--font-display); font-size:20px; font-weight:700; background:linear-gradient(135deg, var(--white), var(--gold-light)); background-clip:text; -webkit-text-fill-color:transparent;">
             ¡Bienvenido, <?= htmlspecialchars($usuario['nombre']) ?>!
         </h3>
@@ -25,7 +27,7 @@ $usuario = $usuario ?? null;
         <?php endif; ?>
     </div>
     <div style="display:flex; align-items:center; gap:16px;">
-        <?php if ($usuario): ?>
+        <?php if ($esDashboard && $usuario): ?>
             <?php if ($usuario['rol'] === 'admin'): ?>
             <span class="rol-admin" style="margin:0; font-size:10px; padding:6px 14px;">
                 <i class="bi bi-shield-check"></i> Administrador
