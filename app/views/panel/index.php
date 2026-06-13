@@ -16,17 +16,6 @@ include dirname(__DIR__) . '/layout/menu.php';
     include dirname(__DIR__) . '/layout/topbar.php';
     ?>
 
-    <div class="cabecera-bienvenida panel-bienvenida" style="margin-bottom: 24px;">
-        <h3 class="bienvenida-titulo">
-            ¡Bienvenido, <?= htmlspecialchars($usuario['nombre']) ?>!
-        </h3>
-        <?php if ($usuario['rol'] === 'admin'): ?>
-        <span class="rol-badge rol-admin"><i class="bi bi-shield-check"></i> Administrador</span>
-        <?php else: ?>
-        <span class="rol-badge rol-usuario"><i class="bi bi-person"></i> Usuario</span>
-        <?php endif; ?>
-    </div>
-
     <div class="panel-dos-columnas">
 
         <!-- Tarjetas de resumen -->
