@@ -13,6 +13,7 @@ include dirname(__DIR__) . '/layout/menu.php';
 <div class="contenido-principal">
     <?php
     $pageHeading = '';
+    $esDashboard = true;
     include dirname(__DIR__) . '/layout/topbar.php';
     ?>
 
