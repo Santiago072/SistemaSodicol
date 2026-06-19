@@ -4,11 +4,17 @@ require_once dirname(__DIR__, 2) . '/config/seguridad.php';
 
 /**
  * AuthController — lógica de autenticación (login / logout).
+ *
+ * Principios aplicados:
+ *   - SRP: solo maneja autenticación.
+ *   - Seguridad: rota el token CSRF post-login para prevenir replay attacks.
  */
-class AuthController {
+class AuthController
+{
     private UsuarioModel $model;
 
-    public function __construct($conexion) {
+    public function __construct(\mysqli $conexion)
+    {
         $this->model = new UsuarioModel($conexion);
     }
 
@@ -16,11 +22,11 @@ class AuthController {
      * Procesa el login y devuelve datos para la vista.
      * Si el login es exitoso redirige al panel y termina.
      */
-    public function login(): array {
+    public function login(): array
+    {
         $mensajeError = '';
         $csrf_token   = generar_token_csrf();
 
-        // Mensaje de sesión expirada
         if (isset($_GET['timeout'])) {
             $mensajeError = 'Su sesión ha expirado por inactividad. Por favor inicie sesión nuevamente.';
         }
@@ -29,7 +35,8 @@ class AuthController {
             return compact('mensajeError', 'csrf_token');
         }
 
-        if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
+        $tokenPost = $_POST['csrf_token'] ?? '';
+        if (!verificar_token_csrf($tokenPost)) {
             $mensajeError = 'Token de seguridad inválido. Por favor intente nuevamente.';
             return compact('mensajeError', 'csrf_token');
         }
@@ -51,14 +58,15 @@ class AuthController {
             $_SESSION['rol']            = $usuario['rol'];
             $_SESSION['LAST_ACTIVITY']  = time();
 
-            sleep(1);
+            // Rotar token CSRF post-login (anti-replay)
+            rotar_token_csrf();
+
             header('Location: ' . BASE_URL . '?module=panel');
             exit();
         }
 
-        $mensajeError = $usuario
-            ? 'Correo o Contraseña Incorrectos'
-            : 'Correo o Contraseña Incorrectos o Usuario Inactivo';
+        // Mensaje genérico para no revelar si el correo existe o no
+        $mensajeError = 'Correo o contraseña incorrectos';
 
         return compact('mensajeError', 'csrf_token');
     }
@@ -66,7 +74,8 @@ class AuthController {
     /**
      * Destruye la sesión y redirige al login.
      */
-    public function logout(): void {
+    public function logout(): void
+    {
         iniciar_sesion_segura();
         session_unset();
         session_destroy();

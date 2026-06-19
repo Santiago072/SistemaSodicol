@@ -1,205 +1,185 @@
 <?php
 require_once dirname(__DIR__) . '/models/CotizacionModel.php';
 require_once dirname(__DIR__) . '/models/ProductoModel.php';
+require_once dirname(__DIR__) . '/services/FileUploadService.php';
 require_once dirname(__DIR__, 2) . '/config/seguridad.php';
 
 /**
  * CotizacionController — lógica de negocio del módulo de cotizaciones.
+ *
+ * Principios aplicados:
+ *   - SRP: el manejo de archivos fue delegado a FileUploadService.
+ *   - DRY: eliminados procesarFoto() y procesarFotoEdicion() duplicados.
+ *   - Seguridad: rota token CSRF después de cada POST exitoso.
  */
-class CotizacionController {
-    private CotizacionModel $model;
-    private ProductoModel $productoModel;
+class CotizacionController
+{
+    private CotizacionModel   $model;
+    private ProductoModel     $productoModel;
+    private FileUploadService $uploader;
     private int $porPagina = 10;
 
-    public function __construct($conexion) {
+    public function __construct(\mysqli $conexion)
+    {
         $this->model         = new CotizacionModel($conexion);
         $this->productoModel = new ProductoModel($conexion);
+        $this->uploader      = new FileUploadService(dirname(__DIR__, 2) . '/uploads');
     }
 
-    // ── CREAR / GESTIONAR ÍTEMS ──────────────────────────────
-    public function crear(): array {
+    // ── CREAR / GESTIONAR ÍTEMS ───────────────────────────────────────────────
+    public function crear(): array
+    {
         verificar_autenticacion();
 
-        $usuario   = $_SESSION['usuario_nombre'];
+        $usuario    = $_SESSION['usuario_nombre'];
         $csrf_token = generar_token_csrf();
 
-        // Búsqueda de productos
-        $busqueda = '';
-        if (isset($_GET['busqueda']) && $_GET['busqueda'] !== '') {
-            $busqueda = sanitizar_entrada($_GET['busqueda']);
-        }
+        $busqueda = sanitizar_entrada($_GET['busqueda'] ?? '');
         $productos = $this->productoModel->listarTodos($busqueda);
 
-        // Producto seleccionado
         $producto = null;
-        if (isset($_GET['producto_id']) && validar_numero($_GET['producto_id'])) {
-            $producto = $this->productoModel->buscarPorId(intval($_GET['producto_id']));
+        if (validar_numero($_GET['producto_id'] ?? '')) {
+            $producto = $this->productoModel->buscarPorId((int)$_GET['producto_id']);
         }
 
-        // Recuperar borrador de sesión
         $cotizacion_id = $this->recuperarOCrearBorrador($usuario);
 
-        // Guardar ítem (POST)
         if ($_SERVER['REQUEST_METHOD'] === 'POST' &&
-            isset($_POST['action']) && $_POST['action'] === 'guardar_item') {
+            ($_POST['action'] ?? '') === 'guardar_item') {
             $this->procesarGuardarItem($cotizacion_id);
         }
 
-        $items       = $this->model->obtenerItems($cotizacion_id);
-        $totalItems  = count($items);
+        $items      = $this->model->obtenerItems($cotizacion_id);
+        $totalItems = count($items);
 
         return compact('productos', 'producto', 'busqueda', 'cotizacion_id',
-                        'items', 'totalItems', 'csrf_token');
+                       'items', 'totalItems', 'csrf_token');
     }
 
-    private function recuperarOCrearBorrador(string $usuario): int {
+    private function recuperarOCrearBorrador(string $usuario): int
+    {
         if (!isset($_SESSION['cotizacion_id'])) {
             $id = $this->model->buscarBorradorConItems($usuario)
                ?? $this->model->buscarCabeceraVacia($usuario)
                ?? $this->model->crearCabecera($usuario);
             $_SESSION['cotizacion_id'] = $id;
         }
-        return intval($_SESSION['cotizacion_id']);
+        return (int)$_SESSION['cotizacion_id'];
     }
 
-    private function procesarGuardarItem(int $cotizacion_id): void {
-        if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
-            header("Location: " . BASE_URL . "?module=cotizaciones&action=crear&error=csrf");
+    private function procesarGuardarItem(int $cotizacion_id): void
+    {
+        if (!verificar_token_csrf($_POST['csrf_token'] ?? '')) {
+            header('Location: ' . BASE_URL . '?module=cotizaciones&action=crear&error=csrf');
             exit();
         }
 
-        $producto_id = isset($_POST['producto_id']) && validar_numero($_POST['producto_id'])
-                       ? intval($_POST['producto_id']) : 0;
+        $producto_id = validar_numero($_POST['producto_id'] ?? '') ? (int)$_POST['producto_id'] : 0;
         $titulo      = sanitizar_entrada($_POST['titulo'] ?? '');
         $descripcion = sanitizar_entrada($_POST['descripcion'] ?? '');
-        $cantidad    = intval($_POST['cantidad'] ?? 0);
+        $cantidad    = (int)($_POST['cantidad'] ?? 0);
         $iva         = sanitizar_entrada($_POST['IVA'] ?? '');
-        $precio      = floatval($_POST['precio'] ?? 0);
+        $precio      = (float)($_POST['precio'] ?? 0);
 
-        if (!in_array($iva, ['si', 'no'])) {
-            header("Location: " . BASE_URL . "?module=cotizaciones&action=crear&error=iva");
+        if (!in_array($iva, ['si', 'no'], true)) {
+            header('Location: ' . BASE_URL . '?module=cotizaciones&action=crear&error=iva');
             exit();
         }
 
-        $foto = $this->procesarFoto($_POST['foto_actual'] ?? '');
+        // SRP: FileUploadService maneja el archivo
+        $foto = $this->uploader->subir($_FILES['foto'] ?? [], $_POST['foto_actual'] ?? '');
 
         $this->model->insertarItem($cotizacion_id, $titulo, $foto, $descripcion, $cantidad, $iva, $precio);
 
-        // Auto-registrar en catálogo si no existe
         if ($producto_id === 0 && !$this->productoModel->existePorTitulo($titulo)) {
             $this->productoModel->crear($titulo, $foto, $descripcion, $cantidad, $iva, $precio);
         }
 
-        header("Location: " . BASE_URL . "?module=cotizaciones&action=crear");
+        rotar_token_csrf();
+        header('Location: ' . BASE_URL . '?module=cotizaciones&action=crear');
         exit();
     }
 
-    private function procesarFoto(string $fotoActual): string {
-        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-            $validacion = validar_imagen($_FILES['foto']);
-            if ($validacion['valido']) {
-                $ext    = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
-                $nombre = generar_nombre_archivo($ext);
-                $dir    = dirname(__DIR__, 2) . '/uploads/';
-                if (!is_dir($dir)) mkdir($dir, 0755, true);
-                if (move_uploaded_file($_FILES['foto']['tmp_name'], $dir . $nombre)) {
-                    return $nombre;
-                }
-            }
-        }
-        return basename($fotoActual);
-    }
-
-    // ── EDITAR ÍTEM ──────────────────────────────────────────
-    public function editarItem(): array {
+    // ── EDITAR ÍTEM ───────────────────────────────────────────────────────────
+    public function editarItem(): array
+    {
         verificar_autenticacion();
 
         $mensajeError = '';
         $csrf_token   = generar_token_csrf();
 
         if (!isset($_SESSION['cotizacion_id'])) {
-            header("Location: " . BASE_URL . "?module=cotizaciones&action=crear&error=no_session");
+            header('Location: ' . BASE_URL . '?module=cotizaciones&action=crear&error=no_session');
             exit();
         }
-        $cotizacion_id = intval($_SESSION['cotizacion_id']);
+        $cotizacion_id = (int)$_SESSION['cotizacion_id'];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
-                $mensajeError = "Token de seguridad inválido";
+            if (!verificar_token_csrf($_POST['csrf_token'] ?? '')) {
+                $mensajeError = 'Token de seguridad inválido';
             } else {
-                $itemId      = intval($_POST['item_id'] ?? 0);
+                $itemId      = (int)($_POST['item_id'] ?? 0);
                 $titulo      = sanitizar_entrada($_POST['titulo'] ?? '');
                 $descripcion = sanitizar_entrada($_POST['descripcion'] ?? '');
-                $cantidad    = intval($_POST['cantidad'] ?? 0);
+                $cantidad    = (int)($_POST['cantidad'] ?? 0);
                 $iva         = sanitizar_entrada($_POST['IVA'] ?? '');
-                $precio      = floatval($_POST['precio'] ?? 0);
+                $precio      = (float)($_POST['precio'] ?? 0);
 
-                if (!in_array($iva, ['si', 'no'])) {
-                    $mensajeError = "Valor de IVA no válido";
+                if (!in_array($iva, ['si', 'no'], true)) {
+                    $mensajeError = 'Valor de IVA no válido';
                 } elseif ($cantidad <= 0 || $precio < 0) {
-                    $mensajeError = "Cantidad y precio deben ser valores válidos";
+                    $mensajeError = 'Cantidad y precio deben ser valores válidos';
                 } else {
-                    $rutaFinal = $this->procesarFotoEdicion($_POST['foto_actual'] ?? '');
-                    if ($this->model->actualizarItem($itemId, $cotizacion_id, $titulo, $rutaFinal, $descripcion, $cantidad, $iva, $precio)) {
-                        header("Location: " . BASE_URL . "?module=cotizaciones&action=crear&updated=1");
+                    // SRP: FileUploadService maneja el reemplazo
+                    $rutaFinal = $this->uploader->reemplazar(
+                        $_FILES['foto'] ?? [],
+                        $_POST['foto_actual'] ?? ''
+                    );
+
+                    if ($this->model->actualizarItem($itemId, $cotizacion_id, $titulo,
+                        $rutaFinal, $descripcion, $cantidad, $iva, $precio)) {
+                        rotar_token_csrf();
+                        header('Location: ' . BASE_URL . '?module=cotizaciones&action=crear&updated=1');
                         exit();
                     }
-                    $mensajeError = "Error al actualizar el ítem";
+                    $mensajeError = 'Error al actualizar el ítem';
                 }
             }
         }
 
-        if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
-            header("Location: " . BASE_URL . "?module=cotizaciones&action=crear&error=invalid_id");
+        if (!validar_numero($_GET['id'] ?? '')) {
+            header('Location: ' . BASE_URL . '?module=cotizaciones&action=crear&error=invalid_id');
             exit();
         }
 
-        $itemId = intval($_GET['id']);
+        $itemId = (int)$_GET['id'];
         $datos  = $this->model->buscarItemPorId($itemId, $cotizacion_id);
         if (!$datos) {
-            header("Location: " . BASE_URL . "?module=cotizaciones&action=crear&error=not_found");
+            header('Location: ' . BASE_URL . '?module=cotizaciones&action=crear&error=not_found');
             exit();
         }
 
         return compact('datos', 'mensajeError', 'csrf_token');
     }
 
-    private function procesarFotoEdicion(string $fotoActual): string {
-        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-            $validacion = validar_imagen($_FILES['foto']);
-            if ($validacion['valido']) {
-                $ext    = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
-                $nombre = generar_nombre_archivo($ext);
-                $dir    = dirname(__DIR__, 2) . '/uploads/';
-                if (!is_dir($dir)) mkdir($dir, 0755, true);
-                if (move_uploaded_file($_FILES['foto']['tmp_name'], $dir . $nombre)) {
-                    if (!empty($fotoActual)) {
-                        $anterior = $dir . basename($fotoActual);
-                        if (file_exists($anterior)) unlink($anterior);
-                    }
-                    return $nombre;
-                }
-            }
-        }
-        return basename($fotoActual);
-    }
-
-    // ── ELIMINAR ÍTEM ────────────────────────────────────────
-    public function eliminarItem(): void {
+    // ── ELIMINAR ÍTEM ─────────────────────────────────────────────────────────
+    public function eliminarItem(): void
+    {
         verificar_autenticacion();
 
-        if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
-            header("Location: " . BASE_URL . "?module=cotizaciones&action=crear");
+        if (!validar_numero($_GET['id'] ?? '')) {
+            header('Location: ' . BASE_URL . '?module=cotizaciones&action=crear');
             exit();
         }
 
-        $this->model->eliminarItem(intval($_GET['id']));
-        header("Location: " . BASE_URL . "?module=cotizaciones&action=crear");
+        $this->model->eliminarItem((int)$_GET['id']);
+        header('Location: ' . BASE_URL . '?module=cotizaciones&action=crear');
         exit();
     }
 
-    // ── CONSULTAR ────────────────────────────────────────────
-    public function consultar(): array {
+    // ── CONSULTAR ─────────────────────────────────────────────────────────────
+    public function consultar(): array
+    {
         verificar_autenticacion();
 
         $csrf_token   = generar_token_csrf();
@@ -214,29 +194,25 @@ class CotizacionController {
         $busquedaNumero  = '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
-                $mensajeError = "Token de seguridad inválido";
+            if (!verificar_token_csrf($_POST['csrf_token'] ?? '')) {
+                $mensajeError = 'Token de seguridad inválido';
             } else {
                 $filtros = [];
-                if (!empty($_POST['fecha']))              $filtros['fecha']             = sanitizar_entrada($_POST['fecha']);
-                if (!empty($_POST['nombre_cliente']))     $filtros['nombre_cliente']    = sanitizar_entrada($_POST['nombre_cliente']);
-                if (!empty($_POST['numero_cotizacion']))  $filtros['numero_cotizacion'] = sanitizar_entrada($_POST['numero_cotizacion']);
+                if (!empty($_POST['fecha']))             $filtros['fecha']             = sanitizar_entrada($_POST['fecha']);
+                if (!empty($_POST['nombre_cliente']))    $filtros['nombre_cliente']    = sanitizar_entrada($_POST['nombre_cliente']);
+                if (!empty($_POST['numero_cotizacion'])) $filtros['numero_cotizacion'] = sanitizar_entrada($_POST['numero_cotizacion']);
 
-                $busquedaFecha   = $filtros['fecha'] ?? '';
-                $busquedaCliente = $filtros['nombre_cliente'] ?? '';
-                $busquedaNumero  = $filtros['numero_cotizacion'] ?? '';
-
-                // Paginación en búsqueda: guardar filtros en sesión
                 $_SESSION['cotizacion_filtros'] = $filtros;
                 $_SESSION['cotizacion_pagina']  = 1;
-                header("Location: " . BASE_URL . "?module=cotizaciones&action=consultar&buscando=1");
+
+                rotar_token_csrf();
+                header('Location: ' . BASE_URL . '?module=cotizaciones&action=consultar&buscando=1');
                 exit();
             }
         }
 
-        // GET con paginación o resultado de búsqueda
-        if (isset($_GET['buscando']) && isset($_SESSION['cotizacion_filtros'])) {
-            $filtros = $_SESSION['cotizacion_filtros'];
+        if (isset($_GET['buscando'], $_SESSION['cotizacion_filtros'])) {
+            $filtros         = $_SESSION['cotizacion_filtros'];
             $busquedaFecha   = $filtros['fecha'] ?? '';
             $busquedaCliente = $filtros['nombre_cliente'] ?? '';
             $busquedaNumero  = $filtros['numero_cotizacion'] ?? '';
@@ -251,52 +227,49 @@ class CotizacionController {
         }
 
         return compact('cotizaciones', 'csrf_token', 'mensajeError',
-                        'busquedaFecha', 'busquedaCliente', 'busquedaNumero',
-                        'paginaActual', 'totalPaginas');
+                       'busquedaFecha', 'busquedaCliente', 'busquedaNumero',
+                       'paginaActual', 'totalPaginas');
     }
 
-    // ── GENERAR PDF ──────────────────────────────────────────
-    public function generarPdf(bool $descargar = true): array {
+    // ── GENERAR PDF ───────────────────────────────────────────────────────────
+    public function generarPdf(): array
+    {
         verificar_autenticacion();
 
-        // Modo ver/descargar cotización existente
         if (isset($_GET['ver']) || isset($_GET['descargar'])) {
             $numero     = sanitizar_entrada($_GET['ver'] ?? $_GET['descargar'] ?? '');
             $cotizacion = $this->model->buscarPorNumero($numero);
             if (!$cotizacion) {
-                die('Cotización no encontrada: ' . htmlspecialchars($numero));
+                http_response_code(404);
+                error_log("Cotización no encontrada: $numero");
+                die('Cotización no encontrada.');
             }
-            $items = $this->model->obtenerItems((int)$cotizacion['id']);
             return [
                 'cotizacion' => $cotizacion,
-                'items'      => $items,
+                'items'      => $this->model->obtenerItems((int)$cotizacion['id']),
                 'forzar'     => isset($_GET['descargar']),
             ];
         }
 
-        // Modo generar nueva
         if (!isset($_SESSION['cotizacion_id'])) {
-            die('No hay cotización activa.');
+            header('Location: ' . BASE_URL . '?module=cotizaciones&action=crear');
+            exit();
         }
 
-        $cotizacion_id = intval($_SESSION['cotizacion_id']);
+        $cotizacion_id = (int)$_SESSION['cotizacion_id'];
 
-        $profesion      = sanitizar_entrada($_POST['profesion'] ?? '');
-        $nombreCliente  = sanitizar_entrada($_POST['nombre_cliente'] ?? '');
-        $especialidad   = sanitizar_entrada($_POST['especialidad'] ?? '');
-        $entidad        = sanitizar_entrada($_POST['entidad'] ?? '');
-        $ciudad         = sanitizar_entrada($_POST['ciudad'] ?? '');
-        $fecha          = sanitizar_entrada($_POST['fecha'] ?? '');
+        $profesion     = sanitizar_entrada($_POST['profesion'] ?? '');
+        $nombreCliente = sanitizar_entrada($_POST['nombre_cliente'] ?? '');
+        $especialidad  = sanitizar_entrada($_POST['especialidad'] ?? '');
+        $entidad       = sanitizar_entrada($_POST['entidad'] ?? '');
+        $ciudad        = sanitizar_entrada($_POST['ciudad'] ?? '');
+        $fecha         = sanitizar_entrada($_POST['fecha'] ?? '');
 
-        // Finalizar con transacción atómica (número único garantizado)
         $numeroCotizacion = $this->model->finalizarCotizacion(
-            $cotizacion_id, $fecha, $profesion, $nombreCliente,
-            $especialidad, $entidad, $ciudad
+            $cotizacion_id, $fecha, $profesion, $nombreCliente, $especialidad, $entidad, $ciudad
         );
 
         $items = $this->model->obtenerItems($cotizacion_id);
-
-        // Limpiar sesión de borrador
         unset($_SESSION['cotizacion_id']);
 
         return [
@@ -314,36 +287,33 @@ class CotizacionController {
         ];
     }
 
-    // ── AJAX ENDPOINTS ───────────────────────────────────────
-    public function ajaxBuscarProductos(): void {
+    // ── AJAX ──────────────────────────────────────────────────────────────────
+    public function ajaxBuscarProductos(): void
+    {
         verificar_autenticacion();
         header('Content-Type: application/json');
-        
-        $busqueda = '';
-        if (isset($_GET['busqueda']) && $_GET['busqueda'] !== '') {
-            $busqueda = sanitizar_entrada($_GET['busqueda']);
-        }
-        
+
+        $busqueda  = sanitizar_entrada($_GET['busqueda'] ?? '');
         $productos = $this->productoModel->listarTodos($busqueda);
         echo json_encode(['status' => 'success', 'data' => $productos]);
         exit();
     }
 
-    public function ajaxGetProducto(): void {
+    public function ajaxGetProducto(): void
+    {
         verificar_autenticacion();
         header('Content-Type: application/json');
-        
-        if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
+
+        if (!validar_numero($_GET['id'] ?? '')) {
             echo json_encode(['status' => 'error', 'message' => 'ID inválido']);
             exit();
         }
-        
-        $producto = $this->productoModel->buscarPorId(intval($_GET['id']));
-        if ($producto) {
-            echo json_encode(['status' => 'success', 'data' => $producto]);
-        } else {
-            echo json_encode(['status' => 'error', 'message' => 'Producto no encontrado']);
-        }
+
+        $producto = $this->productoModel->buscarPorId((int)$_GET['id']);
+        echo json_encode($producto
+            ? ['status' => 'success', 'data' => $producto]
+            : ['status' => 'error', 'message' => 'Producto no encontrado']
+        );
         exit();
     }
 }
