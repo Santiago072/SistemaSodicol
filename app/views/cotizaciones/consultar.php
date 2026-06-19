@@ -21,16 +21,19 @@ include dirname(__DIR__) . '/layout/menu.php';
     <div class="error-box"><i class="fas fa-exclamation-triangle"></i> <?= htmlspecialchars($mensajeError) ?></div>
     <?php endif; ?>
 
-    <!-- Filtros de búsqueda -->
-    <div class="barra-busqueda">
-        <form method="POST" action="<?= $basePath ?>?module=cotizaciones&action=consultar"
-              class="formulario-busqueda">
+    <!-- Filtros de búsqueda estilo Spotlight -->
+    <div class="spotlight-search">
+        <i class="bi bi-search spotlight-icon"></i>
+        <form method="POST" action="<?= $basePath ?>?module=cotizaciones&action=consultar" class="w-100" style="display:flex; gap:10px; align-items:center; flex:1;">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
-            <input type="date"   name="fecha"              value="<?= htmlspecialchars($busquedaFecha) ?>">
-            <input type="text"   name="nombre_cliente"     value="<?= htmlspecialchars($busquedaCliente) ?>"
-                   placeholder="Buscar por cliente..." maxlength="255">
-            <input type="text"   name="numero_cotizacion"  value="<?= htmlspecialchars($busquedaNumero) ?>"
-                   placeholder="Número cotización..." maxlength="50">
+            <input type="date" name="fecha" value="<?= htmlspecialchars($busquedaFecha) ?>" 
+                   class="spotlight-input" style="flex:0.5;">
+            <input type="text" name="nombre_cliente" value="<?= htmlspecialchars($busquedaCliente) ?>"
+                   placeholder="Buscar por cliente..." maxlength="255" class="spotlight-input">
+            <input type="text" name="numero_cotizacion" value="<?= htmlspecialchars($busquedaNumero) ?>"
+                   placeholder="Número cotización..." maxlength="50" class="spotlight-input">
+            
+            <button type="submit" style="display:none;"></button> <!-- submit oculto para enter -->
             <?php if (!empty($cotizaciones) || $busquedaFecha || $busquedaCliente || $busquedaNumero): ?>
             <a href="<?= $basePath ?>?module=cotizaciones&action=consultar&limpiar=1" class="boton-limpiar">
                 <i class="bi bi-x-circle"></i> Limpiar
@@ -100,8 +103,8 @@ include dirname(__DIR__) . '/layout/menu.php';
                 </button>
             </div>
         </div>
-        <div class="pdf-container">
-            <iframe id="pdf-frame" src=""></iframe>
+        <div class="pdf-container mt-10">
+            <iframe id="pdf-frame" class="iframe-frame" src="" style="width:100%; height:75vh; border:none;"></iframe>
             <div id="pdf-error" class="pdf-error d-none">
                 <i class="bi bi-exclamation-triangle-fill"></i>
                 <h4>No se pudo cargar el PDF</h4>

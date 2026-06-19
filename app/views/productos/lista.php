@@ -38,36 +38,37 @@ include dirname(__DIR__) . '/layout/menu.php';
         </form>
     </div>
 
-    <div class="tabla-contenedor">
-        <table class="tabla-datos">
-            <thead>
-                <tr><th>Nombre del Producto</th><th>Precio</th><th>Cantidad</th><th>Acciones</th></tr>
-            </thead>
-            <tbody>
-                <?php foreach ($productos as $p): ?>
-                <tr>
-                    <td><?= htmlspecialchars($p['titulo']) ?></td>
-                    <td><?= number_format($p['precio'], 0, '', '.') ?></td>
-                    <td><?= intval($p['cantidad']) ?></td>
-                    <td class="acciones-tabla">
-                        <a href="<?= $basePath ?>?module=productos&action=editar&id=<?= intval($p['id']) ?>" class="boton-editar">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a href="<?= $basePath ?>?module=productos&action=eliminar&id=<?= intval($p['id']) ?>"
-                           class="boton-eliminar"
-                           onclick="return confirm('¿Está seguro de eliminar este producto?')">
-                            <i class="fas fa-trash"></i>
-                        </a>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-                <?php if (empty($productos)): ?>
-                <tr><td colspan="4" class="text-center p-30 text-gold">
-                    <i class="bi bi-search"></i> No se encontraron productos.
-                </td></tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+    <div class="grid-cards">
+        <?php foreach ($productos as $p): ?>
+        <div class="card-item product-card">
+            <?php if (!empty($p['foto'])): ?>
+                <img src="<?= $basePath ?>uploads/<?= htmlspecialchars($p['foto']) ?>" class="product-img" alt="Foto">
+            <?php else: ?>
+                <div class="product-icon"><i class="bi bi-box-seam"></i></div>
+            <?php endif; ?>
+            <div class="product-price">$<?= number_format($p['precio'], 0, '', '.') ?></div>
+            <div class="card-title"><?= htmlspecialchars($p['titulo']) ?></div>
+            <div class="card-subtitle">
+                <i class="bi bi-boxes text-gold"></i> Stock: <?= intval($p['cantidad']) ?>
+            </div>
+            <div class="card-actions">
+                <a href="<?= $basePath ?>?module=productos&action=editar&id=<?= intval($p['id']) ?>" class="boton-editar">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a href="<?= $basePath ?>?module=productos&action=eliminar&id=<?= intval($p['id']) ?>"
+                   class="boton-eliminar"
+                   onclick="return confirm('¿Está seguro de eliminar este producto?')">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>
+        <?php endforeach; ?>
+        <?php if (empty($productos)): ?>
+        <div class="w-100 text-center p-30 text-gold">
+            <i class="bi bi-search" style="font-size:30px; display:block; margin-bottom:10px;"></i>
+            No se encontraron productos.
+        </div>
+        <?php endif; ?>
     </div>
 
     <?php include dirname(__DIR__) . '/partials/paginacion.php'; ?>

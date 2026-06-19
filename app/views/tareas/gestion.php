@@ -40,29 +40,31 @@ include dirname(__DIR__) . '/layout/menu.php';
                 <form method="POST" action="<?= $basePath ?>?module=tareas&action=gestion" class="formulario">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
 
-                    <div class="grupo-campo">
-                        <label><i class="bi bi-card-text"></i> Descripción de la Tarea</label>
-                        <textarea name="descripcion_tarea" rows="4" required maxlength="500"
-                                  placeholder="Describe la instrucción de trabajo..."></textarea>
+                    <div class="form-grid-2">
+                        <div class="grupo-campo" style="grid-column: 1 / -1;">
+                            <label><i class="bi bi-card-text"></i> Descripción de la Tarea</label>
+                            <textarea name="descripcion_tarea" rows="2" required maxlength="500"
+                                      placeholder="Describe la instrucción de trabajo..."></textarea>
+                        </div>
+                        <div class="grupo-campo">
+                            <label><i class="bi bi-person"></i> Asignar a Usuario</label>
+                            <select name="usuario" required>
+                                <option value="">Seleccione un Usuario</option>
+                                <?php foreach ($usuarios as $u): ?>
+                                <option value="<?= intval($u['id']) ?>"><?= htmlspecialchars($u['nombre']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="grupo-campo">
+                            <label><i class="bi bi-flag"></i> Estado Inicial</label>
+                            <select name="estado" required>
+                                <option value="">Seleccione un Estado</option>
+                                <option value="pendiente" selected>Pendiente</option>
+                                <option value="completo">Completo</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="grupo-campo">
-                        <label><i class="bi bi-person"></i> Asignar a Usuario</label>
-                        <select name="usuario" required>
-                            <option value="">Seleccione un Usuario</option>
-                            <?php foreach ($usuarios as $u): ?>
-                            <option value="<?= intval($u['id']) ?>"><?= htmlspecialchars($u['nombre']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="grupo-campo">
-                        <label><i class="bi bi-flag"></i> Estado Inicial</label>
-                        <select name="estado" required>
-                            <option value="">Seleccione un Estado</option>
-                            <option value="pendiente" selected>Pendiente</option>
-                            <option value="completo">Completo</option>
-                        </select>
-                    </div>
-                    <div class="grupo-campo-flex">
+                    <div class="grupo-campo-flex mt-10">
                         <button type="submit" class="boton-primario flex-1">
                             <i class="bi bi-plus-lg"></i> Crear Tarea
                         </button>
@@ -76,43 +78,38 @@ include dirname(__DIR__) . '/layout/menu.php';
     </div>
 
     <!-- Tabla de tareas -->
-    <div class="tabla-contenedor mt-30">
-        <table class="tabla-datos">
-            <thead>
-                <tr><th>Usuario</th><th>Descripción</th><th>Estado</th><th>Acciones</th></tr>
-            </thead>
-            <tbody>
-                <?php if (!empty($tareas)): ?>
-                    <?php foreach ($tareas as $row): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($row['nombre']) ?></td>
-                        <td><?= htmlspecialchars($row['descripcion_tarea']) ?></td>
-                        <td>
-                            <?php if ($row['estado'] === 'completo'): ?>
-                            <span class="rol-badge rol-admin"><i class="bi bi-check2-all"></i> Completo</span>
-                            <?php else: ?>
-                            <span class="rol-badge rol-usuario"><i class="bi bi-clock-history"></i> Pendiente</span>
-                            <?php endif; ?>
-                        </td>
-                        <td class="acciones-tabla">
-                            <a href="<?= $basePath ?>?module=tareas&action=editar&id=<?= intval($row['id']) ?>"
-                               class="boton-editar"><i class="bi bi-pencil-square"></i></a>
-                            <a href="<?= $basePath ?>?module=tareas&action=eliminar&id=<?= intval($row['id']) ?>"
-                               class="boton-eliminar"
-                               onclick="return confirm('¿Está seguro de eliminar esta tarea?')">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
+    <div class="grid-cards mt-30">
+        <?php if (!empty($tareas)): ?>
+            <?php foreach ($tareas as $row): ?>
+            <div class="card-item ticket-card" style="border-left-color: <?= $row['estado'] === 'completo' ? '#2ed573' : 'var(--gold)' ?>;">
+                <?php if ($row['estado'] === 'completo'): ?>
+                <div class="ticket-status" style="background: rgba(46, 213, 115, 0.15); color: #7bed9f;"><i class="bi bi-check2-all"></i> Completo</div>
+                <?php else: ?>
+                <div class="ticket-status" style="background: rgba(212, 168, 83, 0.15); color: var(--gold-light);"><i class="bi bi-clock-history"></i> Pendiente</div>
                 <?php endif; ?>
-                <?php if (empty($tareas)): ?>
-                <tr><td colspan="4" class="text-center p-30 text-gold">
-                    <i class="bi bi-inbox"></i> No hay tareas registradas.
-                </td></tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                
+                <div class="card-title mt-10"><i class="bi bi-person"></i> <?= htmlspecialchars($row['nombre']) ?></div>
+                <div class="card-subtitle mt-10" style="color:var(--white); font-size:14px; line-height:1.5;">
+                    <?= htmlspecialchars($row['descripcion_tarea']) ?>
+                </div>
+                <div class="card-actions">
+                    <a href="<?= $basePath ?>?module=tareas&action=editar&id=<?= intval($row['id']) ?>"
+                       class="boton-editar"><i class="bi bi-pencil-square"></i> Editar</a>
+                    <a href="<?= $basePath ?>?module=tareas&action=eliminar&id=<?= intval($row['id']) ?>"
+                       class="boton-eliminar"
+                       onclick="return confirm('¿Está seguro de eliminar esta tarea?')">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </a>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+        <?php if (empty($tareas)): ?>
+        <div class="w-100 text-center p-30 text-gold">
+            <i class="bi bi-inbox" style="font-size:30px; display:block; margin-bottom:10px;"></i>
+            No hay tareas registradas.
+        </div>
+        <?php endif; ?>
     </div>
 
     <?php include dirname(__DIR__) . '/partials/paginacion.php'; ?>
