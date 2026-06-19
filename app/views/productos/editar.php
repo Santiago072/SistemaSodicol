@@ -4,7 +4,7 @@
  * Variables: $producto, $mensajeError, $csrf_token
  */
 $pageTitle = 'Editar Producto';
-$basePath  = '/PROYECTO_SODICOL/';
+$basePath  = defined('BASE_URL') ? BASE_URL : '/PROYECTO_SODICOL/';
 include dirname(__DIR__) . '/layout/header.php';
 include dirname(__DIR__) . '/layout/menu.php';
 ?>
@@ -21,7 +21,7 @@ include dirname(__DIR__) . '/layout/menu.php';
 
     <div class="formulario-contenedor">
         <form method="POST" enctype="multipart/form-data"
-              action="/PROYECTO_SODICOL/?module=productos&action=editar&id=<?= intval($producto['id']) ?>"
+              action="<?= $basePath ?>?module=productos&action=editar&id=<?= intval($producto['id']) ?>"
               class="formulario">
             <input type="hidden" name="csrf_token"  value="<?= htmlspecialchars($csrf_token) ?>">
             <input type="hidden" name="id"          value="<?= intval($producto['id']) ?>">
@@ -36,7 +36,7 @@ include dirname(__DIR__) . '/layout/menu.php';
                 <label>Foto Actual del Producto</label>
                 <?php if (!empty($producto['foto'])): ?>
                 <div style="margin-bottom:10px;">
-                    <img src="/PROYECTO_SODICOL/uploads/<?= htmlspecialchars($producto['foto']) ?>"
+                    <img src="<?= $basePath ?>uploads/<?= htmlspecialchars($producto['foto']) ?>"
                          width="100" style="border:1px solid #ccc;max-width:200px;">
                 </div>
                 <?php else: ?><p>No hay foto asignada</p><?php endif; ?>
@@ -68,7 +68,7 @@ include dirname(__DIR__) . '/layout/menu.php';
             </div>
             <div class="grupo-campo">
                 <button type="submit" class="boton-primario">Guardar Producto</button>
-                <a href="/PROYECTO_SODICOL/?module=productos&action=lista" class="boton-limpiar">Cancelar</a>
+                <a href="<?= $basePath ?>?module=productos&action=lista" class="boton-limpiar">Cancelar</a>
             </div>
         </form>
     </div>

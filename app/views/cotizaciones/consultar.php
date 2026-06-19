@@ -6,7 +6,7 @@
  *            $paginaActual, $totalPaginas, $urlBase
  */
 $pageTitle = 'Consultar Cotización';
-$basePath  = '/PROYECTO_SODICOL/';
+$basePath  = defined('BASE_URL') ? BASE_URL : '/PROYECTO_SODICOL/';
 include dirname(__DIR__) . '/layout/header.php';
 include dirname(__DIR__) . '/layout/menu.php';
 ?>
@@ -23,7 +23,7 @@ include dirname(__DIR__) . '/layout/menu.php';
 
     <!-- Filtros de búsqueda -->
     <div class="barra-busqueda">
-        <form method="POST" action="/PROYECTO_SODICOL/?module=cotizaciones&action=consultar"
+        <form method="POST" action="<?= $basePath ?>?module=cotizaciones&action=consultar"
               class="formulario-busqueda">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
             <input type="date"   name="fecha"              value="<?= htmlspecialchars($busquedaFecha) ?>">
@@ -32,7 +32,7 @@ include dirname(__DIR__) . '/layout/menu.php';
             <input type="text"   name="numero_cotizacion"  value="<?= htmlspecialchars($busquedaNumero) ?>"
                    placeholder="Número cotización..." maxlength="50">
             <?php if (!empty($cotizaciones) || $busquedaFecha || $busquedaCliente || $busquedaNumero): ?>
-            <a href="/PROYECTO_SODICOL/?module=cotizaciones&action=consultar&limpiar=1" class="boton-limpiar">
+            <a href="<?= $basePath ?>?module=cotizaciones&action=consultar&limpiar=1" class="boton-limpiar">
                 <i class="bi bi-x-circle"></i> Limpiar
             </a>
             <?php endif; ?>
@@ -122,8 +122,8 @@ function verPDF(numero, cliente) {
     err.style.display   = 'none';
     frame.style.display = 'block';
     titulo.textContent  = numero + ' - ' + cliente;
-    frame.src           = '/PROYECTO_SODICOL/?module=cotizaciones&action=generar_pdf&ver=' + encodeURIComponent(numero);
-    btnDesc.href        = '/PROYECTO_SODICOL/?module=cotizaciones&action=generar_pdf&descargar=' + encodeURIComponent(numero);
+    frame.src           = '<?= $basePath ?>?module=cotizaciones&action=generar_pdf&ver=' + encodeURIComponent(numero);
+    btnDesc.href        = '<?= $basePath ?>?module=cotizaciones&action=generar_pdf&descargar=' + encodeURIComponent(numero);
     btnDesc.setAttribute('download', 'cotizacion_' + numero + '.pdf');
     modal.style.display          = 'block';
     document.body.style.overflow = 'hidden';

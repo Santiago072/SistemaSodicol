@@ -89,7 +89,7 @@ class UsuarioController {
                 } else {
                     $hash = password_hash(!empty($password) ? $password : $doc, PASSWORD_DEFAULT);
                     if ($this->model->crear($doc, $nombre, $correo, $hash, $telefono, $rol)) {
-                        header("Location: /PROYECTO_SODICOL/?module=usuarios&action=lista&success=1");
+                        header("Location: " . BASE_URL . "?module=usuarios&action=lista&success=1");
                         exit();
                     }
                     $mensajeError = "Error al crear el usuario";
@@ -108,14 +108,14 @@ class UsuarioController {
         $csrf_token   = generar_token_csrf();
 
         if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
-            header("Location: /PROYECTO_SODICOL/?module=usuarios&action=lista");
+            header("Location: " . BASE_URL . "?module=usuarios&action=lista");
             exit();
         }
 
         $id      = intval($_GET['id']);
         $usuario = $this->model->buscarPorId($id);
         if (!$usuario) {
-            header("Location: /PROYECTO_SODICOL/?module=usuarios&action=lista");
+            header("Location: " . BASE_URL . "?module=usuarios&action=lista");
             exit();
         }
 
@@ -152,7 +152,7 @@ class UsuarioController {
                 } else {
                     $hash = !empty($nuevaPass) ? password_hash($nuevaPass, PASSWORD_DEFAULT) : null;
                     if ($this->model->actualizar($id, $doc, $nombre, $correo, $telefono, $rol, $estado, $hash)) {
-                        header("Location: /PROYECTO_SODICOL/?module=usuarios&action=lista&updated=1");
+                        header("Location: " . BASE_URL . "?module=usuarios&action=lista&updated=1");
                         exit();
                     }
                     $mensajeError = "Error al actualizar";
@@ -179,7 +179,7 @@ class UsuarioController {
 
         if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
             if ($esAjax) { echo json_encode(['status' => 'error', 'message' => 'ID inválido']); exit(); }
-            header("Location: /PROYECTO_SODICOL/?module=usuarios&action=lista&error=invalid_id");
+            header("Location: " . BASE_URL . "?module=usuarios&action=lista&error=invalid_id");
             exit();
         }
 
@@ -187,24 +187,24 @@ class UsuarioController {
 
         if ($id === intval($_SESSION['usuario_id'])) {
             if ($esAjax) { echo json_encode(['status' => 'error', 'message' => 'No puedes eliminar tu propia cuenta']); exit(); }
-            header("Location: /PROYECTO_SODICOL/?module=usuarios&action=lista&error=self_delete");
+            header("Location: " . BASE_URL . "?module=usuarios&action=lista&error=self_delete");
             exit();
         }
 
         if ($this->model->contarAdmins() <= 1 && $this->model->buscarPorId($id)['rol'] === 'admin') {
             if ($esAjax) { echo json_encode(['status' => 'error', 'message' => 'No se puede eliminar al último administrador']); exit(); }
-            header("Location: /PROYECTO_SODICOL/?module=usuarios&action=lista&error=last_admin");
+            header("Location: " . BASE_URL . "?module=usuarios&action=lista&error=last_admin");
             exit();
         }
 
         if ($this->model->eliminar($id)) {
             if ($esAjax) { echo json_encode(['status' => 'success']); exit(); }
-            header("Location: /PROYECTO_SODICOL/?module=usuarios&action=lista&deleted=1");
+            header("Location: " . BASE_URL . "?module=usuarios&action=lista&deleted=1");
             exit();
         }
 
         if ($esAjax) { echo json_encode(['status' => 'error', 'message' => 'Error al eliminar']); exit(); }
-        header("Location: /PROYECTO_SODICOL/?module=usuarios&action=lista&error=delete_failed");
+        header("Location: " . BASE_URL . "?module=usuarios&action=lista&error=delete_failed");
         exit();
     }
 }

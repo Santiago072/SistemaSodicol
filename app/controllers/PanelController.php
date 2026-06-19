@@ -27,7 +27,7 @@ class PanelController {
         // Completar tarea (acción GET directa del panel)
         if (isset($_GET['completar_id']) && validar_numero($_GET['completar_id'])) {
             $this->tareaModel->completar(intval($_GET['completar_id']), $usuario_id);
-            header('Location: /PROYECTO_SODICOL/?module=panel');
+            header('Location: ' . BASE_URL . '?module=panel');
             exit();
         }
 

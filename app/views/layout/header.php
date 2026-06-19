@@ -7,7 +7,7 @@
  *   $extraHead  string  — HTML adicional opcional (estilos inline, etc.)
  */
 $pageTitle = $pageTitle ?? 'Sistema Sodicol';
-$basePath  = $basePath  ?? '/PROYECTO_SODICOL/';
+$basePath  = defined('BASE_URL') ? BASE_URL : ($basePath ?? '/PROYECTO_SODICOL/');
 $extraHead = $extraHead ?? '';
 ?>
 <!DOCTYPE html>

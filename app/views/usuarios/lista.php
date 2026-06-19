@@ -5,7 +5,7 @@
  *            $mensajeExito, $mensajeError, $urlBase
  */
 $pageTitle = 'Lista Usuarios';
-$basePath  = '/PROYECTO_SODICOL/';
+$basePath  = defined('BASE_URL') ? BASE_URL : '/PROYECTO_SODICOL/';
 include dirname(__DIR__) . '/layout/header.php';
 include dirname(__DIR__) . '/layout/menu.php';
 ?>
@@ -26,12 +26,12 @@ include dirname(__DIR__) . '/layout/menu.php';
     <?php endif; ?>
 
     <div class="barra-busqueda">
-        <form action="/PROYECTO_SODICOL/" method="GET" class="formulario-busqueda">
+        <form action="<?= $basePath ?>" method="GET" class="formulario-busqueda">
             <input type="hidden" name="module" value="usuarios">
             <input type="hidden" name="action" value="lista">
             <input type="text" name="busqueda" value="<?= htmlspecialchars($busqueda) ?>" placeholder="Buscar usuario...">
             <?php if ($busqueda): ?>
-            <a href="/PROYECTO_SODICOL/?module=usuarios&action=lista" class="boton-limpiar">Limpiar</a>
+            <a href="<?= $basePath ?>?module=usuarios&action=lista" class="boton-limpiar">Limpiar</a>
             <?php endif; ?>
         </form>
     </div>
@@ -48,10 +48,10 @@ include dirname(__DIR__) . '/layout/menu.php';
                     <td><?= htmlspecialchars($u['rol']) ?></td>
                     <td><?= htmlspecialchars($u['estado']) ?></td>
                     <td class="acciones-tabla">
-                        <a href="/PROYECTO_SODICOL/?module=usuarios&action=editar&id=<?= intval($u['id']) ?>" class="boton-editar">
+                        <a href="<?= $basePath ?>?module=usuarios&action=editar&id=<?= intval($u['id']) ?>" class="boton-editar">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <a href="/PROYECTO_SODICOL/?module=usuarios&action=eliminar&id=<?= intval($u['id']) ?>"
+                        <a href="<?= $basePath ?>?module=usuarios&action=eliminar&id=<?= intval($u['id']) ?>"
                            class="boton-eliminar"
                            onclick="return confirm('¿Está seguro de eliminar este usuario?');">
                             <i class="fas fa-trash"></i>

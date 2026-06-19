@@ -4,7 +4,7 @@
  * Variables: $usuario, $mensajeError, $csrf_token
  */
 $pageTitle = 'Editar Usuario';
-$basePath  = '/PROYECTO_SODICOL/';
+$basePath  = defined('BASE_URL') ? BASE_URL : '/PROYECTO_SODICOL/';
 include dirname(__DIR__) . '/layout/header.php';
 include dirname(__DIR__) . '/layout/menu.php';
 ?>
@@ -20,7 +20,7 @@ include dirname(__DIR__) . '/layout/menu.php';
     <?php endif; ?>
 
     <div class="formulario-contenedor">
-        <form method="POST" action="/PROYECTO_SODICOL/?module=usuarios&action=editar&id=<?= intval($usuario['id']) ?>" class="formulario">
+        <form method="POST" action="<?= $basePath ?>?module=usuarios&action=editar&id=<?= intval($usuario['id']) ?>" class="formulario">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
             <input type="hidden" name="id" value="<?= intval($usuario['id']) ?>">
 
@@ -66,7 +66,7 @@ include dirname(__DIR__) . '/layout/menu.php';
             </div>
             <div class="grupo-campo">
                 <button type="submit" class="boton-primario">Actualizar Usuario</button>
-                <a href="/PROYECTO_SODICOL/?module=usuarios&action=lista" class="boton-limpiar">Cancelar</a>
+                <a href="<?= $basePath ?>?module=usuarios&action=lista" class="boton-limpiar">Cancelar</a>
             </div>
         </form>
     </div>
