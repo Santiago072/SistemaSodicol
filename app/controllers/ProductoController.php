@@ -1,29 +1,35 @@
 <?php
 require_once dirname(__DIR__) . '/models/ProductoModel.php';
+require_once dirname(__DIR__) . '/services/FileUploadService.php';
 require_once dirname(__DIR__, 2) . '/config/seguridad.php';
 
 /**
  * ProductoController — lógica de negocio del módulo de productos.
+ *
+ * Principios aplicados:
+ *   - SRP: manejo de archivos delegado a FileUploadService.
+ *   - Seguridad: CSRF rotation post-POST, type hints completos.
  */
-class ProductoController {
-    private ProductoModel $model;
+class ProductoController
+{
+    private ProductoModel     $model;
+    private FileUploadService $uploader;
     private int $porPagina = 10;
 
-    public function __construct($conexion) {
-        $this->model = new ProductoModel($conexion);
+    public function __construct(\mysqli $conexion)
+    {
+        $this->model    = new ProductoModel($conexion);
+        $this->uploader = new FileUploadService(dirname(__DIR__, 2) . '/uploads');
     }
 
-    // ── LISTAR ──────────────────────────────────────────────
-    public function listar(): array {
+    // ── LISTAR ───────────────────────────────────────────────────────────────
+    public function listar(): array
+    {
         verificar_autenticacion();
 
-        $busqueda     = '';
+        $busqueda     = sanitizar_entrada($_GET['busqueda'] ?? '');
         $paginaActual = max(1, (int)($_GET['pagina'] ?? 1));
         $offset       = ($paginaActual - 1) * $this->porPagina;
-
-        if (isset($_GET['busqueda']) && $_GET['busqueda'] !== '') {
-            $busqueda = sanitizar_entrada($_GET['busqueda']);
-        }
 
         $total        = $this->model->contar($busqueda);
         $productos    = $this->model->listar($offset, $this->porPagina, $busqueda);
@@ -31,133 +37,125 @@ class ProductoController {
 
         $mensajeExito = '';
         $mensajeError = '';
-        if (isset($_GET['success'])) $mensajeExito = "Producto creado exitosamente";
-        if (isset($_GET['updated'])) $mensajeExito = "Producto actualizado exitosamente";
-        if (isset($_GET['deleted'])) $mensajeExito = "Producto eliminado exitosamente";
+        if (isset($_GET['success'])) $mensajeExito = 'Producto creado exitosamente';
+        if (isset($_GET['updated'])) $mensajeExito = 'Producto actualizado exitosamente';
+        if (isset($_GET['deleted'])) $mensajeExito = 'Producto eliminado exitosamente';
         if (isset($_GET['error'])) {
-            $map = [
-                'en_uso' => "No se puede eliminar: el producto está asociado a cotizaciones existentes.",
-                'default'=> "Error al procesar la solicitud",
+            $mapa = [
+                'en_uso' => 'No se puede eliminar: el producto está asociado a cotizaciones existentes.',
             ];
-            $mensajeError = $map[$_GET['error']] ?? $map['default'];
+            $mensajeError = $mapa[$_GET['error']] ?? 'Error al procesar la solicitud';
         }
 
         return compact('productos', 'busqueda', 'paginaActual', 'totalPaginas', 'total',
-                        'mensajeExito', 'mensajeError');
+                       'mensajeExito', 'mensajeError');
     }
 
-    // ── EDITAR ───────────────────────────────────────────────
-    public function editar(): array {
+    // ── EDITAR ────────────────────────────────────────────────────────────────
+    public function editar(): array
+    {
         verificar_autenticacion();
 
         $mensajeError = '';
         $csrf_token   = generar_token_csrf();
 
-        if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
-            header("Location: " . BASE_URL . "?module=productos&action=lista&error=default");
+        if (!validar_numero($_GET['id'] ?? '')) {
+            header('Location: ' . BASE_URL . '?module=productos&action=lista');
             exit();
         }
 
-        $id      = intval($_GET['id']);
+        $id      = (int)$_GET['id'];
         $producto = $this->model->buscarPorId($id);
         if (!$producto) {
-            header("Location: " . BASE_URL . "?module=productos&action=lista&error=default");
+            header('Location: ' . BASE_URL . '?module=productos&action=lista');
             exit();
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
-                $mensajeError = "Token de seguridad inválido";
-            } else {
-                $titulo      = sanitizar_entrada($_POST['titulo'] ?? '');
-                $descripcion = sanitizar_entrada($_POST['descripcion'] ?? '');
-                $cantidad    = intval($_POST['cantidad'] ?? 0);
-                $iva         = sanitizar_entrada($_POST['iva'] ?? '');
-                $precio      = floatval($_POST['precio'] ?? 0);
-
-                if (!in_array($iva, ['si', 'no'])) {
-                    $mensajeError = "Valor de IVA no válido";
-                } elseif ($cantidad < 0 || $precio < 0) {
-                    $mensajeError = "Cantidad y precio deben ser valores positivos";
-                } elseif ($this->model->existePorTitulo($titulo, $id)) {
-                    $mensajeError = "Ya existe otro producto con este nombre";
-                } else {
-                    $rutaFinal = $_POST['foto_actual'] ?? '';
-
-                    if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-                        $validacion = validar_imagen($_FILES['foto']);
-                        if ($validacion['valido']) {
-                            $ext    = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
-                            $nombre = generar_nombre_archivo($ext);
-                            $dir    = dirname(__DIR__, 2) . '/uploads/';
-                            if (!is_dir($dir)) mkdir($dir, 0755, true);
-                            if (move_uploaded_file($_FILES['foto']['tmp_name'], $dir . $nombre)) {
-                                if (!empty($_POST['foto_actual'])) {
-                                    $anterior = $dir . basename($_POST['foto_actual']);
-                                    if (file_exists($anterior)) unlink($anterior);
-                                }
-                                $rutaFinal = $nombre;
-                            } else {
-                                $mensajeError = "Error al subir el archivo";
-                            }
-                        } else {
-                            $mensajeError = $validacion['mensaje'];
-                        }
-                    } else {
-                        $rutaFinal = basename($_POST['foto_actual'] ?? '');
-                    }
-
-                    if (empty($mensajeError)) {
-                        if ($this->model->actualizar($id, $titulo, $rutaFinal, $descripcion, $cantidad, $iva, $precio)) {
-                            header("Location: " . BASE_URL . "?module=productos&action=lista&updated=1");
-                            exit();
-                        }
-                        $mensajeError = "Error al actualizar el producto";
-                    }
-                }
-
-                // En caso de error, retener los datos enviados en el formulario
-                $producto['titulo']      = $titulo;
-                $producto['descripcion'] = $descripcion;
-                $producto['cantidad']    = $cantidad;
-                $producto['iva']         = $iva;
-                $producto['precio']      = $precio;
-            }
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return compact('producto', 'mensajeError', 'csrf_token');
         }
+
+        if (!verificar_token_csrf($_POST['csrf_token'] ?? '')) {
+            $mensajeError = 'Token de seguridad inválido';
+            return compact('producto', 'mensajeError', 'csrf_token');
+        }
+
+        $titulo      = sanitizar_entrada($_POST['titulo'] ?? '');
+        $descripcion = sanitizar_entrada($_POST['descripcion'] ?? '');
+        $cantidad    = (int)($_POST['cantidad'] ?? 0);
+        $iva         = sanitizar_entrada($_POST['iva'] ?? '');
+        $precio      = (float)($_POST['precio'] ?? 0);
+
+        if (!in_array($iva, ['si', 'no'], true)) {
+            $mensajeError = 'Valor de IVA no válido';
+        } elseif ($cantidad < 0 || $precio < 0) {
+            $mensajeError = 'Cantidad y precio deben ser valores positivos';
+        } elseif ($this->model->existePorTitulo($titulo, $id)) {
+            $mensajeError = 'Ya existe otro producto con este nombre';
+        } else {
+            // SRP: FileUploadService reemplaza el archivo
+            $rutaFinal = $this->uploader->reemplazar(
+                $_FILES['foto'] ?? [],
+                $_POST['foto_actual'] ?? ''
+            );
+
+            if ($this->model->actualizar($id, $titulo, $rutaFinal, $descripcion, $cantidad, $iva, $precio)) {
+                rotar_token_csrf();
+                header('Location: ' . BASE_URL . '?module=productos&action=lista&updated=1');
+                exit();
+            }
+            $mensajeError = 'Error al actualizar el producto';
+        }
+
+        // Retener datos del formulario en caso de error
+        $producto = array_merge($producto, [
+            'titulo' => $titulo, 'descripcion' => $descripcion,
+            'cantidad' => $cantidad, 'iva' => $iva, 'precio' => $precio,
+        ]);
 
         return compact('producto', 'mensajeError', 'csrf_token');
     }
 
-    // ── ELIMINAR ─────────────────────────────────────────────
-    public function eliminar(): void {
+    // ── ELIMINAR ──────────────────────────────────────────────────────────────
+    public function eliminar(): void
+    {
         verificar_autenticacion();
 
-        $esAjax = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || isset($_GET['ajax']);
+        $esAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+                  strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
-        if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
-            if ($esAjax) { echo json_encode(['status' => 'error', 'message' => 'ID inválido']); exit(); }
-            header("Location: " . BASE_URL . "?module=productos&action=lista&error=invalid_id");
+        $responderError = function (string $msg, string $param) use ($esAjax): void {
+            if ($esAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['status' => 'error', 'message' => $msg]);
+                exit();
+            }
+            header('Location: ' . BASE_URL . '?module=productos&action=lista&error=' . $param);
             exit();
+        };
+
+        if (!validar_numero($_GET['id'] ?? '')) {
+            $responderError('ID inválido', 'invalid_id');
         }
 
-        $id = intval($_GET['id']);
+        $id      = (int)$_GET['id'];
         $producto = $this->model->buscarPorId($id);
 
-        if ($producto && !empty($producto['foto'])) {
-            if (!$this->model->fotoEnUso($producto['foto'])) {
-                $ruta = dirname(__DIR__, 2) . '/uploads/' . basename($producto['foto']);
-                if (file_exists($ruta)) unlink($ruta);
-            }
+        // Eliminar foto del disco si no está en uso en cotizaciones
+        if ($producto && !empty($producto['foto']) && !$this->model->fotoEnUso($producto['foto'])) {
+            $this->uploader->eliminarSiExiste($producto['foto']);
         }
 
         if ($this->model->eliminar($id)) {
-            if ($esAjax) { echo json_encode(['status' => 'success']); exit(); }
-            header("Location: " . BASE_URL . "?module=productos&action=lista&deleted=1");
+            if ($esAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['status' => 'success']);
+                exit();
+            }
+            header('Location: ' . BASE_URL . '?module=productos&action=lista&deleted=1');
             exit();
         }
 
-        if ($esAjax) { echo json_encode(['status' => 'error', 'message' => 'Error al eliminar']); exit(); }
-        header("Location: " . BASE_URL . "?module=productos&action=lista&error=delete_failed");
-        exit();
+        $responderError('Error al eliminar', 'delete_failed');
     }
 }
