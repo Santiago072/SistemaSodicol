@@ -1,12 +1,12 @@
 Options -Indexes
 
 # ── Front Controller Routing ─────────────────────────────────────────────────
-# Compatible con XAMPP local (/PROYECTO_SODICOL/) y Docker (/)
+# Compatible con XAMPP local (/SistemaSodicol/) y Docker (/)
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
     # Detectar RewriteBase automáticamente según el entorno
-    # En XAMPP local: /PROYECTO_SODICOL/  |  En Docker: /
+    # En XAMPP local: /SistemaSodicol/  |  En Docker: /
     RewriteBase /
 
     # No reescribir si el archivo/directorio existe

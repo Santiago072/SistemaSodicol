@@ -13,7 +13,7 @@
     <script>if (localStorage.getItem('sodicol_tema') === 'dia') document.documentElement.style.background = '#f0e6d3';</script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="<?= defined('BASE_URL') ? BASE_URL : '/PROYECTO_SODICOL/' ?>css/estilos.css">
+    <link rel="stylesheet" href="<?= defined('BASE_URL') ? BASE_URL : '/SistemaSodicol/' ?>css/estilos.css">
     <style>
         #btnModo { position: fixed; top: 18px; right: 22px; z-index: 1000; padding: 10px 14px; }
         #btnModo .modo-label { display: none; }
@@ -80,7 +80,7 @@
                 <div class="logo-halo"></div>
                 <div class="logo-dash"></div>
                 <div class="logo-circle">
-                    <img src="<?= defined('BASE_URL') ? BASE_URL : '/PROYECTO_SODICOL/' ?>logo/logo.png" alt="Logo Sodicol">
+                    <img src="<?= defined('BASE_URL') ? BASE_URL : '/SistemaSodicol/' ?>logo/logo.png" alt="Logo Sodicol">
                 </div>
             </div>
             <h2 class="login-title">Iniciar Sesión</h2>
@@ -95,7 +95,7 @@
         <?php endif; ?>
 
         <div class="form-body">
-            <form action="<?= defined('BASE_URL') ? BASE_URL : '/PROYECTO_SODICOL/' ?>index.php" method="POST" id="loginForm">
+            <form action="<?= defined('BASE_URL') ? BASE_URL : '/SistemaSodicol/' ?>index.php" method="POST" id="loginForm">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
 
                 <div class="fgroup">
@@ -161,6 +161,6 @@
         });
     });
 </script>
-<script src="<?= defined('BASE_URL') ? BASE_URL : '/PROYECTO_SODICOL/' ?>public/js/script.js"></script>
+<script src="<?= defined('BASE_URL') ? BASE_URL : '/SistemaSodicol/' ?>public/js/script.js"></script>
 </body>
 </html>

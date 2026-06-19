@@ -9,7 +9,7 @@ if (!isset($_SESSION['usuario_nombre'])) {
     exit();
 }
 $rol       = $_SESSION['rol'];
-$basePath  = defined('BASE_URL') ? BASE_URL : '/PROYECTO_SODICOL/';
+$basePath  = defined('BASE_URL') ? BASE_URL : '/SistemaSodicol/';
 ?>
 <nav class="menu-principal">
     <div class="menu-lateral" id="menuLateral">

@@ -4,7 +4,7 @@
  * Variables esperadas (opcionales):
  *   $basePath  string — ruta raíz para cargar script.js
  */
-$basePath = $basePath ?? '/PROYECTO_SODICOL/';
+$basePath = $basePath ?? '/SistemaSodicol/';
 ?>
 <script src="<?= $basePath ?>public/js/script.js"></script>
 <script src="<?= $basePath ?>public/js/ajax_tables.js"></script>
