@@ -36,36 +36,35 @@ include dirname(__DIR__) . '/layout/menu.php';
         </form>
     </div>
 
-    <div class="tabla-contenedor">
-        <table class="tabla-datos">
-            <thead>
-                <tr><th>Nombre</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr>
-            </thead>
-            <tbody>
-                <?php foreach ($usuarios as $u): ?>
-                <tr>
-                    <td><?= htmlspecialchars($u['nombre']) ?></td>
-                    <td><?= htmlspecialchars($u['rol']) ?></td>
-                    <td><?= htmlspecialchars($u['estado']) ?></td>
-                    <td class="acciones-tabla">
-                        <a href="<?= $basePath ?>?module=usuarios&action=editar&id=<?= intval($u['id']) ?>" class="boton-editar">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a href="<?= $basePath ?>?module=usuarios&action=eliminar&id=<?= intval($u['id']) ?>"
-                           class="boton-eliminar"
-                           onclick="return confirm('¿Está seguro de eliminar este usuario?');">
-                            <i class="fas fa-trash"></i>
-                        </a>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-                <?php if (empty($usuarios)): ?>
-                <tr><td colspan="4" class="text-center p-30 text-gold">
-                    <i class="bi bi-search"></i> No se encontraron usuarios.
-                </td></tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+    <div class="grid-cards">
+        <?php foreach ($usuarios as $u): ?>
+        <div class="card-item user-card">
+            <div class="user-avatar">
+                <i class="bi bi-person"></i>
+            </div>
+            <div class="card-title"><?= htmlspecialchars($u['nombre']) ?></div>
+            <div class="card-subtitle">
+                <i class="bi bi-shield-check text-gold"></i> <?= htmlspecialchars($u['rol']) ?> <br>
+                <i class="bi bi-circle-fill" style="font-size:8px; color:<?= $u['estado']==='Activo'?'#2ed573':'#ff4757'?>;"></i> <?= htmlspecialchars($u['estado']) ?>
+            </div>
+            <div class="card-actions">
+                <a href="<?= $basePath ?>?module=usuarios&action=editar&id=<?= intval($u['id']) ?>" class="boton-editar">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a href="<?= $basePath ?>?module=usuarios&action=eliminar&id=<?= intval($u['id']) ?>"
+                   class="boton-eliminar"
+                   onclick="return confirm('¿Está seguro de eliminar este usuario?');">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>
+        <?php endforeach; ?>
+        <?php if (empty($usuarios)): ?>
+        <div class="w-100 text-center p-30 text-gold">
+            <i class="bi bi-search" style="font-size:30px; display:block; margin-bottom:10px;"></i>
+            No se encontraron usuarios.
+        </div>
+        <?php endif; ?>
     </div>
 
     <?php include dirname(__DIR__) . '/partials/paginacion.php'; ?>
