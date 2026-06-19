@@ -94,6 +94,8 @@ El proyecto utiliza un patrón MVC completo con un único punto de entrada (Fron
 ```text
 SistemaSodicol/
 ├── app/
+│   ├── contracts/            # Interfaces (Principios SOLID)
+│   │   └── RepositoryInterface.php
 │   ├── controllers/
 │   │   ├── AuthController.php
 │   │   ├── PanelController.php
@@ -101,12 +103,13 @@ SistemaSodicol/
 │   │   ├── ProductoController.php
 │   │   ├── TareaController.php
 │   │   └── CotizacionController.php
-│   ├── models/
-│   │   ├── Database.php
+│   ├── models/               # Patrón Repository
 │   │   ├── UsuarioModel.php
 │   │   ├── ProductoModel.php
 │   │   ├── TareaModel.php
 │   │   └── CotizacionModel.php
+│   ├── services/             # Lógica de negocio reutilizable
+│   │   └── FileUploadService.php
 │   └── views/
 │       ├── auth/
 │       ├── cotizaciones/
@@ -117,8 +120,9 @@ SistemaSodicol/
 │       ├── tareas/
 │       └── usuarios/
 ├── config/
-│   ├── conexion.php          # (Opcional si usas .env) Carga .env y establece conexión
+│   ├── conexion.php          # Crea y devuelve la conexión mysqli
 │   ├── conexion_example.php  # Plantilla de conexión pública
+│   ├── EnvLoader.php         # Carga de variables de entorno (.env)
 │   ├── seguridad.php         # Funciones de seguridad centralizadas
 │   └── .env                  # Variables de entorno (en .gitignore)
 ├── public/                   # Recursos públicos
@@ -136,12 +140,13 @@ SistemaSodicol/
 └── .gitignore
 ```
 
-### Arquitectura MVC
+### Arquitectura MVC y SOLID
 
 1. **Front Controller (`index.php`)**: Recibe todas las peticiones gracias a `.htaccess`. Lee los parámetros `?module=` y `?action=`.
-2. **Controladores (`app/controllers/`)**: Contienen la lógica de negocio (validaciones, redirecciones, manejo de archivos).
-3. **Modelos (`app/models/`)**: Encapsulan todas las consultas a la base de datos MySQL (con sentencias preparadas).
-4. **Vistas (`app/views/`)**: Renderizan el HTML utilizando los datos proveídos por el controlador.
+2. **Controladores (`app/controllers/`)**: Contienen la lógica de negocio, delegando tareas específicas a los servicios.
+3. **Servicios (`app/services/`)**: Clases especializadas con una única responsabilidad (SRP), como manejo de archivos.
+4. **Modelos (`app/models/`)**: Encapsulan todas las consultas a la base de datos MySQL, implementando contratos estrictos (`app/contracts/`).
+5. **Vistas (`app/views/`)**: Renderizan el HTML utilizando los datos proveídos por el controlador.
 
 **Ejemplo de rutas**:
 - Panel: `/SistemaSodicol/?module=panel`
