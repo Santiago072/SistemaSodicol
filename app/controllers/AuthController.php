@@ -52,7 +52,7 @@ class AuthController {
             $_SESSION['LAST_ACTIVITY']  = time();
 
             sleep(1);
-            header('Location: /PROYECTO_SODICOL/?module=panel');
+            header('Location: ' . BASE_URL . '?module=panel');
             exit();
         }
 
@@ -70,7 +70,7 @@ class AuthController {
         iniciar_sesion_segura();
         session_unset();
         session_destroy();
-        header('Location: /PROYECTO_SODICOL/');
+        header('Location: ' . BASE_URL);
         exit();
     }
 }

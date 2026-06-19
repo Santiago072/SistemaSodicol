@@ -13,10 +13,11 @@ function iniciar_sesion_segura() {
         
         // Verificar timeout de sesión
         $timeout = $_ENV['SESSION_LIFETIME'] ?? 3600;
+        $base = defined('BASE_URL') ? BASE_URL : '/';
         if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > $timeout)) {
             session_unset();
             session_destroy();
-            header("Location: /PROYECTO_SODICOL/?timeout=1");
+            header("Location: {$base}?timeout=1");
             exit();
         }
         $_SESSION['LAST_ACTIVITY'] = time();
@@ -96,7 +97,8 @@ function generar_nombre_archivo($extension) {
 // Verificar si el usuario está autenticado
 function verificar_autenticacion() {
     if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['usuario_nombre'])) {
-        header("Location: /PROYECTO_SODICOL/");
+        $base = defined('BASE_URL') ? BASE_URL : '/';
+        header("Location: {$base}");
         exit();
     }
 }
@@ -105,7 +107,8 @@ function verificar_autenticacion() {
 function verificar_admin() {
     verificar_autenticacion();
     if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
-        header("Location: /PROYECTO_SODICOL/?module=panel");
+        $base = defined('BASE_URL') ? BASE_URL : '/';
+        header("Location: {$base}?module=panel");
         exit();
     }
 }

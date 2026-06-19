@@ -34,6 +34,36 @@ ini_set('display_startup_errors', '0');
 ini_set('log_errors', '1');           // Registrar errores en archivo
 ini_set('error_log', __DIR__ . '/logs/php_errors.log');
 
+// ── Carga de variables de entorno (necesaria antes de BASE_URL) ───────────────
+// Duplica la lógica de cargar_env() para tener APP_BASE disponible aquí.
+if (empty($_ENV['DB_HOST'])) {
+    $envFile = __DIR__ . '/config/.env';
+    if (file_exists($envFile)) {
+        $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach ($lines as $line) {
+            if (strpos(trim($line), '#') === 0) continue;
+            if (strpos($line, '=') === false) continue;
+            [$key, $val] = explode('=', $line, 2);
+            $_ENV[trim($key)] = trim($val);
+        }
+    }
+}
+
+// ── URL base dinámica ─────────────────────────────────────────────────────────
+// Permite desplegar en cualquier ruta (ej: /PROYECTO_SODICOL/ en local, / en Docker).
+// Configurable con APP_BASE en config/.env (generado por docker/entrypoint.sh)
+if (!defined('BASE_URL')) {
+    $appBase = $_ENV['APP_BASE'] ?? getenv('APP_BASE');
+    if ($appBase) {
+        // Uso explícito desde variable de entorno (recomendado en producción)
+        define('BASE_URL', rtrim($appBase, '/') . '/');
+    } else {
+        // Autodetección: directorio del script respecto a la raíz web
+        $scriptDir = dirname($_SERVER['SCRIPT_NAME']);
+        define('BASE_URL', rtrim($scriptDir, '/') . '/');
+    }
+}
+
 require_once __DIR__ . '/config/conexion.php';
 require_once __DIR__ . '/config/seguridad.php';
 
@@ -98,7 +128,7 @@ if ($module === 'usuarios') {
 
         default: // lista
             $data    = $ctrl->listar();
-            $urlBase = '/PROYECTO_SODICOL/?module=usuarios&action=lista'
+            $urlBase = BASE_URL . '?module=usuarios&action=lista'
                      . (!empty($data['busqueda']) ? '&busqueda=' . urlencode($data['busqueda']) : '');
             extract($data);
             include __DIR__ . '/app/views/usuarios/lista.php';
@@ -124,7 +154,7 @@ if ($module === 'productos') {
 
         default: // lista
             $data    = $ctrl->listar();
-            $urlBase = '/PROYECTO_SODICOL/?module=productos&action=lista'
+            $urlBase = BASE_URL . '?module=productos&action=lista'
                      . (!empty($data['busqueda']) ? '&busqueda=' . urlencode($data['busqueda']) : '');
             extract($data);
             include __DIR__ . '/app/views/productos/lista.php';
@@ -150,7 +180,7 @@ if ($module === 'tareas') {
 
         default: // gestion
             $data    = $ctrl->gestion();
-            $urlBase = '/PROYECTO_SODICOL/?module=tareas&action=gestion';
+            $urlBase = BASE_URL . '?module=tareas&action=gestion';
             extract($data);
             include __DIR__ . '/app/views/tareas/gestion.php';
     }
@@ -165,7 +195,7 @@ if ($module === 'cotizaciones') {
     switch ($action) {
         case 'consultar':
             $data    = $ctrl->consultar();
-            $urlBase = '/PROYECTO_SODICOL/?module=cotizaciones&action=consultar&buscando=1';
+            $urlBase = BASE_URL . '?module=cotizaciones&action=consultar&buscando=1';
             extract($data);
             include __DIR__ . '/app/views/cotizaciones/consultar.php';
             break;
@@ -202,5 +232,5 @@ if ($module === 'cotizaciones') {
 }
 
 // ── Módulo desconocido → redirigir al login ──────────────────────────────────
-header('Location: /PROYECTO_SODICOL/');
+header('Location: ' . BASE_URL);
 exit();

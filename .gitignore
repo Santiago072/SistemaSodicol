@@ -1,9 +1,20 @@
+# Docker — archivos sensibles y generados
+docker/.env
+docker/logs/
+
+# .env del proyecto (generado por el entrypoint)
+config/.env
+
+# Dependencias externas
 dompdf/vendor/
 vendor/
 node_modules/
-.env
-config/.env
-config/conexion.php
+
+# Uploads de usuarios
 uploads/
+
+# Logs
 logs/*.log
+
+# Archivos temporales / desarrollo
 scratch/

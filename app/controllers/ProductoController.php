@@ -54,14 +54,14 @@ class ProductoController {
         $csrf_token   = generar_token_csrf();
 
         if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
-            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&error=default");
+            header("Location: " . BASE_URL . "?module=productos&action=lista&error=default");
             exit();
         }
 
         $id      = intval($_GET['id']);
         $producto = $this->model->buscarPorId($id);
         if (!$producto) {
-            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&error=default");
+            header("Location: " . BASE_URL . "?module=productos&action=lista&error=default");
             exit();
         }
 
@@ -109,7 +109,7 @@ class ProductoController {
 
                     if (empty($mensajeError)) {
                         if ($this->model->actualizar($id, $titulo, $rutaFinal, $descripcion, $cantidad, $iva, $precio)) {
-                            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&updated=1");
+                            header("Location: " . BASE_URL . "?module=productos&action=lista&updated=1");
                             exit();
                         }
                         $mensajeError = "Error al actualizar el producto";
@@ -136,7 +136,7 @@ class ProductoController {
 
         if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
             if ($esAjax) { echo json_encode(['status' => 'error', 'message' => 'ID inválido']); exit(); }
-            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&error=invalid_id");
+            header("Location: " . BASE_URL . "?module=productos&action=lista&error=invalid_id");
             exit();
         }
 
@@ -152,12 +152,12 @@ class ProductoController {
 
         if ($this->model->eliminar($id)) {
             if ($esAjax) { echo json_encode(['status' => 'success']); exit(); }
-            header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&deleted=1");
+            header("Location: " . BASE_URL . "?module=productos&action=lista&deleted=1");
             exit();
         }
 
         if ($esAjax) { echo json_encode(['status' => 'error', 'message' => 'Error al eliminar']); exit(); }
-        header("Location: /PROYECTO_SODICOL/?module=productos&action=lista&error=delete_failed");
+        header("Location: " . BASE_URL . "?module=productos&action=lista&error=delete_failed");
         exit();
     }
 }

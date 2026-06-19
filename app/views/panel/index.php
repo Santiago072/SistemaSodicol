@@ -5,7 +5,7 @@
  *            $total_cotizaciones, $tareas_pendientes
  */
 $pageTitle   = 'Panel de Control - Sodicol';
-$basePath    = '/PROYECTO_SODICOL/';
+$basePath    = defined('BASE_URL') ? BASE_URL : '/PROYECTO_SODICOL/';
 include dirname(__DIR__) . '/layout/header.php';
 include dirname(__DIR__) . '/layout/menu.php';
 ?>
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.innerHTML = '<i class="bi bi-hourglass-split"></i>...';
             this.disabled = true;
 
-            fetch(`/PROYECTO_SODICOL/?module=panel&action=ajax_completar_tarea&id=${encodeURIComponent(id)}`)
+            fetch(`<?= $basePath ?>?module=panel&action=ajax_completar_tarea&id=${encodeURIComponent(id)}`)
             .then(r => r.json())
             .then(res => {
                 if(res.status === 'success') {

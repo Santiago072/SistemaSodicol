@@ -1,10 +1,13 @@
 Options -Indexes
 
 # ── Front Controller Routing ─────────────────────────────────────────────────
-# Redirige todas las peticiones al index.php excepto archivos y directorios reales.
+# Compatible con XAMPP local (/PROYECTO_SODICOL/) y Docker (/)
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /PROYECTO_SODICOL/
+
+    # Detectar RewriteBase automáticamente según el entorno
+    # En XAMPP local: /PROYECTO_SODICOL/  |  En Docker: /
+    RewriteBase /
 
     # No reescribir si el archivo/directorio existe
     RewriteCond %{REQUEST_FILENAME} !-f

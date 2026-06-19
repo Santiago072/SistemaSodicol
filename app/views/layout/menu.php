@@ -4,11 +4,12 @@
  * Requiere sesión activa con $_SESSION['rol'] y $_SESSION['usuario_nombre'].
  */
 if (!isset($_SESSION['usuario_nombre'])) {
-    header('Location: /PROYECTO_SODICOL/');
+    $base = defined('BASE_URL') ? BASE_URL : '/';
+    header('Location: ' . $base);
     exit();
 }
 $rol       = $_SESSION['rol'];
-$basePath  = '/PROYECTO_SODICOL/';
+$basePath  = defined('BASE_URL') ? BASE_URL : '/PROYECTO_SODICOL/';
 ?>
 <nav class="menu-principal">
     <div class="menu-lateral" id="menuLateral">

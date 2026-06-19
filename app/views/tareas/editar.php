@@ -4,7 +4,7 @@
  * Variables: $tarea, $usuarios, $mensajeError, $csrf_token
  */
 $pageTitle = 'Editar Tarea';
-$basePath  = '/PROYECTO_SODICOL/';
+$basePath  = defined('BASE_URL') ? BASE_URL : '/PROYECTO_SODICOL/';
 include dirname(__DIR__) . '/layout/header.php';
 include dirname(__DIR__) . '/layout/menu.php';
 ?>
@@ -20,7 +20,7 @@ include dirname(__DIR__) . '/layout/menu.php';
     <?php endif; ?>
 
     <div class="formulario-contenedor">
-        <form method="POST" action="/PROYECTO_SODICOL/?module=tareas&action=editar&id=<?= intval($tarea['id']) ?>" class="formulario">
+        <form method="POST" action="<?= $basePath ?>?module=tareas&action=editar&id=<?= intval($tarea['id']) ?>" class="formulario">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
             <input type="hidden" name="id" value="<?= intval($tarea['id']) ?>">
 
@@ -51,7 +51,7 @@ include dirname(__DIR__) . '/layout/menu.php';
             </div>
             <div class="grupo-campo">
                 <button type="submit" class="boton-primario">Actualizar Tarea</button>
-                <a href="/PROYECTO_SODICOL/?module=tareas&action=gestion" class="boton-limpiar">Cancelar</a>
+                <a href="<?= $basePath ?>?module=tareas&action=gestion" class="boton-limpiar">Cancelar</a>
             </div>
         </form>
     </div>

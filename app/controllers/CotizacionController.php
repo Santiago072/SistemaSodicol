@@ -64,7 +64,7 @@ class CotizacionController {
 
     private function procesarGuardarItem(int $cotizacion_id): void {
         if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
-            header("Location: /PROYECTO_SODICOL/?module=cotizaciones&action=crear&error=csrf");
+            header("Location: " . BASE_URL . "?module=cotizaciones&action=crear&error=csrf");
             exit();
         }
 
@@ -77,7 +77,7 @@ class CotizacionController {
         $precio      = floatval($_POST['precio'] ?? 0);
 
         if (!in_array($iva, ['si', 'no'])) {
-            header("Location: /PROYECTO_SODICOL/?module=cotizaciones&action=crear&error=iva");
+            header("Location: " . BASE_URL . "?module=cotizaciones&action=crear&error=iva");
             exit();
         }
 
@@ -90,7 +90,7 @@ class CotizacionController {
             $this->productoModel->crear($titulo, $foto, $descripcion, $cantidad, $iva, $precio);
         }
 
-        header("Location: /PROYECTO_SODICOL/?module=cotizaciones&action=crear");
+        header("Location: " . BASE_URL . "?module=cotizaciones&action=crear");
         exit();
     }
 
@@ -118,7 +118,7 @@ class CotizacionController {
         $csrf_token   = generar_token_csrf();
 
         if (!isset($_SESSION['cotizacion_id'])) {
-            header("Location: /PROYECTO_SODICOL/?module=cotizaciones&action=crear&error=no_session");
+            header("Location: " . BASE_URL . "?module=cotizaciones&action=crear&error=no_session");
             exit();
         }
         $cotizacion_id = intval($_SESSION['cotizacion_id']);
@@ -141,7 +141,7 @@ class CotizacionController {
                 } else {
                     $rutaFinal = $this->procesarFotoEdicion($_POST['foto_actual'] ?? '');
                     if ($this->model->actualizarItem($itemId, $cotizacion_id, $titulo, $rutaFinal, $descripcion, $cantidad, $iva, $precio)) {
-                        header("Location: /PROYECTO_SODICOL/?module=cotizaciones&action=crear&updated=1");
+                        header("Location: " . BASE_URL . "?module=cotizaciones&action=crear&updated=1");
                         exit();
                     }
                     $mensajeError = "Error al actualizar el ítem";
@@ -150,14 +150,14 @@ class CotizacionController {
         }
 
         if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
-            header("Location: /PROYECTO_SODICOL/?module=cotizaciones&action=crear&error=invalid_id");
+            header("Location: " . BASE_URL . "?module=cotizaciones&action=crear&error=invalid_id");
             exit();
         }
 
         $itemId = intval($_GET['id']);
         $datos  = $this->model->buscarItemPorId($itemId, $cotizacion_id);
         if (!$datos) {
-            header("Location: /PROYECTO_SODICOL/?module=cotizaciones&action=crear&error=not_found");
+            header("Location: " . BASE_URL . "?module=cotizaciones&action=crear&error=not_found");
             exit();
         }
 
@@ -189,12 +189,12 @@ class CotizacionController {
         verificar_autenticacion();
 
         if (!isset($_GET['id']) || !validar_numero($_GET['id'])) {
-            header("Location: /PROYECTO_SODICOL/?module=cotizaciones&action=crear");
+            header("Location: " . BASE_URL . "?module=cotizaciones&action=crear");
             exit();
         }
 
         $this->model->eliminarItem(intval($_GET['id']));
-        header("Location: /PROYECTO_SODICOL/?module=cotizaciones&action=crear");
+        header("Location: " . BASE_URL . "?module=cotizaciones&action=crear");
         exit();
     }
 
@@ -229,7 +229,7 @@ class CotizacionController {
                 // Paginación en búsqueda: guardar filtros en sesión
                 $_SESSION['cotizacion_filtros'] = $filtros;
                 $_SESSION['cotizacion_pagina']  = 1;
-                header("Location: /PROYECTO_SODICOL/?module=cotizaciones&action=consultar&buscando=1");
+                header("Location: " . BASE_URL . "?module=cotizaciones&action=consultar&buscando=1");
                 exit();
             }
         }

@@ -4,7 +4,7 @@
  * Variables: $productos, $producto, $busqueda, $items, $totalItems, $csrf_token
  */
 $pageTitle = 'Crear Cotización';
-$basePath  = '/PROYECTO_SODICOL/';
+$basePath  = defined('BASE_URL') ? BASE_URL : '/PROYECTO_SODICOL/';
 include dirname(__DIR__) . '/layout/header.php';
 include dirname(__DIR__) . '/layout/menu.php';
 ?>
@@ -45,7 +45,7 @@ include dirname(__DIR__) . '/layout/menu.php';
     <!-- Formulario de ítem -->
     <div class="formulario-contenedor formulario-cotizacion">
         <form method="POST" enctype="multipart/form-data"
-              action="/PROYECTO_SODICOL/?module=cotizaciones&action=crear" class="formulario">
+              action="<?= $basePath ?>?module=cotizaciones&action=crear" class="formulario">
             <input type="hidden" name="action"      value="guardar_item">
             <input type="hidden" name="csrf_token"  value="<?= htmlspecialchars($csrf_token) ?>">
             <input type="hidden" name="producto_id" value="<?= intval($producto['id'] ?? 0) ?>">
@@ -63,7 +63,7 @@ include dirname(__DIR__) . '/layout/menu.php';
                 <div id="img-preview-container" class="grupo-campo" style="margin-top:10px;">
                     <?php if (!empty($producto['foto'])): ?>
                     <label>Imagen actual</label><br>
-                    <img src="/PROYECTO_SODICOL/uploads/<?= htmlspecialchars($producto['foto']) ?>"
+                    <img src="<?= $basePath ?>uploads/<?= htmlspecialchars($producto['foto']) ?>"
                          width="150" style="max-width:200px; border-radius:8px;">
                     <?php endif; ?>
                 </div>
@@ -115,9 +115,9 @@ include dirname(__DIR__) . '/layout/menu.php';
                     <td><?= $item['iva'] === 'si' ? 'Sí' : 'No' ?></td>
                     <td><?= number_format($item['precio'], 0, '', '.') ?></td>
                     <td class="acciones-tabla">
-                        <a href="/PROYECTO_SODICOL/?module=cotizaciones&action=editar_item&id=<?= intval($item['id']) ?>"
+                        <a href="<?= $basePath ?>?module=cotizaciones&action=editar_item&id=<?= intval($item['id']) ?>"
                            class="boton-editar"><i class="fas fa-edit"></i></a>
-                        <a href="/PROYECTO_SODICOL/?module=cotizaciones&action=eliminar_item&id=<?= intval($item['id']) ?>"
+                        <a href="<?= $basePath ?>?module=cotizaciones&action=eliminar_item&id=<?= intval($item['id']) ?>"
                            class="boton-eliminar"
                            onclick="return confirm('¿Eliminar este ítem?')"><i class="fas fa-trash"></i></a>
                     </td>
@@ -138,7 +138,7 @@ include dirname(__DIR__) . '/layout/menu.php';
     <div class="modal-contenido">
         <span class="cerrar">&times;</span>
         <h2>Datos del Cliente</h2>
-        <form action="/PROYECTO_SODICOL/?module=cotizaciones&action=generar_pdf" method="POST" target="_blank">
+        <form action="<?= $basePath ?>?module=cotizaciones&action=generar_pdf" method="POST" target="_blank">
             <div class="grupo-fila">
                 <div class="grupo-campo">
                     <label>Profesión *</label>
@@ -210,7 +210,7 @@ include dirname(__DIR__) . '/layout/menu.php';
 
     function ejecutarBusqueda() {
         const query = inputBusqueda.value;
-        fetch('/PROYECTO_SODICOL/?module=cotizaciones&action=ajax_buscar_productos&busqueda=' + encodeURIComponent(query))
+        fetch(`<?= $basePath ?>?module=cotizaciones&action=ajax_buscar_productos&busqueda=` + encodeURIComponent(query))
         .then(r => r.json())
         .then(res => {
             if(res.status === 'success') {
@@ -251,7 +251,7 @@ include dirname(__DIR__) . '/layout/menu.php';
         btnUsar.textContent = 'Cargando...';
         btnUsar.disabled = true;
 
-        fetch('/PROYECTO_SODICOL/?module=cotizaciones&action=ajax_get_producto&id=' + encodeURIComponent(id))
+        fetch(`<?= $basePath ?>?module=cotizaciones&action=ajax_get_producto&id=` + encodeURIComponent(id))
         .then(r => r.json())
         .then(res => {
             if(res.status === 'success') {
@@ -265,7 +265,7 @@ include dirname(__DIR__) . '/layout/menu.php';
                 
                 const imgPreviewContainer = document.getElementById('img-preview-container');
                 if(p.foto && imgPreviewContainer) {
-                    imgPreviewContainer.innerHTML = '<label>Imagen actual</label><br><img src="/PROYECTO_SODICOL/uploads/' + p.foto + '" width="150" style="max-width:200px; border-radius:8px;">';
+                    imgPreviewContainer.innerHTML = '<label>Imagen actual</label><br><img src="<?= $basePath ?>uploads/' + p.foto + '" width="150" style="max-width:200px; border-radius:8px;">';
                     document.querySelector('input[name="foto_actual"]').value = p.foto;
                 } else if (imgPreviewContainer) {
                     imgPreviewContainer.innerHTML = '';
