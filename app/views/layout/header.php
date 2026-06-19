@@ -3,11 +3,11 @@
  * Layout header — emite el <head> HTML completo.
  * Variables esperadas:
  *   $pageTitle  string  — título de la pestaña
- *   $basePath   string  — ruta raíz ('/PROYECTO_SODICOL/')
+ *   $basePath   string  — ruta raíz ('/SistemaSodicol/')
  *   $extraHead  string  — HTML adicional opcional (estilos inline, etc.)
  */
 $pageTitle = $pageTitle ?? 'Sistema Sodicol';
-$basePath  = defined('BASE_URL') ? BASE_URL : ($basePath ?? '/PROYECTO_SODICOL/');
+$basePath  = defined('BASE_URL') ? BASE_URL : ($basePath ?? '/SistemaSodicol/');
 $extraHead = $extraHead ?? '';
 ?>
 <!DOCTYPE html>

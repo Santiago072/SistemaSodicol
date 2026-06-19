@@ -78,7 +78,7 @@ chmod 755 uploads/
 ### 5. Acceder
 
 ```
-http://localhost/PROYECTO_SODICOL/
+http://localhost/SistemaSodicol/
 ```
 
 **Credenciales iniciales** (usuario creado en BD.txt):
@@ -92,7 +92,7 @@ http://localhost/PROYECTO_SODICOL/
 El proyecto utiliza un patrón MVC completo con un único punto de entrada (Front Controller).
 
 ```text
-PROYECTO_SODICOL/
+SistemaSodicol/
 ├── app/
 │   ├── controllers/
 │   │   ├── AuthController.php
@@ -144,9 +144,9 @@ PROYECTO_SODICOL/
 4. **Vistas (`app/views/`)**: Renderizan el HTML utilizando los datos proveídos por el controlador.
 
 **Ejemplo de rutas**:
-- Panel: `/PROYECTO_SODICOL/?module=panel`
-- Lista de Usuarios: `/PROYECTO_SODICOL/?module=usuarios&action=lista`
-- Crear Cotización: `/PROYECTO_SODICOL/?module=cotizaciones&action=crear`
+- Panel: `/SistemaSodicol/?module=panel`
+- Lista de Usuarios: `/SistemaSodicol/?module=usuarios&action=lista`
+- Crear Cotización: `/SistemaSodicol/?module=cotizaciones&action=crear`
 
 ---
 

@@ -4,7 +4,7 @@
  * Variables: $usuario, $mensajeError, $csrf_token
  */
 $pageTitle = 'Editar Usuario';
-$basePath  = defined('BASE_URL') ? BASE_URL : '/PROYECTO_SODICOL/';
+$basePath  = defined('BASE_URL') ? BASE_URL : '/SistemaSodicol/';
 include dirname(__DIR__) . '/layout/header.php';
 include dirname(__DIR__) . '/layout/menu.php';
 ?>
