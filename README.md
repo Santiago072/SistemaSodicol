@@ -6,7 +6,9 @@ Sistema web de gestión interno para **Sodicol Zomac S.A.S**, empresa de diseño
 
 ## 📚 Documentación y Manuales
 - [Especificación de Requisitos](docs/Especificacion_Requisitos.md)
+- [Documentación Técnica](docs/documentacion-tecnica.md)
 - [Manual de Usuario](docs/Manual_de_Usuario.md)
+- [Arquitectura y Seguridad](docs/ARQUITECTURA_Y_SEGURIDAD.md)
 
 ---
 
