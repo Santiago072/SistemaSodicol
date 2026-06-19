@@ -1,119 +1,200 @@
 <?php
 /**
- * Funciones de seguridad para el sistema
+ * seguridad.php — Funciones de seguridad del sistema.
+ *
+ * Cambios aplicados:
+ *   - FIX CRÍTICO: sanitizar_entrada() ya NO aplica htmlspecialchars.
+ *     htmlspecialchars pertenece a la capa de SALIDA (vistas), no de entrada.
+ *     Guardarlo en BD con htmlspecialchars corrompe los datos y rompe búsquedas.
+ *   - NUEVO: escapar_salida() para usar en vistas al imprimir datos.
+ *   - FIX: COOKIE_SECURE se castea a int para evitar que "0" sea evaluado como truthy.
+ *   - NUEVO: rotar_token_csrf() para protección anti-replay post-POST.
  */
 
-// Iniciar sesión segura
-function iniciar_sesion_segura() {
-    if (session_status() === PHP_SESSION_NONE) {
-        ini_set('session.cookie_httponly', 1);
-        ini_set('session.use_only_cookies', 1);
-        ini_set('session.cookie_secure', $_ENV['COOKIE_SECURE'] ?? 0); // Configurar a 1 en .env para HTTPS
-        session_start();
-        
-        // Verificar timeout de sesión
-        $timeout = $_ENV['SESSION_LIFETIME'] ?? 3600;
-        $base = defined('BASE_URL') ? BASE_URL : '/';
-        if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > $timeout)) {
-            session_unset();
-            session_destroy();
-            header("Location: {$base}?timeout=1");
-            exit();
-        }
-        $_SESSION['LAST_ACTIVITY'] = time();
+// ── Sesión segura ────────────────────────────────────────────────────────────
+
+function iniciar_sesion_segura(): void
+{
+    if (session_status() !== PHP_SESSION_NONE) {
+        return;
     }
+
+    ini_set('session.cookie_httponly', '1');
+    ini_set('session.use_only_cookies', '1');
+    // FIX: cast a int para que "0" (string) no sea truthy
+    ini_set('session.cookie_secure', (int)($_ENV['COOKIE_SECURE'] ?? getenv('COOKIE_SECURE') ?: 0));
+    ini_set('session.cookie_samesite', 'Strict');
+
+    session_start();
+
+    // Timeout por inactividad
+    $timeout = (int)($_ENV['SESSION_LIFETIME'] ?? getenv('SESSION_LIFETIME') ?: 3600);
+    $base    = defined('BASE_URL') ? BASE_URL : '/';
+
+    if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > $timeout)) {
+        session_unset();
+        session_destroy();
+        header("Location: {$base}?timeout=1");
+        exit();
+    }
+
+    $_SESSION['LAST_ACTIVITY'] = time();
 }
 
-// Generar token CSRF
-function generar_token_csrf() {
+// ── CSRF ─────────────────────────────────────────────────────────────────────
+
+/**
+ * Genera (o recupera) el token CSRF de la sesión actual.
+ */
+function generar_token_csrf(): string
+{
     if (!isset($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
     return $_SESSION['csrf_token'];
 }
 
-// Verificar token CSRF
-function verificar_token_csrf($token) {
-    if (!isset($_SESSION['csrf_token']) || $token !== $_SESSION['csrf_token']) {
+/**
+ * Verifica que el token recibido coincida con el de la sesión.
+ * Usa comparación de tiempo constante para evitar timing attacks.
+ */
+function verificar_token_csrf(string $token): bool
+{
+    if (!isset($_SESSION['csrf_token'])) {
         return false;
     }
-    return true;
+    return hash_equals($_SESSION['csrf_token'], $token);
 }
 
-// Sanitizar entrada
-function sanitizar_entrada($data) {
-    $data = trim($data);
-    $data = stripslashes($data);
-    $data = htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
-    return $data;
+/**
+ * Rota el token CSRF: destruye el actual y genera uno nuevo.
+ * Llamar después de cada POST exitoso para prevenir replay attacks.
+ */
+function rotar_token_csrf(): string
+{
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    return $_SESSION['csrf_token'];
 }
 
-// Validar email
-function validar_email($email) {
-    return filter_var($email, FILTER_VALIDATE_EMAIL);
+// ── Sanitización y escape ─────────────────────────────────────────────────────
+
+/**
+ * Limpia una entrada de texto: elimina espacios y barras invertidas.
+ * NO aplica htmlspecialchars — eso es responsabilidad de escapar_salida() en las vistas.
+ * Los datos se guardan en BD tal como el usuario los escribió (limpios pero sin codificar).
+ *
+ * @param mixed $data
+ * @return string
+ */
+function sanitizar_entrada($data): string
+{
+    return stripslashes(trim((string)$data));
 }
 
-// Validar número
-function validar_numero($numero) {
+/**
+ * Escapa una cadena para imprimir de forma segura en HTML.
+ * Usar en TODAS las vistas al imprimir datos de usuario o de la BD.
+ *
+ * @param mixed $data
+ * @return string
+ */
+function escapar_salida($data): string
+{
+    return htmlspecialchars((string)$data, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+// ── Validadores ───────────────────────────────────────────────────────────────
+
+function validar_email(string $email): bool
+{
+    return (bool)filter_var($email, FILTER_VALIDATE_EMAIL);
+}
+
+function validar_numero($numero): bool
+{
     return is_numeric($numero) && $numero > 0;
 }
 
-// Validar archivo de imagen
-function validar_imagen($archivo) {
-    $extensiones_permitidas = explode(',', $_ENV['ALLOWED_EXTENSIONS'] ?? 'jpg,jpeg,png,gif,webp');
-    $max_size = $_ENV['UPLOAD_MAX_SIZE'] ?? 5242880; // 5MB por defecto
-    
+/**
+ * Valida un archivo de imagen subido.
+ * Verifica error, tamaño, extensión y tipo MIME real del archivo.
+ *
+ * @param array $archivo Entrada de $_FILES.
+ * @return array{valido: bool, mensaje: string}
+ */
+function validar_imagen(array $archivo): array
+{
+    $extensionesPermitidas = explode(',', $_ENV['ALLOWED_EXTENSIONS'] ?? getenv('ALLOWED_EXTENSIONS') ?: 'jpg,jpeg,png,gif,webp');
+    $maxSize               = (int)($_ENV['UPLOAD_MAX_SIZE'] ?? getenv('UPLOAD_MAX_SIZE') ?: 5242880);
+
     if ($archivo['error'] !== UPLOAD_ERR_OK) {
         return ['valido' => false, 'mensaje' => 'Error al subir el archivo'];
     }
-    
-    if ($archivo['size'] > $max_size) {
-        return ['valido' => false, 'mensaje' => 'El archivo es demasiado grande (máximo 5MB)'];
+
+    if ($archivo['size'] > $maxSize) {
+        return ['valido' => false, 'mensaje' => 'El archivo es demasiado grande (máximo 5 MB)'];
     }
-    
+
     $extension = strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION));
-    if (!in_array($extension, $extensiones_permitidas)) {
+    if (!in_array($extension, $extensionesPermitidas, true)) {
         return ['valido' => false, 'mensaje' => 'Tipo de archivo no permitido'];
     }
-    
-    // Verificar tipo MIME real
+
+    // Verificar tipo MIME real (no confiar en la extensión)
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mime = finfo_file($finfo, $archivo['tmp_name']);
+    $mime  = finfo_file($finfo, $archivo['tmp_name']);
     finfo_close($finfo);
-    
-    $mimes_permitidos = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    if (!in_array($mime, $mimes_permitidos)) {
+
+    $mimesPermitidos = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!in_array($mime, $mimesPermitidos, true)) {
         return ['valido' => false, 'mensaje' => 'El archivo no es una imagen válida'];
     }
-    
+
     return ['valido' => true, 'mensaje' => 'Archivo válido'];
 }
 
-// Generar nombre único para archivo
-function generar_nombre_archivo($extension) {
+/**
+ * Genera un nombre único para un archivo subido.
+ * Usa tiempo + bytes aleatorios para evitar colisiones y enumeración.
+ */
+function generar_nombre_archivo(string $extension): string
+{
     return time() . '_' . bin2hex(random_bytes(8)) . '.' . $extension;
 }
 
-// Verificar si el usuario está autenticado
-function verificar_autenticacion() {
-    if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['usuario_nombre'])) {
+// ── Control de acceso ─────────────────────────────────────────────────────────
+
+/**
+ * Verifica que el usuario haya iniciado sesión.
+ * Redirige al login si no está autenticado.
+ */
+function verificar_autenticacion(): void
+{
+    if (!isset($_SESSION['usuario_id'], $_SESSION['usuario_nombre'])) {
         $base = defined('BASE_URL') ? BASE_URL : '/';
         header("Location: {$base}");
         exit();
     }
 }
 
-// Verificar si el usuario es administrador
-function verificar_admin() {
+/**
+ * Verifica que el usuario tenga rol 'admin'.
+ * Redirige al panel si está autenticado pero no es admin.
+ */
+function verificar_admin(): void
+{
     verificar_autenticacion();
-    if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
+    if (($_SESSION['rol'] ?? '') !== 'admin') {
         $base = defined('BASE_URL') ? BASE_URL : '/';
         header("Location: {$base}?module=panel");
         exit();
     }
 }
 
-// Regenerar ID de sesión
-function regenerar_sesion() {
+/**
+ * Regenera el ID de sesión para prevenir session fixation.
+ */
+function regenerar_sesion(): void
+{
     session_regenerate_id(true);
 }

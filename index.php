@@ -2,63 +2,44 @@
 /**
  * index.php — Front Controller / Router principal
  *
- * Único punto de entrada del sistema MVC. Lee los parámetros
- * ?module= y ?action= de la URL, valida, instancia el controlador
- * correspondiente y renderiza la vista adecuada.
+ * Único punto de entrada del sistema MVC. Lee el parámetro ?module= de la URL,
+ * valida, instancia el controlador correspondiente y renderiza la vista adecuada.
+ *
+ * Principios aplicados:
+ *   - OCP: el mapa de rutas ($rutasMap) permite añadir nuevos módulos sin modificar
+ *     la lógica del router (solo se agrega una entrada al array).
+ *   - SRP: la carga del .env está delegada a EnvLoader.
+ *   - DRY: eliminada la lógica duplicada de carga del .env que existía aquí y en conexion.php.
  *
  * Rutas disponibles:
- *   (sin params)                      → Login
- *   ?module=panel                     → Dashboard
- *   ?module=usuarios&action=lista     → Lista de usuarios
- *   ?module=usuarios&action=crear     → Crear usuario
- *   ?module=usuarios&action=editar    → Editar usuario (requiere &id=)
- *   ?module=usuarios&action=eliminar  → Eliminar usuario (requiere &id=)
- *   ?module=productos&action=lista    → Lista de productos
- *   ?module=productos&action=editar   → Editar producto (requiere &id=)
- *   ?module=productos&action=eliminar → Eliminar producto (requiere &id=)
- *   ?module=tareas&action=gestion     → Gestión de tareas
- *   ?module=tareas&action=editar      → Editar tarea (requiere &id=)
- *   ?module=tareas&action=eliminar    → Eliminar tarea (requiere &id=)
- *   ?module=cotizaciones&action=crear         → Crear cotización
- *   ?module=cotizaciones&action=consultar     → Consultar cotizaciones
- *   ?module=cotizaciones&action=editar_item   → Editar ítem (requiere &id=)
- *   ?module=cotizaciones&action=eliminar_item → Eliminar ítem (requiere &id=)
- *   ?module=cotizaciones&action=generar_pdf   → Generar PDF
- *   ?action=logout                            → Cerrar sesión
+ *   (sin params)                               → Login
+ *   ?action=logout                             → Cerrar sesión
+ *   ?module=panel                              → Dashboard
+ *   ?module=panel&action=ajax_completar_tarea  → AJAX panel
+ *   ?module=usuarios&action=lista|crear|editar|eliminar
+ *   ?module=productos&action=lista|editar|eliminar
+ *   ?module=tareas&action=gestion|editar|eliminar
+ *   ?module=cotizaciones&action=crear|consultar|editar_item|eliminar_item|generar_pdf|ajax_*
  */
 
-// ── Manejo de errores para producción ────────────────────────────────────────
+// ── Producción: errores al log, nunca al usuario ──────────────────────────────
 error_reporting(E_ALL);
-ini_set('display_errors', '0');       // No mostrar errores al usuario
+ini_set('display_errors', '0');
 ini_set('display_startup_errors', '0');
-ini_set('log_errors', '1');           // Registrar errores en archivo
+ini_set('log_errors', '1');
 ini_set('error_log', __DIR__ . '/logs/php_errors.log');
 
-// ── Carga de variables de entorno (necesaria antes de BASE_URL) ───────────────
-// Duplica la lógica de cargar_env() para tener APP_BASE disponible aquí.
-if (empty($_ENV['DB_HOST'])) {
-    $envFile = __DIR__ . '/config/.env';
-    if (file_exists($envFile)) {
-        $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        foreach ($lines as $line) {
-            if (strpos(trim($line), '#') === 0) continue;
-            if (strpos($line, '=') === false) continue;
-            [$key, $val] = explode('=', $line, 2);
-            $_ENV[trim($key)] = trim($val);
-        }
-    }
-}
+// ── Carga del .env (SRP: delegado a EnvLoader) ────────────────────────────────
+require_once __DIR__ . '/config/EnvLoader.php';
+EnvLoader::load(__DIR__ . '/config/.env');
 
 // ── URL base dinámica ─────────────────────────────────────────────────────────
-// Permite desplegar en cualquier ruta (ej: /PROYECTO_SODICOL/ en local, / en Docker).
-// Configurable con APP_BASE en config/.env (generado por docker/entrypoint.sh)
+// APP_BASE en .env = '/'  en Docker, autodetecta la ruta en XAMPP local.
 if (!defined('BASE_URL')) {
-    $appBase = $_ENV['APP_BASE'] ?? getenv('APP_BASE');
+    $appBase = $_ENV['APP_BASE'] ?? getenv('APP_BASE') ?: null;
     if ($appBase) {
-        // Uso explícito desde variable de entorno (recomendado en producción)
         define('BASE_URL', rtrim($appBase, '/') . '/');
     } else {
-        // Autodetección: directorio del script respecto a la raíz web
         $scriptDir = dirname($_SERVER['SCRIPT_NAME']);
         define('BASE_URL', rtrim($scriptDir, '/') . '/');
     }
@@ -72,14 +53,14 @@ iniciar_sesion_segura();
 $module = sanitizar_entrada($_GET['module'] ?? '');
 $action = sanitizar_entrada($_GET['action'] ?? '');
 
-// ── Logout (acción global sin módulo) ───────────────────────────────────────
+// ── Logout ────────────────────────────────────────────────────────────────────
 if ($action === 'logout') {
     require_once __DIR__ . '/app/controllers/AuthController.php';
     (new AuthController(conexion()))->logout();
     exit();
 }
 
-// ── Sin módulo: mostrar login ────────────────────────────────────────────────
+// ── Login (sin módulo) ────────────────────────────────────────────────────────
 if ($module === '') {
     require_once __DIR__ . '/app/controllers/AuthController.php';
     $data = (new AuthController(conexion()))->login();
@@ -88,45 +69,55 @@ if ($module === '') {
     exit();
 }
 
-// ── Módulo: panel ────────────────────────────────────────────────────────────
-if ($module === 'panel') {
-    require_once __DIR__ . '/app/controllers/PanelController.php';
-    $ctrl = new PanelController(conexion());
+// ── Mapa de módulos (OCP: agregar módulo = agregar una línea aquí) ────────────
+$rutasMap = [
+    'panel'        => __DIR__ . '/app/controllers/PanelController.php',
+    'usuarios'     => __DIR__ . '/app/controllers/UsuarioController.php',
+    'productos'    => __DIR__ . '/app/controllers/ProductoController.php',
+    'tareas'       => __DIR__ . '/app/controllers/TareaController.php',
+    'cotizaciones' => __DIR__ . '/app/controllers/CotizacionController.php',
+];
 
+if (!array_key_exists($module, $rutasMap)) {
+    // Módulo desconocido → login
+    header('Location: ' . BASE_URL);
+    exit();
+}
+
+require_once $rutasMap[$module];
+$db = conexion();
+
+// ── Dispatch por módulo ───────────────────────────────────────────────────────
+
+if ($module === 'panel') {
+    $ctrl = new PanelController($db);
     if ($action === 'ajax_completar_tarea') {
         $ctrl->ajaxCompletarTarea();
         exit();
     }
-
     $data = $ctrl->index();
     extract($data);
     include __DIR__ . '/app/views/panel/index.php';
     exit();
 }
 
-// ── Módulo: usuarios ─────────────────────────────────────────────────────────
 if ($module === 'usuarios') {
-    require_once __DIR__ . '/app/controllers/UsuarioController.php';
-    $ctrl = new UsuarioController(conexion());
-
+    $ctrl = new UsuarioController($db);
     switch ($action) {
         case 'crear':
             $data = $ctrl->crear();
             extract($data);
             include __DIR__ . '/app/views/usuarios/crear.php';
             break;
-
         case 'editar':
             $data = $ctrl->editar();
             extract($data);
             include __DIR__ . '/app/views/usuarios/editar.php';
             break;
-
         case 'eliminar':
             $ctrl->eliminar();
             break;
-
-        default: // lista
+        default:
             $data    = $ctrl->listar();
             $urlBase = BASE_URL . '?module=usuarios&action=lista'
                      . (!empty($data['busqueda']) ? '&busqueda=' . urlencode($data['busqueda']) : '');
@@ -136,23 +127,18 @@ if ($module === 'usuarios') {
     exit();
 }
 
-// ── Módulo: productos ────────────────────────────────────────────────────────
 if ($module === 'productos') {
-    require_once __DIR__ . '/app/controllers/ProductoController.php';
-    $ctrl = new ProductoController(conexion());
-
+    $ctrl = new ProductoController($db);
     switch ($action) {
         case 'editar':
             $data = $ctrl->editar();
             extract($data);
             include __DIR__ . '/app/views/productos/editar.php';
             break;
-
         case 'eliminar':
             $ctrl->eliminar();
             break;
-
-        default: // lista
+        default:
             $data    = $ctrl->listar();
             $urlBase = BASE_URL . '?module=productos&action=lista'
                      . (!empty($data['busqueda']) ? '&busqueda=' . urlencode($data['busqueda']) : '');
@@ -162,23 +148,18 @@ if ($module === 'productos') {
     exit();
 }
 
-// ── Módulo: tareas ───────────────────────────────────────────────────────────
 if ($module === 'tareas') {
-    require_once __DIR__ . '/app/controllers/TareaController.php';
-    $ctrl = new TareaController(conexion());
-
+    $ctrl = new TareaController($db);
     switch ($action) {
         case 'editar':
             $data = $ctrl->editar();
             extract($data);
             include __DIR__ . '/app/views/tareas/editar.php';
             break;
-
         case 'eliminar':
             $ctrl->eliminar();
             break;
-
-        default: // gestion
+        default:
             $data    = $ctrl->gestion();
             $urlBase = BASE_URL . '?module=tareas&action=gestion';
             extract($data);
@@ -187,11 +168,8 @@ if ($module === 'tareas') {
     exit();
 }
 
-// ── Módulo: cotizaciones ─────────────────────────────────────────────────────
 if ($module === 'cotizaciones') {
-    require_once __DIR__ . '/app/controllers/CotizacionController.php';
-    $ctrl = new CotizacionController(conexion());
-
+    $ctrl = new CotizacionController($db);
     switch ($action) {
         case 'consultar':
             $data    = $ctrl->consultar();
@@ -199,38 +177,27 @@ if ($module === 'cotizaciones') {
             extract($data);
             include __DIR__ . '/app/views/cotizaciones/consultar.php';
             break;
-
         case 'editar_item':
             $data = $ctrl->editarItem();
             extract($data);
             include __DIR__ . '/app/views/cotizaciones/editar_item.php';
             break;
-
         case 'eliminar_item':
             $ctrl->eliminarItem();
             break;
-
         case 'generar_pdf':
-            // La generación de PDF requiere su propio flujo (salida binaria)
             include __DIR__ . '/app/views/cotizaciones/generar_pdf.php';
             break;
-
         case 'ajax_buscar_productos':
             $ctrl->ajaxBuscarProductos();
             break;
-
         case 'ajax_get_producto':
             $ctrl->ajaxGetProducto();
             break;
-
-        default: // crear
+        default:
             $data = $ctrl->crear();
             extract($data);
             include __DIR__ . '/app/views/cotizaciones/crear.php';
     }
     exit();
 }
-
-// ── Módulo desconocido → redirigir al login ──────────────────────────────────
-header('Location: ' . BASE_URL);
-exit();
