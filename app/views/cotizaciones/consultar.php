@@ -102,7 +102,7 @@ include dirname(__DIR__) . '/layout/menu.php';
         </div>
         <div class="pdf-container">
             <iframe id="pdf-frame" src=""></iframe>
-            <div id="pdf-error" class="pdf-error" style="display:none;">
+            <div id="pdf-error" class="pdf-error d-none">
                 <i class="bi bi-exclamation-triangle-fill"></i>
                 <h4>No se pudo cargar el PDF</h4>
                 <p>El archivo no está disponible o ha sido movido.</p>

@@ -17,7 +17,7 @@ include dirname(__DIR__) . '/layout/menu.php';
     <div class="encabezado-pagina"><h1>Lista de Productos</h1></div>
 
     <?php if ($mensajeExito): ?>
-    <div class="success-box" style="background:#d4edda;color:#155724;padding:15px;margin:15px 0;border-radius:8px;border:1px solid #c3e6cb;">
+    <div class="success-box">
         <i class="fas fa-check-circle"></i> <?= htmlspecialchars($mensajeExito) ?>
     </div>
     <?php endif; ?>
@@ -62,7 +62,7 @@ include dirname(__DIR__) . '/layout/menu.php';
                 </tr>
                 <?php endforeach; ?>
                 <?php if (empty($productos)): ?>
-                <tr><td colspan="4" style="text-align:center;padding:30px;color:var(--gold-light);">
+                <tr><td colspan="4" class="text-center p-30 text-gold">
                     <i class="bi bi-search"></i> No se encontraron productos.
                 </td></tr>
                 <?php endif; ?>

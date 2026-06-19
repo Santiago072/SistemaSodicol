@@ -3355,3 +3355,43 @@ body.modo-dia .pag-dots {
 body.modo-dia .pag-info {
     color: rgba(45, 26, 10, .6);
 }
+
+/* ════════════════════════════════════════════════════════════
+   CLASES UTILITARIAS Y NUEVOS COMPONENTES
+════════════════════════════════════════════════════════════ */
+
+.flex-1 { flex: 1; }
+.pl-16 { padding-left: 16px; }
+.text-center { text-align: center; }
+.p-30 { padding: 30px; }
+.text-gold { color: var(--gold-light); }
+.text-muted { color: #888; }
+.w-100 { width: 100%; }
+.mt-30 { margin-top: 30px; }
+.mt-10 { margin-top: 10px; }
+.mb-10 { margin-bottom: 10px; }
+.d-none { display: none !important; }
+.img-preview { border: 1px solid var(--glass-border); max-width: 200px; border-radius: 8px; }
+
+.page-heading {
+    font-size: 15px; 
+    font-weight: 600; 
+    color: var(--gold-light);
+}
+
+.success-box {
+    background: rgba(46, 213, 115, 0.15);
+    color: #7bed9f;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 8px;
+    border: 1px solid rgba(46, 213, 115, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+body.modo-dia .success-box {
+    background: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
+}
