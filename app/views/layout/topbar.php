@@ -14,14 +14,14 @@ $esDashboard = $esDashboard ?? false;
     <button class="boton-menu-ocultar" id="btnMenu">
         <i class="fas fa-bars"></i> Ocultar Menú
     </button>
-    <div class="cabecera-bienvenida" style="flex:1; padding-left: 16px;">
+    <div class="cabecera-bienvenida flex-1 pl-16">
         <?php if ($esDashboard && $usuario): ?>
-        <h3 style="margin:0; font-family:var(--font-display); font-size:20px; font-weight:700; background:linear-gradient(135deg, var(--white), var(--gold-light)); background-clip:text; -webkit-text-fill-color:transparent;">
+        <h3>
             ¡Bienvenido, <?= htmlspecialchars($usuario['nombre']) ?>!
         </h3>
         <?php endif; ?>
         <?php if ($pageHeading): ?>
-        <span style="font-size:15px; font-weight:600; color:var(--gold-light);">
+        <span class="page-heading">
             <?= htmlspecialchars($pageHeading) ?>
         </span>
         <?php endif; ?>
@@ -29,11 +29,11 @@ $esDashboard = $esDashboard ?? false;
     <div style="display:flex; align-items:center; gap:16px;">
         <?php if ($esDashboard && $usuario): ?>
             <?php if ($usuario['rol'] === 'admin'): ?>
-            <span class="rol-admin" style="margin:0; font-size:10px; padding:6px 14px;">
+            <span class="rol-admin">
                 <i class="bi bi-shield-check"></i> Administrador
             </span>
             <?php else: ?>
-            <span class="rol-usuario" style="margin:0; font-size:10px; padding:6px 14px;">
+            <span class="rol-usuario">
                 <i class="bi bi-person"></i> Usuario
             </span>
             <?php endif; ?>

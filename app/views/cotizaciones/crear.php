@@ -20,7 +20,7 @@ include dirname(__DIR__) . '/layout/menu.php';
         <form id="form-busqueda-ajax" class="formulario-busqueda" onsubmit="return false;">
             <input type="text" id="input-busqueda" class="form-control" 
                    placeholder="Buscar producto..." autocomplete="off">
-            <button type="button" id="btn-limpiar-busqueda" class="boton-limpiar" style="display:none;">Limpiar</button>
+            <button type="button" id="btn-limpiar-busqueda" class="boton-limpiar d-none">Limpiar</button>
         </form>
     </div>
 
@@ -59,12 +59,12 @@ include dirname(__DIR__) . '/layout/menu.php';
                 <input type="hidden" name="foto_actual" value="<?= htmlspecialchars($producto['foto'] ?? '') ?>">
                 <label>Foto del Producto</label>
                 <input type="file" name="foto" accept="image/jpeg,image/png,image/gif,image/webp">
-                <small style="color:#888;">Formatos: JPG, PNG, GIF, WEBP. Máx: 5MB</small>
-                <div id="img-preview-container" class="grupo-campo" style="margin-top:10px;">
+                <small class="text-muted">Formatos: JPG, PNG, GIF, WEBP. Máx: 5MB</small>
+                <div id="img-preview-container" class="grupo-campo mt-10">
                     <?php if (!empty($producto['foto'])): ?>
                     <label>Imagen actual</label><br>
                     <img src="<?= $basePath ?>uploads/<?= htmlspecialchars($producto['foto']) ?>"
-                         width="150" style="max-width:200px; border-radius:8px;">
+                         width="150" class="img-preview">
                     <?php endif; ?>
                 </div>
             </div>
@@ -124,7 +124,7 @@ include dirname(__DIR__) . '/layout/menu.php';
                 </tr>
                 <?php endforeach; ?>
                 <?php if (empty($items)): ?>
-                <tr><td colspan="5" style="text-align:center;padding:20px;color:var(--gold-light);">
+                <tr><td colspan="5" class="text-center p-30 text-gold">
                     <i class="bi bi-info-circle"></i> No hay ítems en esta cotización.
                 </td></tr>
                 <?php endif; ?>
@@ -265,7 +265,7 @@ include dirname(__DIR__) . '/layout/menu.php';
                 
                 const imgPreviewContainer = document.getElementById('img-preview-container');
                 if(p.foto && imgPreviewContainer) {
-                    imgPreviewContainer.innerHTML = '<label>Imagen actual</label><br><img src="<?= $basePath ?>uploads/' + p.foto + '" width="150" style="max-width:200px; border-radius:8px;">';
+                    imgPreviewContainer.innerHTML = '<label>Imagen actual</label><br><img src="<?= $basePath ?>uploads/' + p.foto + '" width="150" class="img-preview">';
                     document.querySelector('input[name="foto_actual"]').value = p.foto;
                 } else if (imgPreviewContainer) {
                     imgPreviewContainer.innerHTML = '';

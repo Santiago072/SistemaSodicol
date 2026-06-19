@@ -38,7 +38,7 @@ include dirname(__DIR__) . '/layout/menu.php';
             <div class="grupo-campo">
                 <label for="password">Contraseña (opcional)</label>
                 <input type="password" id="password" name="password" minlength="6" maxlength="50">
-                <small style="color:#888;">Si no se proporciona, se usará el documento como contraseña temporal</small>
+                <small class="text-muted">Si no se proporciona, se usará el documento como contraseña temporal</small>
             </div>
             <div class="grupo-campo">
                 <label for="telefono">Teléfono *</label>

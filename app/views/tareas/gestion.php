@@ -27,9 +27,8 @@ include dirname(__DIR__) . '/layout/menu.php';
                 </div>
 
                 <?php if ($mensajeExito): ?>
-                <div style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);
-                            color:#86efac;padding:12px 16px;border-radius:12px;font-size:13px;">
-                    <i class="bi bi-check-circle"></i> <?= htmlspecialchars($mensajeExito) ?>
+                <div class="success-box">
+                    <i class="fas fa-check-circle"></i> <?= htmlspecialchars($mensajeExito) ?>
                 </div>
                 <?php endif; ?>
                 <?php if ($mensajeError): ?>
@@ -63,8 +62,8 @@ include dirname(__DIR__) . '/layout/menu.php';
                             <option value="completo">Completo</option>
                         </select>
                     </div>
-                    <div class="grupo-campo">
-                        <button type="submit" class="boton-primario" style="flex:1;">
+                    <div class="grupo-campo-flex">
+                        <button type="submit" class="boton-primario flex-1">
                             <i class="bi bi-plus-lg"></i> Crear Tarea
                         </button>
                         <button type="reset" class="boton-secundario">
@@ -77,7 +76,7 @@ include dirname(__DIR__) . '/layout/menu.php';
     </div>
 
     <!-- Tabla de tareas -->
-    <div class="tabla-contenedor" style="margin-top:30px;">
+    <div class="tabla-contenedor mt-30">
         <table class="tabla-datos">
             <thead>
                 <tr><th>Usuario</th><th>Descripción</th><th>Estado</th><th>Acciones</th></tr>
@@ -106,9 +105,10 @@ include dirname(__DIR__) . '/layout/menu.php';
                         </td>
                     </tr>
                     <?php endforeach; ?>
-                <?php else: ?>
-                <tr><td colspan="4" style="text-align:center;padding:30px;color:var(--gold-light);">
-                    <i class="bi bi-info-circle"></i> No hay tareas registradas.
+                <?php endif; ?>
+                <?php if (empty($tareas)): ?>
+                <tr><td colspan="4" class="text-center p-30 text-gold">
+                    <i class="bi bi-inbox"></i> No hay tareas registradas.
                 </td></tr>
                 <?php endif; ?>
             </tbody>

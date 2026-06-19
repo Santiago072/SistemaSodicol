@@ -35,14 +35,14 @@ include dirname(__DIR__) . '/layout/menu.php';
             <div class="grupo-campo">
                 <label>Foto Actual del Producto</label>
                 <?php if (!empty($producto['foto'])): ?>
-                <div style="margin-bottom:10px;">
-                    <img src="<?= $basePath ?>uploads/<?= htmlspecialchars($producto['foto']) ?>"
-                         width="100" style="border:1px solid #ccc;max-width:200px;">
+                <div class="mb-10">
+                    <img src="<?= $basePath ?>uploads/<?= htmlspecialchars($producto['foto']) ?>" 
+                         width="100" class="img-preview">
                 </div>
                 <?php else: ?><p>No hay foto asignada</p><?php endif; ?>
                 <label>Cambiar Foto (Opcional)</label>
-                <input type="file" name="foto" accept="image/jpeg,image/png,image/gif,image/webp">
-                <small style="color:#888;">Formatos: JPG, PNG, GIF, WEBP. Máx: 5MB</small>
+                <input type="file" id="foto" name="foto" accept="image/jpeg, image/png, image/webp, image/gif">
+                <small class="text-muted">Formatos: JPG, PNG, GIF, WEBP. Máx: 5MB</small>
             </div>
             <div class="grupo-campo">
                 <label for="descripcion">Descripción *</label>
