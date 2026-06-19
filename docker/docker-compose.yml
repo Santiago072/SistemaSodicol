@@ -33,7 +33,7 @@ services:
     networks:
       - sodicol_net
     ports:
-      - "8080:80"
+      - "8891:80"
     # Puerto expuesto en localhost para Nginx del host
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/"]
@@ -84,7 +84,7 @@ services:
     networks:
       - sodicol_net
     ports:
-      - "8081:80"
+      - "8892:80"
     # Puerto expuesto para acceder a phpMyAdmin
 
 # ── Redes ─────────────────────────────────────────────────────
