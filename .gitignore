@@ -6,7 +6,6 @@ docker/logs/
 config/.env
 
 # Dependencias externas
-dompdf/vendor/
 vendor/
 node_modules/
 
