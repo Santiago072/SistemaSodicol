@@ -209,7 +209,9 @@ include dirname(__DIR__) . '/layout/menu.php';
 
     function ejecutarBusqueda() {
         const query = inputBusqueda.value;
-        fetch(`<?= $basePath ?>?module=cotizaciones&action=ajax_buscar_productos&busqueda=` + encodeURIComponent(query))
+        fetch(`<?= $basePath ?>?module=cotizaciones&action=ajax_buscar_productos&busqueda=` + encodeURIComponent(query), {
+            credentials: 'same-origin'
+        })
         .then(r => r.json())
         .then(res => {
             if(res.status === 'success') {
