@@ -18,7 +18,7 @@ CREATE TABLE usuarios (
 CREATE TABLE IF NOT EXISTS cotizaciones (
     id INT AUTO_INCREMENT PRIMARY KEY,
     usuario_nombre VARCHAR(255) NOT NULL,
-    fecha_creacion DATE DEFAULT CURRENT_DATE,
+    fecha_creacion DATE DEFAULT (CURRENT_DATE),
     profesion VARCHAR(255),
     nombre_cliente VARCHAR(255),
     especialidad VARCHAR(255),
