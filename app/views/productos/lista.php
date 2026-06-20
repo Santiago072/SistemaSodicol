@@ -41,8 +41,10 @@ include dirname(__DIR__) . '/layout/menu.php';
     <div class="grid-cards">
         <?php foreach ($productos as $p): ?>
         <div class="card-item product-card">
-            <?php if (!empty($p['foto'])): ?>
-                <img src="<?= $basePath ?>uploads/<?= htmlspecialchars($p['foto']) ?>" class="product-img" alt="Foto">
+            <?php if (!empty(trim($p['foto']))): ?>
+                <img src="<?= $basePath ?>uploads/<?= htmlspecialchars(trim($p['foto'])) ?>" 
+                     class="product-img" alt="Foto" 
+                     onerror="this.onerror=null; this.outerHTML='<div class=\'product-icon\'><i class=\'bi bi-image\'></i></div>';">
             <?php else: ?>
                 <div class="product-icon"><i class="bi bi-box-seam"></i></div>
             <?php endif; ?>
@@ -64,9 +66,9 @@ include dirname(__DIR__) . '/layout/menu.php';
         </div>
         <?php endforeach; ?>
         <?php if (empty($productos)): ?>
-        <div class="w-100 text-center p-30 text-gold">
-            <i class="bi bi-search" style="font-size:30px; display:block; margin-bottom:10px;"></i>
-            No se encontraron productos.
+        <div class="empty-state-card" style="grid-column: 1 / -1;">
+            <i class="bi bi-search"></i>
+            <p>No se encontraron productos.</p>
         </div>
         <?php endif; ?>
     </div>
