@@ -33,7 +33,7 @@ mkdir -p "$BACKUP_DIR"
 echo "⏳ Iniciando copia de seguridad de la base de datos '$DB_NAME'..."
 
 # Ejecutar mysqldump dentro del contenedor
-docker exec "$DB_CONTAINER" /usr/bin/mysqldump -u "$DB_USER" --password="$DB_PASS" "$DB_NAME" > "$BACKUP_FILE"
+docker exec "$DB_CONTAINER" /usr/bin/mysqldump --no-tablespaces -u "$DB_USER" --password="$DB_PASS" "$DB_NAME" > "$BACKUP_FILE"
 
 if [ $? -eq 0 ]; then
     echo "✅ Copia de seguridad creada con éxito:"
