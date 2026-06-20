@@ -116,15 +116,15 @@ class CotizacionModel
     {
         mysqli_begin_transaction($this->db);
         try {
-            mysqli_query($this->db, 'LOCK TABLES cotizaciones WRITE');
-
             $prefijoLike = date('Ym') . '%';
-            $stmtCnt     = mysqli_prepare($this->db,
-                'SELECT COUNT(*) AS total FROM cotizaciones WHERE numero_cotizacion LIKE ?');
+            
+            // SELECT FOR UPDATE para bloquear las filas de cotizaciones y evitar condiciones de carrera, sin requerir privilegio LOCK TABLES
+            $stmtCnt = mysqli_prepare($this->db,
+                'SELECT COUNT(*) AS total FROM cotizaciones WHERE numero_cotizacion LIKE ? FOR UPDATE');
             mysqli_stmt_bind_param($stmtCnt, 's', $prefijoLike);
             mysqli_stmt_execute($stmtCnt);
-            $resCnt      = mysqli_stmt_get_result($stmtCnt);
-            $cnt         = (int)mysqli_fetch_assoc($resCnt)['total'];
+            $resCnt = mysqli_stmt_get_result($stmtCnt);
+            $cnt = (int)mysqli_fetch_assoc($resCnt)['total'];
             mysqli_stmt_close($stmtCnt);
 
             $numeroCotizacion = date('Ymd') . str_pad($cnt + 1, 2, '0', STR_PAD_LEFT);
@@ -140,11 +140,9 @@ class CotizacionModel
             mysqli_stmt_execute($stmtUpd);
             mysqli_stmt_close($stmtUpd);
 
-            mysqli_query($this->db, 'UNLOCK TABLES');
             mysqli_commit($this->db);
             return $numeroCotizacion;
         } catch (\Exception $e) {
-            mysqli_query($this->db, 'UNLOCK TABLES');
             mysqli_rollback($this->db);
             throw $e;
         }
