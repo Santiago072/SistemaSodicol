@@ -25,13 +25,16 @@ include dirname(__DIR__) . '/layout/menu.php';
     <div class="error-box"><i class="fas fa-exclamation-triangle"></i> <?= htmlspecialchars($mensajeError) ?></div>
     <?php endif; ?>
 
-    <div class="barra-busqueda">
-        <form action="<?= $basePath ?>" method="GET" class="formulario-busqueda">
+    <div class="filter-panel">
+        <i class="bi bi-search filter-icon"></i>
+        <form action="<?= $basePath ?>" method="GET" class="formulario-busqueda" style="display:flex; flex:1; gap:10px; align-items:center;">
             <input type="hidden" name="module" value="usuarios">
             <input type="hidden" name="action" value="lista">
-            <input type="text" name="busqueda" value="<?= htmlspecialchars($busqueda) ?>" placeholder="Buscar usuario...">
+            <input type="text" name="busqueda" class="filter-input" value="<?= htmlspecialchars($busqueda) ?>" placeholder="Buscar usuario...">
             <?php if ($busqueda): ?>
-            <a href="<?= $basePath ?>?module=usuarios&action=lista" class="boton-limpiar">Limpiar</a>
+            <a href="<?= $basePath ?>?module=usuarios&action=lista" class="boton-limpiar" style="white-space: nowrap;">
+                <i class="bi bi-x-circle"></i> Limpiar
+            </a>
             <?php endif; ?>
         </form>
     </div>
