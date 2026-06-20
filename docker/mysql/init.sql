@@ -84,6 +84,6 @@ INSERT INTO `productos` (`id`, `titulo`, `foto`, `descripcion`, `cantidad`, `iva
 -- Insertar Usuarios
 INSERT INTO `usuarios` (`id`, `documento`, `nombre`, `correo`, `password`, `telefono`, `rol`, `estado`) VALUES
 (1, '1234567890', 'Juan', 'admin@sodicol.com', '$2y$10$B/KHnf1uTy0vzXlQOAyJmeX20jOdvTYSlk.uzp0tTM/SotZu8OSqW', '3000000000', 'admin', 'activo'),
-(2, '1118367962', 'Santiago ', 'santiago@gmail.com', '$2y$10$vowrUYpi16iDqsHjYDbNm.2hw2GN1kj.b0BmLbuoNXbfRNzyblYpS', '3217235089', 'usuario', 'activo'),
-(4, '12345', 'Fabian Ramos', 'fabian@gmail.com', '$2y$10$hAg5./LhLdYpVuDO9gZtvu5lNAZQQuuzsFdEye6PJpstUXkh2dlj.', '3190986753', 'usuario', 'activo'),
-(6, '32', 'Santiago', 'santiagolizcanosuarez@gmail.com', '$2y$10$0QRBjE5ZPOINKbsOyvOPGu9axWlMl0VDcXs/8nYmimHOdwFA0Am4q', '3148440088', 'usuario', 'activo');
+(2, '1118367962', 'Santiago ', 'santiago@gmail.com', '$2y$10$B/KHnf1uTy0vzXlQOAyJmeX20jOdvTYSlk.uzp0tTM/SotZu8OSqW', '3217235089', 'usuario', 'activo'),
+(4, '12345', 'Fabian Ramos', 'fabian@gmail.com', '$2y$10$B/KHnf1uTy0vzXlQOAyJmeX20jOdvTYSlk.uzp0tTM/SotZu8OSqW', '3190986753', 'usuario', 'activo'),
+(6, '32', 'Santiago', 'santiagolizcanosuarez@gmail.com', '$2y$10$B/KHnf1uTy0vzXlQOAyJmeX20jOdvTYSlk.uzp0tTM/SotZu8OSqW', '3148440088', 'usuario', 'activo');
