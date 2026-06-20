@@ -3466,7 +3466,8 @@ body.modo-dia .success-box {
 .product-img {
     width: 100%;
     height: 180px;
-    object-fit: cover;
+    object-fit: contain;
+    background: #ffffff;
     border-radius: 12px;
     margin-bottom: 15px;
     border: 1px solid var(--glass-border);
@@ -3760,6 +3761,10 @@ body.modo-dia .product-card .card-title {
 }
 body.modo-dia .product-card .product-price {
     color: var(--text-mid);
+}
+body.modo-dia .product-card .card-subtitle {
+    color: var(--text-mid);
+    font-weight: 500;
 }
 
 /* Ticket Card Fixes (Tareas) */
