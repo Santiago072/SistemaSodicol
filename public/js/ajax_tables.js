@@ -117,11 +117,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Función core: Carga la URL por fetch, extrae el HTML de la tabla y lo reemplaza
     function cargarTablaAsincrona(url, options = {}) {
-        const contenedorTabla = document.querySelector('.tabla-contenedor');
+        const contenedorTabla = document.querySelector('.tabla-contenedor') || document.querySelector('.grid-cards');
         const paginacionDiv = document.querySelector('.paginacion');
         const pagInfoDiv = document.querySelector('.pag-info');
 
-        if (!contenedorTabla) return;
+        if (!contenedorTabla) {
+            // Si no hay contenedor asíncrono soportado, ir directamente a la URL
+            window.location.href = url;
+            return;
+        }
 
         // Estado visual de carga
         contenedorTabla.style.opacity = '0.5';
@@ -132,8 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
 
-            // Reemplazar tabla
-            const nuevaTabla = doc.querySelector('.tabla-contenedor');
+            // Reemplazar tabla/grid
+            const nuevaTabla = doc.querySelector('.tabla-contenedor') || doc.querySelector('.grid-cards');
             if (nuevaTabla) {
                 contenedorTabla.innerHTML = nuevaTabla.innerHTML;
             }
