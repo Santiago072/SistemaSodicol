@@ -45,6 +45,23 @@ Para mayor seguridad ante fallas del servidor, errores humanos o necesidad de mi
 3. Genera un archivo `.sql` en la carpeta `/database/backups/` con la fecha y hora actual (ej. `backup_sistema_sodicol_20260620_150000.sql`).
 4. **Protección de espacio**: Borra automáticamente los backups muy viejos, conservando únicamente los 10 más recientes para no llenar el disco duro de tu servidor.
 
+### Cómo descargar/extraer un Backup a tu Computadora
+La consola del servidor no tiene interfaz gráfica, por lo que para tener el archivo físico `.sql` en tu propio computador (Windows o Mac) tienes dos opciones principales:
+
+**Opción A: Método Visual (Recomendado - Usar SFTP)**
+1. Descarga e instala un cliente SFTP gratuito como [FileZilla](https://filezilla-project.org/) o [WinSCP](https://winscp.net/).
+2. Conéctate a tu servidor utilizando los mismos datos del VPS: la IP de tu servidor, el usuario (`santiago`), tu contraseña de SSH, y el puerto `22`.
+3. Navega por las carpetas hasta `/home/santiago/projects/SistemaSodicol/database/backups/`.
+4. Arrastra el archivo `.sql` que necesites hacia tu escritorio.
+
+**Opción B: Método de Consola (Usar SCP)**
+1. Abre la consola de tu propio computador local (PowerShell o CMD en Windows), **no** la consola del servidor VPS.
+2. Ejecuta el comando `scp` apuntando a la IP real de tu VPS (sustituye `111.222.333.444` por tu IP y `ARCHIVO.sql` por el nombre real de tu backup):
+   ```bash
+   scp santiago@111.222.333.444:/home/santiago/projects/SistemaSodicol/database/backups/ARCHIVO.sql C:\Users\Usuario\Desktop\
+   ```
+3. Ingresa la contraseña de tu servidor y el archivo se copiará directamente a tu escritorio.
+
 ### Cómo restaurar un Backup
 Si algún día ocurre un desastre y necesitas restaurar tu base de datos desde un archivo `.sql` generado, puedes hacerlo de la siguiente forma (estando en la carpeta `docker`):
 
