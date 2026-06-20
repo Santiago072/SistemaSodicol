@@ -3594,11 +3594,20 @@ body.modo-dia .success-box {
     transition: all 0.3s ease;
     width: 100%;
 }
+body.modo-dia .form-control {
+    background: rgba(139, 74, 20, 0.05);
+    border-color: rgba(139, 74, 20, 0.2);
+    color: var(--text-dark);
+}
 .form-control:focus {
     background: rgba(255, 255, 255, 0.08);
     border-color: var(--gold);
     box-shadow: 0 0 15px rgba(212, 168, 83, 0.2);
     outline: none;
+}
+body.modo-dia .form-control:focus {
+    background: rgba(139, 74, 20, 0.1);
+    box-shadow: 0 0 15px rgba(139, 74, 20, 0.15);
 }
 .form-label {
     font-size: 11px;
@@ -3608,6 +3617,9 @@ body.modo-dia .success-box {
     margin-bottom: 8px;
     display: block;
     font-weight: 600;
+}
+body.modo-dia .form-label {
+    color: var(--text-soft);
 }
 
 /* Empty State Card */
@@ -3625,19 +3637,33 @@ body.modo-dia .success-box {
     gap: 15px;
     transition: all 0.3s ease;
 }
+body.modo-dia .empty-state-card {
+    background: rgba(139, 74, 20, 0.03);
+    border-color: rgba(139, 74, 20, 0.25);
+}
 .empty-state-card:hover {
     background: rgba(255, 255, 255, 0.05);
     border-color: var(--gold);
+}
+body.modo-dia .empty-state-card:hover {
+    background: rgba(139, 74, 20, 0.06);
+    border-color: rgba(139, 74, 20, 0.4);
 }
 .empty-state-card i {
     font-size: 40px;
     color: var(--gold);
     opacity: 0.8;
 }
+body.modo-dia .empty-state-card i {
+    color: rgba(139, 74, 20, 0.8);
+}
 .empty-state-card p {
     font-size: 15px;
     color: rgba(255, 255, 255, 0.7);
     margin: 0;
+}
+body.modo-dia .empty-state-card p {
+    color: var(--text-mid);
 }
 
 /* Search Filters Container (Cotizaciones) */
@@ -3651,6 +3677,10 @@ body.modo-dia .success-box {
     align-items: center;
     margin-bottom: 25px;
 }
+body.modo-dia .filter-panel {
+    background: rgba(139, 74, 20, 0.04);
+    border-color: rgba(139, 74, 20, 0.15);
+}
 .filter-input {
     background: transparent;
     border: none;
@@ -3658,13 +3688,27 @@ body.modo-dia .success-box {
     padding: 10px;
     flex: 1;
     font-size: 15px;
+    border-bottom: 1px solid transparent;
+}
+body.modo-dia .filter-input {
+    color: var(--text-dark);
+}
+body.modo-dia .filter-input::placeholder {
+    color: rgba(139, 74, 20, 0.5);
 }
 .filter-input:focus {
     outline: none;
+    border-bottom: 1px solid var(--gold);
+}
+body.modo-dia .filter-input:focus {
+    border-bottom: 1px solid rgba(139, 74, 20, 0.5);
 }
 .filter-icon {
     color: var(--gold);
     font-size: 18px;
+}
+body.modo-dia .filter-icon {
+    color: rgba(139, 74, 20, 0.8);
 }
 
 /* User Card Adjustments */
@@ -3678,6 +3722,9 @@ body.modo-dia .success-box {
     border-top: 1px solid var(--glass-border);
     padding-top: 15px;
 }
+body.modo-dia .user-card .card-actions {
+    border-top-color: rgba(139, 74, 20, 0.15);
+}
 .user-card .role-badge {
     display: inline-block;
     padding: 4px 8px;
@@ -3686,6 +3733,15 @@ body.modo-dia .success-box {
     background: rgba(212, 168, 83, 0.15);
     color: var(--gold);
     margin-bottom: 5px;
+}
+body.modo-dia .user-card .role-badge {
+    background: rgba(139, 74, 20, 0.1);
+    color: rgba(139, 74, 20, 0.9);
+    font-weight: 600;
+}
+body.modo-dia .user-card .card-subtitle span[style*="opacity:0.8"] {
+    color: var(--text-mid) !important;
+    font-weight: 500;
 }
 
 /* Product Card Fixes */
@@ -3698,4 +3754,18 @@ body.modo-dia .success-box {
 .product-card .product-price {
     font-size: 22px;
     margin-bottom: 10px;
+}
+body.modo-dia .product-card .card-title {
+    color: var(--text-dark);
+}
+body.modo-dia .product-card .product-price {
+    color: var(--text-mid);
+}
+
+/* Ticket Card Fixes (Tareas) */
+body.modo-dia .ticket-card .card-title {
+    color: var(--text-dark);
+}
+body.modo-dia .ticket-card .card-subtitle {
+    color: var(--text-mid) !important;
 }
