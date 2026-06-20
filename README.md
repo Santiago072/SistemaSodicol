@@ -9,6 +9,8 @@ Sistema web de gestión interno para **Sodicol Zomac S.A.S**, empresa de diseño
 - [Documentación Técnica](docs/documentacion-tecnica.md)
 - [Manual de Usuario](docs/Manual_de_Usuario.md)
 - [Arquitectura y Seguridad](docs/ARQUITECTURA_Y_SEGURIDAD.md)
+- [Gestión de Datos y Versionamiento](docs/BACKUPS_Y_VERSIONAMIENTO.md)
+- [Registro de Cambios (Changelog)](CHANGELOG.md)
 
 ---
 
