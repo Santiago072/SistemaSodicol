@@ -17,9 +17,9 @@ include dirname(__DIR__) . '/layout/menu.php';
 
     <!-- Búsqueda de producto (AJAX) -->
     <div class="barra-busqueda">
-        <form id="form-busqueda-ajax" class="formulario-busqueda" onsubmit="return false;">
+        <form id="form-busqueda-ajax" class="formulario-busqueda" onsubmit="event.preventDefault(); return false;">
             <input type="text" id="input-busqueda" class="form-control" 
-                   placeholder="Buscar producto..." autocomplete="off">
+                   placeholder="Buscar producto..." autocomplete="off" onkeydown="if(event.key === 'Enter'){ event.preventDefault(); return false; }">
             <button type="button" id="btn-limpiar-busqueda" class="boton-limpiar d-none">Limpiar</button>
         </form>
     </div>

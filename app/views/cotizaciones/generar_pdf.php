@@ -49,7 +49,9 @@ function convertirImagen(string $ruta): string {
     if (!file_exists($ruta)) return '';
     $ext  = strtolower(pathinfo($ruta, PATHINFO_EXTENSION));
     $mime = $ext === 'svg' ? 'svg+xml' : $ext;
-    return 'data:image/' . $mime . ';base64,' . base64_encode(file_get_contents($ruta));
+    $contenido = @file_get_contents($ruta);
+    if ($contenido === false) return '';
+    return 'data:image/' . $mime . ';base64,' . base64_encode($contenido);
 }
 
 $imgDir         = dirname(__DIR__, 3) . '/img/';
