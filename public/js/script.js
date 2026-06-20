@@ -216,17 +216,23 @@ document.getElementById('btnModo').addEventListener('click', function () {
 
 /* BUTTON LOADING */
 const btn = document.getElementById('submitBtn');
-document.getElementById('loginForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    document.getElementById('loadingOverlay').classList.add('active');
-    btn.classList.add('loading');
-    const icon = document.getElementById('btnIcon');
-    const text = document.getElementById('btnText');
-    icon.className = "bi bi-arrow-repeat";
-    icon.style.animation = "spinIcon 1s linear infinite";
-    text.textContent = "Verificando...";
-    setTimeout(() => { this.submit(); }, 2000);
-});
+const loginForm = document.getElementById('loginForm');
+if (loginForm && btn) {
+    loginForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) overlay.classList.add('active');
+        btn.classList.add('loading');
+        const icon = document.getElementById('btnIcon');
+        const text = document.getElementById('btnText');
+        if (icon) {
+            icon.className = "bi bi-arrow-repeat";
+            icon.style.animation = "spinIcon 1s linear infinite";
+        }
+        if (text) text.textContent = "Verificando...";
+        setTimeout(() => { this.submit(); }, 2000);
+    });
+}
 
  /* EYE TOGGLE */
 const eyeBtn = document.getElementById('eyeBtn');

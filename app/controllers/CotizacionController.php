@@ -167,12 +167,26 @@ class CotizacionController
     {
         verificar_autenticacion();
 
+        $esAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+                  strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
         if (!validar_numero($_GET['id'] ?? '')) {
+            if ($esAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['status' => 'error', 'message' => 'ID inválido']);
+                exit();
+            }
             header('Location: ' . BASE_URL . '?module=cotizaciones&action=crear');
             exit();
         }
 
         $this->model->eliminarItem((int)$_GET['id']);
+        
+        if ($esAjax) {
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'success']);
+            exit();
+        }
         header('Location: ' . BASE_URL . '?module=cotizaciones&action=crear');
         exit();
     }

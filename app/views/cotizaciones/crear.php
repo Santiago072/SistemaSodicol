@@ -118,8 +118,7 @@ include dirname(__DIR__) . '/layout/menu.php';
                         <a href="<?= $basePath ?>?module=cotizaciones&action=editar_item&id=<?= intval($item['id']) ?>"
                            class="boton-editar"><i class="fas fa-edit"></i></a>
                         <a href="<?= $basePath ?>?module=cotizaciones&action=eliminar_item&id=<?= intval($item['id']) ?>"
-                           class="boton-eliminar"
-                           onclick="return confirm('¿Eliminar este ítem?')"><i class="fas fa-trash"></i></a>
+                           class="boton-eliminar"><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
