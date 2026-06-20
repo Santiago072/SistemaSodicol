@@ -44,8 +44,9 @@ include dirname(__DIR__) . '/layout/menu.php';
             </div>
             <div class="card-title"><?= htmlspecialchars($u['nombre']) ?></div>
             <div class="card-subtitle">
-                <i class="bi bi-shield-check text-gold"></i> <?= htmlspecialchars($u['rol']) ?> <br>
-                <i class="bi bi-circle-fill" style="font-size:8px; color:<?= $u['estado']==='Activo'?'#2ed573':'#ff4757'?>;"></i> <?= htmlspecialchars($u['estado']) ?>
+                <span class="role-badge"><i class="bi bi-shield-check"></i> <?= htmlspecialchars($u['rol']) ?></span> <br>
+                <i class="bi bi-circle-fill" style="font-size:8px; color:<?= $u['estado']==='Activo'?'#2ed573':'#ff4757'?>; margin-right:4px;"></i> 
+                <span style="opacity:0.8; font-size:12px;"><?= htmlspecialchars($u['estado']) ?></span>
             </div>
             <div class="card-actions">
                 <a href="<?= $basePath ?>?module=usuarios&action=editar&id=<?= intval($u['id']) ?>" class="boton-editar">

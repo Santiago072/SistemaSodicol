@@ -21,17 +21,17 @@ include dirname(__DIR__) . '/layout/menu.php';
     <div class="error-box"><i class="fas fa-exclamation-triangle"></i> <?= htmlspecialchars($mensajeError) ?></div>
     <?php endif; ?>
 
-    <!-- Filtros de búsqueda estilo Spotlight -->
-    <div class="spotlight-search">
-        <i class="bi bi-search spotlight-icon"></i>
+    <!-- Filtros de búsqueda estilo Panel -->
+    <div class="filter-panel">
+        <i class="bi bi-funnel filter-icon"></i>
         <form method="POST" action="<?= $basePath ?>?module=cotizaciones&action=consultar" class="w-100" style="display:flex; gap:10px; align-items:center; flex:1;">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
             <input type="date" name="fecha" value="<?= htmlspecialchars($busquedaFecha) ?>" 
-                   class="spotlight-input" style="flex:0.5;">
+                   class="filter-input" style="flex:0.5;">
             <input type="text" name="nombre_cliente" value="<?= htmlspecialchars($busquedaCliente) ?>"
-                   placeholder="Buscar por cliente..." maxlength="255" class="spotlight-input">
+                   placeholder="Buscar por cliente..." maxlength="255" class="filter-input">
             <input type="text" name="numero_cotizacion" value="<?= htmlspecialchars($busquedaNumero) ?>"
-                   placeholder="Número cotización..." maxlength="50" class="spotlight-input">
+                   placeholder="Número cotización..." maxlength="50" class="filter-input">
             
             <button type="submit" style="display:none;"></button> <!-- submit oculto para enter -->
             <?php if (!empty($cotizaciones) || $busquedaFecha || $busquedaCliente || $busquedaNumero): ?>
@@ -74,12 +74,18 @@ include dirname(__DIR__) . '/layout/menu.php';
                     </tr>
                     <?php endforeach; ?>
                 <?php elseif (isset($_GET['buscando'])): ?>
-                <tr><td colspan="6" class="tabla-mensaje-vacio">
-                    <i class="bi bi-search"></i> No se encontraron cotizaciones.
+                <tr><td colspan="6" style="padding:0; border:none;">
+                    <div class="empty-state-card" style="margin:20px 0;">
+                        <i class="bi bi-search"></i>
+                        <p>No se encontraron cotizaciones.</p>
+                    </div>
                 </td></tr>
                 <?php else: ?>
-                <tr><td colspan="6" class="tabla-mensaje-vacio">
-                    <i class="bi bi-arrow-up-circle"></i> Use los filtros de arriba para buscar cotizaciones.
+                <tr><td colspan="6" style="padding:0; border:none;">
+                    <div class="empty-state-card" style="margin:20px 0;">
+                        <i class="bi bi-funnel"></i>
+                        <p>Use los filtros de arriba para buscar cotizaciones.</p>
+                    </div>
                 </td></tr>
                 <?php endif; ?>
             </tbody>
