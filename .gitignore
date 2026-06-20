@@ -6,8 +6,8 @@ docker/logs/
 config/.env
 
 # Dependencias externas
-vendor/
-node_modules/
+/vendor/
+/node_modules/
 
 # Uploads de usuarios
 uploads/
