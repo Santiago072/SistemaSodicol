@@ -31,6 +31,7 @@ include dirname(__DIR__) . '/layout/menu.php';
             <input type="hidden" name="module" value="usuarios">
             <input type="hidden" name="action" value="lista">
             <input type="text" name="busqueda" class="filter-input" value="<?= htmlspecialchars($busqueda) ?>" placeholder="Buscar usuario...">
+            <button type="submit" style="display:none;"></button>
             <?php if ($busqueda): ?>
             <a href="<?= $basePath ?>?module=usuarios&action=lista" class="boton-limpiar" style="white-space: nowrap;">
                 <i class="bi bi-x-circle"></i> Limpiar
