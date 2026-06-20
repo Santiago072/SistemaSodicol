@@ -72,7 +72,20 @@ docker exec -i sodicol_mysql mysql -u sodicol -p"TU_CONTRASEÑA" sistema_sodicol
 
 ---
 
-## 3. Versionamiento Semántico (SemVer)
+## 4. Gestión de Archivos Subidos (Uploads)
+
+Los archivos que suben los usuarios (como imágenes de productos) se almacenan en la carpeta `/uploads`. Sin embargo, esta carpeta está agregada al `.gitignore` para no sobrecargar el repositorio de GitHub con archivos binarios.
+
+Si se requiere **migrar las imágenes locales hacia el VPS de producción**, no se debe forzar la subida a GitHub. En su lugar, utilice la herramienta de extracción automática:
+
+1. Comprima el contenido local de la carpeta `uploads` en un archivo llamado `images.zip` en la raíz del proyecto.
+2. Suba `images.zip` y el script proporcionado `unzip_images.php` a GitHub y haga `git pull` en el VPS.
+3. Ingrese a la terminal del VPS y ejecute `docker-compose -f docker/docker-compose.yml up -d --build` para actualizar el contenedor de producción.
+4. Navegue a `http://DOMINIO/unzip_images.php` para que el script descomprima las imágenes, las ubique en la carpeta vinculada al volumen y les asigne los permisos correctos (`777`) necesarios para el entorno de Docker.
+
+---
+
+## 5. Versionamiento Semántico (SemVer)
 
 A partir del despliegue en el VPS mediante Docker, la plataforma ha alcanzado el hito de la versión **v1.0.0**.
 
