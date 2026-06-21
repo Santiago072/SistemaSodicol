@@ -11,9 +11,10 @@
 2. [Arquitectura General](#2-arquitectura-general)
 3. [Base de Datos](#3-base-de-datos)
 4. [Módulos del Sistema](#4-módulos-del-sistema)
-5. [Seguridad y Manejo de Sesiones](#5-seguridad-y-manejo-de-sesiones)
+5. [Seguridad y Rendimiento](#5-seguridad-y-rendimiento)
 6. [Generación de PDF](#6-generación-de-pdf)
-7. [Instalación y Configuración](#7-instalación-y-configuración)
+7. [Pruebas Automatizadas](#7-pruebas-automatizadas)
+8. [Instalación y Configuración](#8-instalación-y-configuración)
 
 ---
 
@@ -77,7 +78,7 @@ Inventario visual que facilita la creación de las cotizaciones sin tener que in
 
 #### `cotizaciones` y `cotizacion_items`
 Estructura de maestro-detalle para almacenar la cotización.
-- `cotizaciones`: Almacena la cabecera (cliente, ciudad, fecha) y asigna un `numero_cotizacion` único y concurrente utilizando `LOCK TABLES`.
+- `cotizaciones`: Almacena la cabecera (cliente, ciudad, fecha) y asigna un `numero_cotizacion` único y concurrente utilizando `LOCK TABLES`. Cuenta con índices (`INDEX`) para `numero_cotizacion`, `nombre_cliente` y `fecha_creacion` que optimizan la velocidad del buscador AJAX.
 - `cotizacion_items`: Representa los renglones específicos de la cotización que posteriormente serán impresos en el PDF.
 
 #### `tareas`
@@ -108,13 +109,14 @@ Panel administrativo que permite crear, editar y eliminar instrucciones operativ
 
 ---
 
-## 5. Seguridad y Manejo de Sesiones
+## 5. Seguridad y Rendimiento
 
-El sistema implementa sólidas garantías de seguridad en todo su flujo:
+El sistema implementa sólidas garantías de seguridad y estabilidad en todo su flujo:
 - Configuración centralizada de sesión desde `.env` (`COOKIE_SECURE`, `SESSION_LIFETIME`).
 - Tokens CSRF implementados con `random_bytes()` y verificados a través de comparaciones `hash_equals()`.
 - Rotación del token después de un POST exitoso, previniendo los ataques de Replay.
-- Protección a las vistas en base a la función `verificar_autenticacion()` y `verificar_admin()`.
+- **Manejador Global de Excepciones**: Utiliza `set_exception_handler()` para interceptar todos los errores del backend sin crashear el proceso HTTP, devolviendo un JSON seguro y limpio al cliente.
+- **Rate Limiting Nativo**: Restringe el límite de tráfico de los usuarios para módulos críticos (Ej: 15 peticiones por minuto en Autenticación, Búsquedas y PDFs) mediante `verificar_rate_limit()`, mitigando vulnerabilidades como DDoS a nivel de aplicación o scraping excesivo.
 
 ---
 
@@ -126,9 +128,22 @@ El sistema utiliza la biblioteca **DomPDF** instalada bajo la carpeta `dompdf/`.
 
 ---
 
-## 7. Instalación y Configuración
+## 7. Pruebas Automatizadas
 
-### 7.1 Variables de Entorno (Recomendado)
+El sistema cuenta con un marco de pruebas gestionado vía **PHPUnit**.  
+El entorno y los tests se definen en `phpunit.xml` y garantizan la solidez del núcleo de seguridad y rendimiento de forma nativa.
+
+- Ejecución de pruebas:
+```bash
+# Vía PHAR o Composer (./vendor/bin/phpunit)
+php phpunit.phar tests/Unit/SeguridadTest.php
+```
+
+---
+
+## 8. Instalación y Configuración
+
+### 8.1 Variables de Entorno (Recomendado)
 El sistema confía en el archivo `config/.env` para ocultar las variables críticas del repositorio público.
 ```env
 DB_HOST=localhost
