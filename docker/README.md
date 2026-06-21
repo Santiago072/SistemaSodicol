@@ -1,6 +1,6 @@
 # 🚀 Guía de Despliegue — SODICOL en Docker
 
-> **Dominio:** `slscode.online` | **Stack:** PHP 8.1 + Apache + MySQL 8 + phpMyAdmin
+> **Dominio:** `slscode.online` | **Stack:** PHP 8.1 + Apache + MySQL 8
 
 ---
 
@@ -85,7 +85,6 @@ Salida esperada:
 NAME                  STATUS          PORTS
 sodicol_app           Up (healthy)    80/tcp
 sodicol_mysql         Up (healthy)    3306/tcp
-sodicol_phpmyadmin    Up              80/tcp
 ```
 
 ---
@@ -112,7 +111,6 @@ En el panel de Nginx Proxy Manager, agregar **Proxy Hosts**:
 | Dominio           | Forward Hostname   | Forward Port | SSL |
 |-------------------|--------------------|--------------|-----|
 | `slscode.online`  | `sodicol_app`      | `80`         | ✅ Let's Encrypt |
-| `pma.slscode.online` | `sodicol_phpmyadmin` | `80`   | ✅ Let's Encrypt |
 
 > **Red Docker a conectar:** `sodicol_network`
 
@@ -188,15 +186,6 @@ docker compose restart app
 
 ---
 
-## Credenciales phpMyAdmin
-
-| Campo    | Valor                    |
-|----------|--------------------------|
-| URL      | `http://pma.slscode.online` |
-| Usuario  | `sodicol`                |
-| Contraseña | Ver `docker/.env` → `DB_PASS` |
-
----
 
 ## Solución de problemas comunes
 
