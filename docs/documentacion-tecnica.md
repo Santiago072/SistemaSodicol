@@ -150,6 +150,6 @@ Automáticamente mapea el código PHP hacia el contenedor y sirve la aplicación
 ### 7.3 Credenciales Iniciales
 ```text
 Correo: admin@sodicol.com
-Contraseña: 1234567890
+Contraseña: [REDACTED]
 ```
 (El documento sirve como contraseña inicial hasta ser modificada por el administrador).
