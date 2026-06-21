@@ -24,7 +24,7 @@ include dirname(__DIR__) . '/layout/menu.php';
     <!-- Filtros de búsqueda estilo Panel -->
     <div class="filter-panel">
         <i class="bi bi-funnel filter-icon"></i>
-        <form method="POST" action="<?= $basePath ?>?module=cotizaciones&action=consultar" class="w-100" style="display:flex; gap:10px; align-items:center; flex:1;">
+        <form method="POST" action="<?= $basePath ?>?module=cotizaciones&action=consultar" class="formulario-busqueda w-100" style="display:flex; gap:10px; align-items:center; flex:1;">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
             <input type="date" name="fecha" value="<?= htmlspecialchars($busquedaFecha) ?>" 
                    class="filter-input" style="flex:0.5;">
