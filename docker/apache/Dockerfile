@@ -54,6 +54,9 @@ RUN docker-php-ext-configure gd \
 # ── Módulos Apache ────────────────────────────────────────────
 RUN a2enmod rewrite headers expires
 
+# ── Instalar Composer ─────────────────────────────────────────
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 # ── Configuración PHP personalizada ──────────────────────────
 COPY docker/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
 
