@@ -5,6 +5,14 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere al [Versionamiento Semántico](https://semver.org/lang/es/).
 
+## [v1.1.1] - 2026-06-20
+### Corregido
+- Solución al error 500 en generación de PDF por falta de la carpeta `dompdf/vendor`, ajustando el archivo `.gitignore`.
+- Prevención total de envío de formulario de búsqueda de productos al pulsar Enter, reemplazando las etiquetas `<form>` por `<div>`.
+- Optimización de consulta en finalización de cotización, reemplazando `LOCK TABLES` por `SELECT FOR UPDATE` para evitar problemas de permisos de base de datos.
+- Mejora de robustez en conversión de imágenes locales a Base64 para el PDF, tolerando archivos inexistentes y previniendo caídas críticas de DomPDF.
+- Corrección de envío de cookies en las solicitudes AJAX del buscador mediante la cabecera `credentials: 'same-origin'`.
+
 ## [v1.1.0] - 2026-06-20
 ### Agregado
 - Scripts de mantenimiento (`fix_db.php`, `check_uploads.php`, `unzip_images.php`) para corregir codificación de base de datos e importar imágenes en producción de forma segura.
