@@ -76,6 +76,55 @@ function rotar_token_csrf(): string
     return $_SESSION['csrf_token'];
 }
 
+// ── Prevención de Saturación (Rate Limiting) ─────────────────────────────────
+
+/**
+ * Valida que el usuario/IP no exceda un límite de peticiones en una ventana de tiempo.
+ * Si excede el límite, responde con HTTP 429 y termina la ejecución.
+ * 
+ * @param int $limite Máximo de peticiones permitidas (ej. 15).
+ * @param int $ventanaSegundos Tiempo en el que se evalúa (ej. 60 segundos).
+ * @param string $accion Clave para diferenciar el rate limit (ej. 'ajax_busqueda', 'login').
+ */
+function verificar_rate_limit(int $limite = 15, int $ventanaSegundos = 60, string $accion = 'global'): void
+{
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    $clave = "rate_limit_" . $accion;
+    $tiempoActual = time();
+
+    if (!isset($_SESSION[$clave])) {
+        $_SESSION[$clave] = [];
+    }
+
+    // Filtrar peticiones antiguas fuera de la ventana de tiempo
+    $_SESSION[$clave] = array_filter($_SESSION[$clave], function ($timestamp) use ($tiempoActual, $ventanaSegundos) {
+        return ($tiempoActual - $timestamp) < $ventanaSegundos;
+    });
+
+    // Si ya alcanzó el límite
+    if (count($_SESSION[$clave]) >= $limite) {
+        http_response_code(429); // Too Many Requests
+        
+        // Si es una petición AJAX (lo comprobamos de forma genérica)
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Demasiadas peticiones. Por favor, espere un momento antes de volver a intentar.'
+            ]);
+        } else {
+            echo "<h1>429 - Demasiadas peticiones</h1><p>Por favor, espere un momento antes de volver a intentar.</p>";
+        }
+        exit;
+    }
+
+    // Registrar la petición actual
+    $_SESSION[$clave][] = $tiempoActual;
+}
+
 // ── Sanitización y escape ─────────────────────────────────────────────────────
 
 /**

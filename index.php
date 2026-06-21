@@ -29,6 +29,19 @@ ini_set('display_startup_errors', '0');
 ini_set('log_errors', '1');
 ini_set('error_log', __DIR__ . '/logs/php_errors.log');
 
+// ── Manejador Global de Excepciones ───────────────────────────────────────────
+set_exception_handler(function (Throwable $e) {
+    error_log((string)$e);
+    http_response_code(500);
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['status' => 'error', 'message' => 'Ocurrió un error interno en el servidor.']);
+    } else {
+        echo "<h1>500 - Error Interno</h1><p>Ocurrió un error inesperado. El administrador ha sido notificado.</p>";
+    }
+    exit();
+});
+
 // ── Carga del .env (SRP: delegado a EnvLoader) ────────────────────────────────
 require_once __DIR__ . '/config/EnvLoader.php';
 EnvLoader::load(__DIR__ . '/config/.env');

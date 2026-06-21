@@ -24,7 +24,10 @@ CREATE TABLE IF NOT EXISTS cotizaciones (
     especialidad VARCHAR(255),
     entidad VARCHAR(255),
     ciudad VARCHAR(255),
-    numero_cotizacion VARCHAR(50) DEFAULT NULL  
+    numero_cotizacion VARCHAR(50) DEFAULT NULL,
+    INDEX idx_cotizacion_numero (numero_cotizacion),
+    INDEX idx_cotizacion_cliente (nombre_cliente),
+    INDEX idx_cotizacion_fecha (fecha_creacion)
 );
 
 -- Tabla de ítems de cada cotización
@@ -48,7 +51,8 @@ CREATE TABLE IF NOT EXISTS productos (
     descripcion TEXT NOT NULL,
     cantidad INT NOT NULL,
     iva ENUM('si', 'no') NOT NULL DEFAULT 'si',
-    precio DECIMAL(20,2) NOT NULL
+    precio DECIMAL(20,2) NOT NULL,
+    INDEX idx_producto_titulo (titulo)
 );
 
 -- Tabla de Tareas(Cotizaciones) para Empleados
