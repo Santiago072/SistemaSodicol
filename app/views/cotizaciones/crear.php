@@ -17,16 +17,16 @@ include dirname(__DIR__) . '/layout/menu.php';
 
     <!-- Búsqueda de producto (AJAX) -->
     <div class="barra-busqueda">
-        <form id="form-busqueda-ajax" class="formulario-busqueda" onsubmit="event.preventDefault(); return false;">
+        <div id="form-busqueda-ajax" class="formulario-busqueda">
             <input type="text" id="input-busqueda" class="form-control" 
-                   placeholder="Buscar producto..." autocomplete="off" onkeydown="if(event.key === 'Enter'){ event.preventDefault(); return false; }">
+                   placeholder="Buscar producto..." autocomplete="off">
             <button type="button" id="btn-limpiar-busqueda" class="boton-limpiar d-none">Limpiar</button>
-        </form>
+        </div>
     </div>
 
     <!-- Seleccionar producto existente (AJAX) -->
     <div class="seleccion-producto">
-        <form id="form-usar-producto" class="formulario" onsubmit="return false;">
+        <div id="form-usar-producto" class="formulario">
             <select id="select-producto" class="producto-existente" required>
                 <option value="">Seleccione un producto</option>
                 <?php foreach ($productos as $prd): ?>
@@ -38,7 +38,7 @@ include dirname(__DIR__) . '/layout/menu.php';
             </select>
             <button type="button" id="btn-usar-producto" class="boton-primario">Usar producto</button>
             <button type="button" id="btn-limpiar-form" class="boton-limpiar">Limpiar Campos</button>
-        </form>
+        </div>
     </div>
     <br>
 
