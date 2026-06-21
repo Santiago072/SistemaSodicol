@@ -35,6 +35,9 @@ class AuthController
             return compact('mensajeError', 'csrf_token');
         }
 
+        // Prevención de ataques de fuerza bruta (15 peticiones por minuto)
+        verificar_rate_limit(15, 60, 'login');
+
         $tokenPost = $_POST['csrf_token'] ?? '';
         if (!verificar_token_csrf($tokenPost)) {
             $mensajeError = 'Token de seguridad inválido. Por favor intente nuevamente.';

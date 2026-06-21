@@ -249,6 +249,7 @@ class CotizacionController
     public function generarPdf(): array
     {
         verificar_autenticacion();
+        verificar_rate_limit(15, 60, 'generar_pdf');
 
         if (isset($_GET['ver']) || isset($_GET['descargar'])) {
             $numero     = sanitizar_entrada($_GET['ver'] ?? $_GET['descargar'] ?? '');
@@ -305,6 +306,7 @@ class CotizacionController
     public function ajaxBuscarProductos(): void
     {
         verificar_autenticacion();
+        verificar_rate_limit(15, 60, 'ajax_busqueda');
         header('Content-Type: application/json');
 
         $busqueda  = sanitizar_entrada($_GET['busqueda'] ?? '');
@@ -316,6 +318,7 @@ class CotizacionController
     public function ajaxGetProducto(): void
     {
         verificar_autenticacion();
+        verificar_rate_limit(15, 60, 'ajax_get_producto');
         header('Content-Type: application/json');
 
         if (!validar_numero($_GET['id'] ?? '')) {
