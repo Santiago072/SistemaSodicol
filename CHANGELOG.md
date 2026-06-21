@@ -41,7 +41,7 @@ y este proyecto se adhiere al [Versionamiento Semántico](https://semver.org/lan
 ### Modificado
 - `index.php` ahora detecta automáticamente si se encuentra en entorno XAMPP o Docker, calculando la `BASE_URL`.
 - La conexión a la base de datos en `config/conexion.php` ahora lee las credenciales dinámicas mediante el `.env`.
-- Limpieza completa de contraseñas de la base de datos en `init.sql` forzando un hash válido para la clave `1234567890`.
+- Limpieza completa de contraseñas de la base de datos en `init.sql` forzando un hash válido para el administrador.
 - `config/seguridad.php`: se removió el uso de `htmlspecialchars` al momento de entrada de datos (sanitización) para no corromper la BD, delegando el escape de HTML puramente a la capa de vista.
 
 ### Corregido

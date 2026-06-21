@@ -87,7 +87,7 @@ http://localhost/SistemaSodicol/
 
 **Credenciales iniciales** (usuario creado en BD.txt):
 - Correo: `admin@sodicol.com`
-- Contraseña: `1234567890` (su documento — cambiar tras el primer acceso)
+- Contraseña: `[REDACTED]` (cambiar tras el primer acceso)
 
 ---
 

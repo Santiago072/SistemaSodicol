@@ -83,7 +83,7 @@ INSERT INTO `productos` (`id`, `titulo`, `foto`, `descripcion`, `cantidad`, `iva
 
 -- Insertar Usuarios
 INSERT INTO `usuarios` (`id`, `documento`, `nombre`, `correo`, `password`, `telefono`, `rol`, `estado`) VALUES
-(1, '1234567890', 'Juan', 'admin@sodicol.com', '$2y$10$B/KHnf1uTy0vzXlQOAyJmeX20jOdvTYSlk.uzp0tTM/SotZu8OSqW', '3000000000', 'admin', 'activo'),
+(1, '1234567890', 'Admin', 'admin@sodicol.com', '$2y$10$B/KHnf1uTy0vzXlQOAyJmeX20jOdvTYSlk.uzp0tTM/SotZu8OSqW', '3000000000', 'admin', 'activo'),
 (2, '1000000002', 'Santiago ', 'usuario@sodicol.com', '$2y$10$B/KHnf1uTy0vzXlQOAyJmeX20jOdvTYSlk.uzp0tTM/SotZu8OSqW', '3000000002', 'usuario', 'activo'),
 (4, '12345', 'Fabian Ramos', 'empleado@sodicol.com', '$2y$10$B/KHnf1uTy0vzXlQOAyJmeX20jOdvTYSlk.uzp0tTM/SotZu8OSqW', '3000000003', 'usuario', 'activo'),
 (6, '32', 'Santiago', 'admin@sodicol.com', '$2y$10$B/KHnf1uTy0vzXlQOAyJmeX20jOdvTYSlk.uzp0tTM/SotZu8OSqW', '3000000004', 'usuario', 'activo');

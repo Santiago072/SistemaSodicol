@@ -182,7 +182,7 @@ docker compose restart app
 |----------|--------------------------|
 | URL      | `http://slscode.online`  |
 | Usuario  | `admin@sodicol.com`    |
-| Contraseña | `1234567890` (documento) |
+| Contraseña | `[REDACTED]` |
 
 > ⚠ **Cambiar la contraseña inmediatamente tras el primer login.**
 
