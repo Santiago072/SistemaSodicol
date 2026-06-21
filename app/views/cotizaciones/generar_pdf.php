@@ -40,7 +40,7 @@ $fecha_larga = $fecha_obj->format('d') . ' de '
              . ' del ' . $fecha_obj->format('Y');
 
 // ── DomPDF ───────────────────────────────────────────────────────────────────
-require_once dirname(__DIR__, 3) . '/dompdf/autoload.inc.php';
+require_once dirname(__DIR__, 3) . '/vendor/autoload.php';
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
