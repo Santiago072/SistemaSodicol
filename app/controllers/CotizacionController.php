@@ -95,8 +95,8 @@ class CotizacionController
             $this->productoModel->crear($titulo, $foto, $descripcion, $cantidad, $iva, $precio);
         }
 
-        rotar_token_csrf();
-        header('Location: ' . BASE_URL . '?module=cotizaciones&action=crear');
+            // Se eliminó la rotación del token aquí para evitar problemas con multi-pestañas
+            header('Location: ' . BASE_URL . '?module=cotizaciones&action=crear');
         exit();
     }
 
@@ -138,7 +138,6 @@ class CotizacionController
 
                     if ($this->model->actualizarItem($itemId, $cotizacion_id, $titulo,
                         $rutaFinal, $descripcion, $cantidad, $iva, $precio)) {
-                        rotar_token_csrf();
                         header('Location: ' . BASE_URL . '?module=cotizaciones&action=crear&updated=1');
                         exit();
                     }
@@ -219,7 +218,7 @@ class CotizacionController
                 $_SESSION['cotizacion_filtros'] = $filtros;
                 $_SESSION['cotizacion_pagina']  = 1;
 
-                rotar_token_csrf();
+                // Eliminada rotación de token
                 header('Location: ' . BASE_URL . '?module=cotizaciones&action=consultar&buscando=1');
                 exit();
             }

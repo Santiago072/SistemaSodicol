@@ -100,8 +100,8 @@ class ProductoController
             );
 
             if ($this->model->actualizar($id, $titulo, $rutaFinal, $descripcion, $cantidad, $iva, $precio)) {
-                rotar_token_csrf();
-                header('Location: ' . BASE_URL . '?module=productos&action=lista&updated=1');
+                // Eliminada rotación de token
+                header('Location: ' . BASE_URL . '?module=productos&action=lista&busqueda=1');
                 exit();
             }
             $mensajeError = 'Error al actualizar el producto';
