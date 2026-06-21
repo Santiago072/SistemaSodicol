@@ -5,6 +5,12 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere al [Versionamiento Semántico](https://semver.org/lang/es/).
 
+## [v1.2.2] - 2026-06-21
+### Corregido
+- Alineación del contenedor de estado vacío ("No se encontraron usuarios") en la vista de lista de usuarios, ajustando la cuadrícula CSS.
+- Validación de formulario de "Crear Usuario": La contraseña es ahora verdaderamente opcional tanto en Front-end como en Back-end. Si se omite, el sistema asume el documento de identidad como clave por defecto.
+- Funcionalidad de Búsqueda en Vivo (Live Search) en tablas AJAX: Se restauró la capacidad de filtrar en vivo mientras se escribe, solucionando la recarga completa e involuntaria de la página mediante el despacho de un evento cancelable que el manejador asíncrono puede interceptar.
+
 ## [v1.2.1] - 2026-06-21
 ### Modificado
 - Migración de la biblioteca **DomPDF** hacia el ecosistema oficial de dependencias de PHP usando `Composer`. Se eliminó la carpeta pesada estática `dompdf/` del control de versiones.

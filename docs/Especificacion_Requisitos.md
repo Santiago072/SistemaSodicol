@@ -72,7 +72,7 @@ De acuerdo con el diagrama de modularización, el sistema se divide en:
 **Como** Administrador, **Quiero** crear, buscar, listar y eliminar cuentas de usuarios, **Para** mantener el control de quién tiene acceso al sistema.
 
 **Criterios de Aceptación:**
-- El sistema debe permitir registrar nuevos usuarios con documento, nombre, correo, contraseña (hasheada), teléfono y rol.
+- El sistema debe permitir registrar nuevos usuarios con documento, nombre, correo, contraseña (opcional, por defecto el documento), teléfono y rol.
 - El sistema debe validar en el servidor: formato de documento (numérico, 5-20 dígitos), longitud de nombre (3-100 caracteres), formato de correo, formato de teléfono (numérico, 7-20 dígitos), longitud mínima de contraseña (6 caracteres).
 - El sistema debe permitir visualizar una lista paginada de todos los usuarios registrados sin recargar la página al cambiar de página.
 - El sistema debe permitir buscar usuarios específicos por nombre en tiempo real (Live Search), actualizando la tabla automáticamente al escribir.
@@ -107,7 +107,7 @@ De acuerdo con el diagrama de modularización, el sistema se divide en:
 - El PDF se debe poder generar una vez se ingresen los datos del cliente.
 - El documento debe incluir: datos del cliente, lista de productos, precios calculados, totales y fichas técnicas individuales.
 - El formato debe respetar la estructura informativa de la empresa (logo, NIT, datos de contacto, firma).
-- La numeración de cotizaciones debe ser atómica (con transacciones y bloqueo de tabla) para evitar duplicados.
+- La numeración de cotizaciones debe ser atómica (con bloqueos de fila transaccionales `SELECT FOR UPDATE`) para evitar duplicados en concurrencia.
 
 ### HU-06: Búsqueda de Cotizaciones
 **Como** Empleado o Administrador, **Quiero** buscar cotizaciones realizadas anteriormente filtrando por fecha, nombre del cliente o número de cotización, **Para** consultar precios o recuperar información.
@@ -187,7 +187,7 @@ De acuerdo con el diagrama de modularización, el sistema se divide en:
 | Validación de longitud y formato de campos en servidor | ✅ |
 | Supresión de `display_errors` en producción con log centralizado | ✅ |
 | Cookie Secure configurable vía variable de entorno | ✅ |
-| Transacción atómica con LOCK TABLES para numeración de cotizaciones | ✅ |
+| Transacción atómica con `SELECT FOR UPDATE` para numeración de cotizaciones | ✅ |
 | Cabeceras de seguridad HTTP (X-Content-Type-Options, X-Frame-Options, X-XSS-Protection) | ✅ |
 
 ---
