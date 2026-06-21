@@ -89,8 +89,8 @@ class UsuarioController
 
         $hash = password_hash(!empty($password) ? $password : $doc, PASSWORD_BCRYPT);
         if ($this->model->crear($doc, $nombre, $correo, $hash, $telefono, $rol)) {
-            rotar_token_csrf();
-            header('Location: ' . BASE_URL . '?module=usuarios&action=lista&success=1');
+                // Eliminada rotación de token
+                header('Location: ' . BASE_URL . '?module=usuarios&action=lista&created=1');
             exit();
         }
 
@@ -155,8 +155,8 @@ class UsuarioController
 
         $hash = !empty($nuevaPass) ? password_hash($nuevaPass, PASSWORD_BCRYPT) : null;
         if ($this->model->actualizar($id, $doc, $nombre, $correo, $telefono, $rol, $estado, $hash)) {
-            rotar_token_csrf();
-            header('Location: ' . BASE_URL . '?module=usuarios&action=lista&updated=1');
+                // Eliminada rotación de token
+                header('Location: ' . BASE_URL . '?module=usuarios&action=lista&updated=1');
             exit();
         }
 
