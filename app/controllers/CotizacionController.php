@@ -207,10 +207,7 @@ class CotizacionController
         $busquedaNumero  = '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (!verificar_token_csrf($_POST['csrf_token'] ?? '')) {
-                $mensajeError = 'Token de seguridad inválido';
-            } else {
-                $filtros = [];
+            $filtros = [];
                 if (!empty($_POST['fecha']))             $filtros['fecha']             = sanitizar_entrada($_POST['fecha']);
                 if (!empty($_POST['nombre_cliente']))    $filtros['nombre_cliente']    = sanitizar_entrada($_POST['nombre_cliente']);
                 if (!empty($_POST['numero_cotizacion'])) $filtros['numero_cotizacion'] = sanitizar_entrada($_POST['numero_cotizacion']);
@@ -221,7 +218,6 @@ class CotizacionController
                 // Eliminada rotación de token
                 header('Location: ' . BASE_URL . '?module=cotizaciones&action=consultar&buscando=1');
                 exit();
-            }
         }
 
         if (isset($_GET['buscando'], $_SESSION['cotizacion_filtros'])) {
