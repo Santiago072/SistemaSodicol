@@ -114,7 +114,7 @@ Panel administrativo que permite crear, editar y eliminar instrucciones operativ
 El sistema implementa sólidas garantías de seguridad y estabilidad en todo su flujo:
 - Configuración centralizada de sesión desde `.env` (`COOKIE_SECURE`, `SESSION_LIFETIME`).
 - Tokens CSRF implementados con `random_bytes()` y verificados a través de comparaciones `hash_equals()`.
-- Rotación del token después de un POST exitoso, previniendo los ataques de Replay.
+- Rotación del token estructurada exclusivamente durante la autenticación y en acciones críticas post-login, permitiendo el uso multi-pestaña para búsquedas (Multi-Tab Browsing) sin perder sincronización.
 - **Manejador Global de Excepciones**: Utiliza `set_exception_handler()` para interceptar todos los errores del backend sin crashear el proceso HTTP, devolviendo un JSON seguro y limpio al cliente.
 - **Rate Limiting Nativo**: Restringe el límite de tráfico de los usuarios para módulos críticos (Ej: 15 peticiones por minuto en Autenticación, Búsquedas y PDFs) mediante `verificar_rate_limit()`, mitigando vulnerabilidades como DDoS a nivel de aplicación o scraping excesivo.
 
@@ -122,7 +122,8 @@ El sistema implementa sólidas garantías de seguridad y estabilidad en todo su 
 
 ## 6. Generación de PDF
 
-El sistema utiliza la biblioteca **DomPDF** instalada bajo la carpeta `dompdf/`.
+El sistema utiliza la biblioteca **DomPDF** instalada dinámicamente mediante el gestor de paquetes **Composer** (`dompdf/dompdf`).
+- En entornos de producción (Docker), Composer se ejecuta automáticamente durante el ciclo de construcción (`docker compose up --build`).
 - Permite renderizar cualquier estructura HTML compleja y convertirla en un archivo PDF descargable o previsualizable en el navegador.
 - Carga las hojas de estilo de manera absoluta para asegurar la correcta presentación y posición de tablas, imágenes (logos y firmas) y tipografías.
 
