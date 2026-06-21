@@ -12,6 +12,14 @@ y este proyecto se adhiere al [Versionamiento Semántico](https://semver.org/lan
 - **Suite de Pruebas**: Configuración de entorno local con `PHPUnit` e implementación de pruebas unitarias al 100% de cobertura sobre las utilidades de seguridad (Tokens CSRF, Rate Limiting y Sanitización).
 - **Optimización de BD**: Incorporación de índices de alta velocidad (`INDEX`) en columnas de búsqueda masiva (`titulo` de productos, `numero_cotizacion` y `nombre_cliente`) dentro de `docker/mysql/init.sql` y `BD.txt`, reduciendo el tiempo de escaneo a microsegundos.
 
+## [v1.2.1] - 2026-06-21
+### Modificado
+- Migración de la biblioteca **DomPDF** hacia el ecosistema oficial de dependencias de PHP usando `Composer`. Se eliminó la carpeta pesada estática `dompdf/` del control de versiones.
+- El archivo `docker/apache/Dockerfile` ahora instala Composer automáticamente y el contenedor descarga las dependencias nativas durante su construcción en producción.
+
+### Corregido
+- Eliminación de la estricta rotación del Token CSRF en peticiones estándar `POST` de búsqueda y filtrado (`rotar_token_csrf()`). Esto soluciona el error `"Token de seguridad inválido"` al abrir múltiples pestañas o al usar el botón "Atrás" del navegador, mejorando drásticamente la experiencia de usuario (Multi-Tab Browsing).
+
 ## [v1.1.2] - 2026-06-20
 ### Modificado
 - Unificación del diseño visual de los buscadores en los módulos "Crear Cotización" y "Consultar Cotización" para que coincidan con el diseño del resto del sistema (`filter-panel`).
