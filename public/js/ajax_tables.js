@@ -87,17 +87,8 @@ document.addEventListener('DOMContentLoaded', () => {
             cargarTablaAsincrona(url, fetchOptions);
         });
 
-        // Live search (opcional, con debounce)
-        const inputs = formulario.querySelectorAll('input[type="text"], input[type="search"]');
-        let timeoutBusqueda = null;
-        inputs.forEach(input => {
-            input.addEventListener('input', function() {
-                clearTimeout(timeoutBusqueda);
-                timeoutBusqueda = setTimeout(() => {
-                    formulario.dispatchEvent(new Event('submit'));
-                }, 500);
-            });
-        });
+        // Se eliminó la búsqueda en vivo (Live search) por solicitud, 
+        // ahora el usuario debe presionar "Enter" para buscar sin recargar inesperadamente.
     }
 
     // 3. Manejar Paginación Asíncrona (PJAX style)
