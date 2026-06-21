@@ -5,6 +5,13 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere al [Versionamiento Semántico](https://semver.org/lang/es/).
 
+## [v1.2.0] - 2026-06-21
+### Agregado
+- **Seguridad (Rate Limiting)**: Implementación de sistema nativo anti-saturación (`verificar_rate_limit`) configurado a 15 peticiones por minuto. Aplicado a módulos críticos (Login, Buscador AJAX y Generación de PDF) para prevenir ataques de fuerza bruta y colapsos de CPU.
+- **Manejo de Errores**: Nuevo manejador global de excepciones (`set_exception_handler` en `index.php`) para evitar caídas silenciosas (pantalla en blanco) y devolver respuestas JSON limpias en entornos AJAX sin tumbar el hilo de Apache.
+- **Suite de Pruebas**: Configuración de entorno local con `PHPUnit` e implementación de pruebas unitarias al 100% de cobertura sobre las utilidades de seguridad (Tokens CSRF, Rate Limiting y Sanitización).
+- **Optimización de BD**: Incorporación de índices de alta velocidad (`INDEX`) en columnas de búsqueda masiva (`titulo` de productos, `numero_cotizacion` y `nombre_cliente`) dentro de `docker/mysql/init.sql` y `BD.txt`, reduciendo el tiempo de escaneo a microsegundos.
+
 ## [v1.1.2] - 2026-06-20
 ### Modificado
 - Unificación del diseño visual de los buscadores en los módulos "Crear Cotización" y "Consultar Cotización" para que coincidan con el diseño del resto del sistema (`filter-panel`).
