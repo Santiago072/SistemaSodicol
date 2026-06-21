@@ -16,11 +16,14 @@ include dirname(__DIR__) . '/layout/menu.php';
     <div class="encabezado-pagina"><h1>Crear Nueva Cotización</h1></div>
 
     <!-- Búsqueda de producto (AJAX) -->
-    <div class="barra-busqueda">
-        <div id="form-busqueda-ajax" class="formulario-busqueda">
-            <input type="text" id="input-busqueda" class="form-control" 
+    <div class="filter-panel">
+        <i class="bi bi-search filter-icon"></i>
+        <div id="form-busqueda-ajax" class="formulario-busqueda" style="display:flex; flex:1; gap:10px; align-items:center;">
+            <input type="text" id="input-busqueda" class="filter-input" 
                    placeholder="Buscar producto..." autocomplete="off">
-            <button type="button" id="btn-limpiar-busqueda" class="boton-limpiar d-none">Limpiar</button>
+            <button type="button" id="btn-limpiar-busqueda" class="boton-limpiar d-none" style="white-space: nowrap;">
+                <i class="bi bi-x-circle"></i> Limpiar
+            </button>
         </div>
     </div>
 

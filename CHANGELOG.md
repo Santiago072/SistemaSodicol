@@ -5,6 +5,11 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere al [Versionamiento Semántico](https://semver.org/lang/es/).
 
+## [v1.1.2] - 2026-06-20
+### Modificado
+- Unificación del diseño visual de los buscadores en los módulos "Crear Cotización" y "Consultar Cotización" para que coincidan con el diseño del resto del sistema (`filter-panel`).
+- Eliminación del cursor personalizado animado en la pantalla de inicio de sesión (`login`) por solicitud para mejorar la usabilidad tradicional.
+
 ## [v1.1.1] - 2026-06-20
 ### Corregido
 - Solución al error 500 en generación de PDF por falta de la carpeta `dompdf/vendor`, ajustando el archivo `.gitignore`.

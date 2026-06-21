@@ -24,8 +24,6 @@
 <canvas id="particle-canvas"></canvas>
 <div class="noise-overlay"></div>
 
-<div id="cursor"></div>
-<div id="cursor-ring"></div>
 
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loader"></div>
@@ -131,35 +129,7 @@
 </div>
 
 <script>
-    /* Cursor personalizado */
-    const cur = document.getElementById('cursor');
-    const curR = document.getElementById('cursor-ring');
-    let mx = 0, my = 0, rx = 0, ry = 0;
-    document.addEventListener('mousemove', e => {
-        mx = e.clientX; my = e.clientY;
-        cur.style.left = mx + 'px'; cur.style.top = my + 'px';
-    });
-    (function lerp() {
-        rx += (mx - rx) * .12; ry += (my - ry) * .12;
-        curR.style.left = rx + 'px'; curR.style.top = ry + 'px';
-        requestAnimationFrame(lerp);
-    })();
-    document.addEventListener('mousedown', () => cur.classList.add('clicked'));
-    document.addEventListener('mouseup',   () => cur.classList.remove('clicked'));
-    document.querySelectorAll('button, a, input, label').forEach(el => {
-        el.addEventListener('mouseenter', () => {
-            cur.style.width  = '20px'; cur.style.height = '20px';
-            cur.style.background = 'var(--brown-warm)';
-            curR.style.width = '50px'; curR.style.height = '50px';
-            curR.style.borderColor = 'rgba(196,131,74,.7)';
-        });
-        el.addEventListener('mouseleave', () => {
-            cur.style.width  = '12px'; cur.style.height = '12px';
-            cur.style.background = 'var(--gold)';
-            curR.style.width = '38px'; curR.style.height = '38px';
-            curR.style.borderColor = 'rgba(196,131,74,.55)';
-        });
-    });
+
 </script>
 <script src="<?= defined('BASE_URL') ? BASE_URL : '/SistemaSodicol/' ?>public/js/script.js"></script>
 </body>
