@@ -77,7 +77,7 @@ class UsuarioController
         $rol      = sanitizar_entrada($_POST['rol'] ?? '');
         $password = $_POST['password'] ?? '';
 
-        $mensajeError = $this->validarCamposUsuario($doc, $nombre, $correo, $telefono, $rol, $password);
+        $mensajeError = $this->validarCamposUsuario($doc, $nombre, $correo, $telefono, $rol, $password, true);
 
         if ($mensajeError === '' && $this->model->existeDocumentoOCorreo($doc, $correo)) {
             $mensajeError = 'El documento o correo ya está registrado';

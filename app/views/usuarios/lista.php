@@ -65,7 +65,7 @@ include dirname(__DIR__) . '/layout/menu.php';
         </div>
         <?php endforeach; ?>
         <?php if (empty($usuarios)): ?>
-        <div class="w-100 text-center p-30 text-gold">
+        <div class="w-100 text-center p-30 text-gold" style="grid-column: 1 / -1;">
             <i class="bi bi-search" style="font-size:30px; display:block; margin-bottom:10px;"></i>
             No se encontraron usuarios.
         </div>
