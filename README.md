@@ -175,6 +175,8 @@ SistemaSodicol/
 | Verificación de dependencias al eliminar productos | ✅ |
 | Transacción atómica en asignación de número de cotización | ✅ |
 | Validación de longitud y formato de campos en servidor | ✅ |
+| Límite estricto de longitud de campos (mb_substr) | ✅ Todos los controladores |
+| Prevención de saturación (Rate Limiting) | ✅ En módulos críticos y acciones de escritura |
 | Supresión de display_errors y log centralizado | ✅ |
 | Cookie Secure configurable vía .env (COOKIE_SECURE) | ✅ |
 
