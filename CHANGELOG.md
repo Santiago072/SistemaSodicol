@@ -5,6 +5,14 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere al [Versionamiento Semántico](https://semver.org/lang/es/).
 
+## [v1.2.3] - 2026-06-23
+### Agregado
+- **Límites de Campos**: Se añadieron restricciones estrictas de longitud en backend mediante `mb_substr()` a los controladores principales (`Usuario`, `Producto`, `Cotizacion`, `Tarea`) para prevenir el envío de cadenas maliciosamente largas.
+- **Protección Rate Limiting**: Extensión de la validación de peticiones (`verificar_rate_limit`) a todas las acciones de escritura de datos (crear, editar, guardar ítems) para evitar la saturación del sistema.
+
+### Modificado
+- **Limpieza**: Se eliminaron los archivos remanentes de desarrollo de `PHPUnit` (`.phpunit.cache`, `phpunit.phar`, `phpunit.xml`, `tests/`) para mantener un directorio de producción limpio y enfocado.
+
 ## [v1.2.2] - 2026-06-21
 ### Corregido
 - Alineación del contenedor de estado vacío ("No se encontraron usuarios") en la vista de lista de usuarios, ajustando la cuadrícula CSS.
