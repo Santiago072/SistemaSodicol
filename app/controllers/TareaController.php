@@ -33,14 +33,15 @@ class TareaController {
         $mensajeError = '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            verificar_rate_limit(15, 60, 'tarea_crear');
             if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
                 header("Location: " . BASE_URL . "?module=tareas&action=gestion&error=csrf");
                 exit();
             }
 
             $usuarioId   = intval($_POST['usuario'] ?? 0);
-            $descripcion = sanitizar_entrada($_POST['descripcion_tarea'] ?? '');
-            $estado      = sanitizar_entrada($_POST['estado'] ?? '');
+            $descripcion = mb_substr(sanitizar_entrada($_POST['descripcion_tarea'] ?? ''), 0, 500);
+            $estado      = mb_substr(sanitizar_entrada($_POST['estado'] ?? ''), 0, 50);
 
             if (!in_array($estado, ['pendiente', 'completo'])) {
                 header("Location: " . BASE_URL . "?module=tareas&action=gestion&error=estado");
@@ -93,12 +94,13 @@ class TareaController {
         $usuarios = $this->usuarioModel->listarActivos();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            verificar_rate_limit(15, 60, 'tarea_editar');
             if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
                 $mensajeError = "Token de seguridad inválido";
             } else {
                 $usuarioId   = intval($_POST['usuario_id'] ?? 0);
-                $descripcion = sanitizar_entrada($_POST['descripcion_tarea'] ?? '');
-                $estado      = sanitizar_entrada($_POST['estado'] ?? '');
+                $descripcion = mb_substr(sanitizar_entrada($_POST['descripcion_tarea'] ?? ''), 0, 500);
+                $estado      = mb_substr(sanitizar_entrada($_POST['estado'] ?? ''), 0, 50);
 
                 if (!in_array($estado, ['pendiente', 'completo'])) {
                     $mensajeError = "Estado no válido";

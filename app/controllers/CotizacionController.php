@@ -74,11 +74,13 @@ class CotizacionController
             exit();
         }
 
+        verificar_rate_limit(15, 60, 'cotizacion_guardar_item');
+
         $producto_id = validar_numero($_POST['producto_id'] ?? '') ? (int)$_POST['producto_id'] : 0;
-        $titulo      = sanitizar_entrada($_POST['titulo'] ?? '');
-        $descripcion = sanitizar_entrada($_POST['descripcion'] ?? '');
+        $titulo      = mb_substr(sanitizar_entrada($_POST['titulo'] ?? ''), 0, 255);
+        $descripcion = mb_substr(sanitizar_entrada($_POST['descripcion'] ?? ''), 0, 1000);
         $cantidad    = (int)($_POST['cantidad'] ?? 0);
-        $iva         = sanitizar_entrada($_POST['IVA'] ?? '');
+        $iva         = mb_substr(sanitizar_entrada($_POST['IVA'] ?? ''), 0, 10);
         $precio      = (float)($_POST['precio'] ?? 0);
 
         if (!in_array($iva, ['si', 'no'], true)) {
@@ -115,14 +117,15 @@ class CotizacionController
         $cotizacion_id = (int)$_SESSION['cotizacion_id'];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            verificar_rate_limit(15, 60, 'cotizacion_editar_item');
             if (!verificar_token_csrf($_POST['csrf_token'] ?? '')) {
                 $mensajeError = 'Token de seguridad inválido';
             } else {
                 $itemId      = (int)($_POST['item_id'] ?? 0);
-                $titulo      = sanitizar_entrada($_POST['titulo'] ?? '');
-                $descripcion = sanitizar_entrada($_POST['descripcion'] ?? '');
+                $titulo      = mb_substr(sanitizar_entrada($_POST['titulo'] ?? ''), 0, 255);
+                $descripcion = mb_substr(sanitizar_entrada($_POST['descripcion'] ?? ''), 0, 1000);
                 $cantidad    = (int)($_POST['cantidad'] ?? 0);
-                $iva         = sanitizar_entrada($_POST['IVA'] ?? '');
+                $iva         = mb_substr(sanitizar_entrada($_POST['IVA'] ?? ''), 0, 10);
                 $precio      = (float)($_POST['precio'] ?? 0);
 
                 if (!in_array($iva, ['si', 'no'], true)) {
@@ -268,12 +271,12 @@ class CotizacionController
 
         $cotizacion_id = (int)$_SESSION['cotizacion_id'];
 
-        $profesion     = sanitizar_entrada($_POST['profesion'] ?? '');
-        $nombreCliente = sanitizar_entrada($_POST['nombre_cliente'] ?? '');
-        $especialidad  = sanitizar_entrada($_POST['especialidad'] ?? '');
-        $entidad       = sanitizar_entrada($_POST['entidad'] ?? '');
-        $ciudad        = sanitizar_entrada($_POST['ciudad'] ?? '');
-        $fecha         = sanitizar_entrada($_POST['fecha'] ?? '');
+        $profesion     = mb_substr(sanitizar_entrada($_POST['profesion'] ?? ''), 0, 100);
+        $nombreCliente = mb_substr(sanitizar_entrada($_POST['nombre_cliente'] ?? ''), 0, 255);
+        $especialidad  = mb_substr(sanitizar_entrada($_POST['especialidad'] ?? ''), 0, 150);
+        $entidad       = mb_substr(sanitizar_entrada($_POST['entidad'] ?? ''), 0, 150);
+        $ciudad        = mb_substr(sanitizar_entrada($_POST['ciudad'] ?? ''), 0, 100);
+        $fecha         = mb_substr(sanitizar_entrada($_POST['fecha'] ?? ''), 0, 20);
 
         $numeroCotizacion = $this->model->finalizarCotizacion(
             $cotizacion_id, $fecha, $profesion, $nombreCliente, $especialidad, $entidad, $ciudad

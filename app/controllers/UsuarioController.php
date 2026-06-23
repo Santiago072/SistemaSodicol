@@ -65,17 +65,19 @@ class UsuarioController
             return compact('mensajeError', 'mensajeExito', 'csrf_token');
         }
 
+        verificar_rate_limit(10, 60, 'usuario_crear');
+
         if (!verificar_token_csrf($_POST['csrf_token'] ?? '')) {
             $mensajeError = 'Token de seguridad inválido';
             return compact('mensajeError', 'mensajeExito', 'csrf_token');
         }
 
-        $doc      = sanitizar_entrada($_POST['documento'] ?? '');
-        $nombre   = sanitizar_entrada($_POST['nombre'] ?? '');
-        $correo   = sanitizar_entrada($_POST['correo'] ?? '');
-        $telefono = sanitizar_entrada($_POST['telefono'] ?? '');
-        $rol      = sanitizar_entrada($_POST['rol'] ?? '');
-        $password = $_POST['password'] ?? '';
+        $doc      = mb_substr(sanitizar_entrada($_POST['documento'] ?? ''), 0, 50);
+        $nombre   = mb_substr(sanitizar_entrada($_POST['nombre'] ?? ''), 0, 150);
+        $correo   = mb_substr(sanitizar_entrada($_POST['correo'] ?? ''), 0, 150);
+        $telefono = mb_substr(sanitizar_entrada($_POST['telefono'] ?? ''), 0, 50);
+        $rol      = mb_substr(sanitizar_entrada($_POST['rol'] ?? ''), 0, 50);
+        $password = mb_substr($_POST['password'] ?? '', 0, 255);
 
         $mensajeError = $this->validarCamposUsuario($doc, $nombre, $correo, $telefono, $rol, $password, true);
 
@@ -122,18 +124,20 @@ class UsuarioController
             return compact('usuario', 'mensajeError', 'csrf_token');
         }
 
+        verificar_rate_limit(15, 60, 'usuario_editar');
+
         if (!verificar_token_csrf($_POST['csrf_token'] ?? '')) {
             $mensajeError = 'Token de seguridad inválido';
             return compact('usuario', 'mensajeError', 'csrf_token');
         }
 
-        $doc      = sanitizar_entrada($_POST['documento'] ?? '');
-        $nombre   = sanitizar_entrada($_POST['nombre'] ?? '');
-        $correo   = sanitizar_entrada($_POST['correo'] ?? '');
-        $telefono = sanitizar_entrada($_POST['telefono'] ?? '');
-        $rol      = sanitizar_entrada($_POST['rol'] ?? '');
-        $estado   = sanitizar_entrada($_POST['estado'] ?? '');
-        $nuevaPass= $_POST['nueva_password'] ?? '';
+        $doc      = mb_substr(sanitizar_entrada($_POST['documento'] ?? ''), 0, 50);
+        $nombre   = mb_substr(sanitizar_entrada($_POST['nombre'] ?? ''), 0, 150);
+        $correo   = mb_substr(sanitizar_entrada($_POST['correo'] ?? ''), 0, 150);
+        $telefono = mb_substr(sanitizar_entrada($_POST['telefono'] ?? ''), 0, 50);
+        $rol      = mb_substr(sanitizar_entrada($_POST['rol'] ?? ''), 0, 50);
+        $estado   = mb_substr(sanitizar_entrada($_POST['estado'] ?? ''), 0, 50);
+        $nuevaPass= mb_substr($_POST['nueva_password'] ?? '', 0, 255);
 
         $mensajeError = $this->validarCamposUsuario($doc, $nombre, $correo, $telefono, $rol, $nuevaPass, true);
 

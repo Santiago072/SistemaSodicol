@@ -75,15 +75,17 @@ class ProductoController
             return compact('producto', 'mensajeError', 'csrf_token');
         }
 
+        verificar_rate_limit(15, 60, 'producto_editar');
+
         if (!verificar_token_csrf($_POST['csrf_token'] ?? '')) {
             $mensajeError = 'Token de seguridad inválido';
             return compact('producto', 'mensajeError', 'csrf_token');
         }
 
-        $titulo      = sanitizar_entrada($_POST['titulo'] ?? '');
-        $descripcion = sanitizar_entrada($_POST['descripcion'] ?? '');
+        $titulo      = mb_substr(sanitizar_entrada($_POST['titulo'] ?? ''), 0, 255);
+        $descripcion = mb_substr(sanitizar_entrada($_POST['descripcion'] ?? ''), 0, 1000);
         $cantidad    = (int)($_POST['cantidad'] ?? 0);
-        $iva         = sanitizar_entrada($_POST['iva'] ?? '');
+        $iva         = mb_substr(sanitizar_entrada($_POST['iva'] ?? ''), 0, 10);
         $precio      = (float)($_POST['precio'] ?? 0);
 
         if (!in_array($iva, ['si', 'no'], true)) {
