@@ -87,7 +87,32 @@ http://tudominio.com/
 
 ---
 
-## Restaurar Base de Datos Local
+## Instalación Local (XAMPP / Laragon / WampServer)
+
+Si prefieres trabajar en desarrollo de forma tradicional:
+
+1. Clona el repositorio en el directorio web root:
+   * **XAMPP:** `C:\xampp\htdocs\SistemaSodicol`
+   * **Laragon:** `C:\laragon\www\SistemaSodicol`
+
+2. Configuración de Variables de Entorno:
+   ```bash
+   cp .env.example config/.env
+   ```
+   *(Nota: en desarrollo local es importante que el archivo se llame `.env` y quede configurado con tus credenciales de MySQL locales).*
+
+3. Instala las dependencias (DomPDF para reportes):
+   ```bash
+   composer install
+   ```
+
+4. Importa la base de datos `database/sistema_sodicol_con_datos_utf8.sql` a tu servidor MySQL local en una nueva base de datos llamada `sistema_sodicol`.
+
+5. Abre `http://localhost/SistemaSodicol/` en tu navegador.
+
+---
+
+## Restaurar Base de Datos Local (En VPS)
 
 Si tienes tu base de datos de desarrollo (ej. `sistema_sodicol_con_datos_utf8.sql`), puedes inyectarla en producción:
 

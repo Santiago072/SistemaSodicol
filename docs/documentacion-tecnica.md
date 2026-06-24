@@ -162,7 +162,14 @@ Se proporciona un script automatizado `deploy.sh` que se encarga de descargar la
 ```
 Automáticamente mapea el código PHP hacia el contenedor y sirve la aplicación en el puerto asignado (por defecto, `8891`).
 
-### 8.3 Credenciales Iniciales
+### 8.3 Instalación Local (XAMPP / Laragon)
+1. Clona el proyecto en tu carpeta raíz (`htdocs` o `www`).
+2. Copia `.env.example` a `.env` en la carpeta `config/` y ajusta `DB_HOST=localhost`.
+3. Instala dependencias: `composer install`.
+4. Importa la base de datos `database/sistema_sodicol_con_datos_utf8.sql` en phpMyAdmin.
+5. Abre `http://localhost/SistemaSodicol/`.
+
+### 8.4 Credenciales Iniciales
 ```text
 Correo: admin@sodicol.com
 Contraseña: [REDACTED]
