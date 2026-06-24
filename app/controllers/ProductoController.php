@@ -148,7 +148,17 @@ class ProductoController
             $this->uploader->eliminarSiExiste($producto['foto']);
         }
 
-        if ($this->model->eliminar($id)) {
+        try {
+            $eliminado = $this->model->eliminar($id);
+        } catch (\mysqli_sql_exception $e) {
+            if ($e->getCode() == 1451) {
+                $responderError('No se puede eliminar el producto porque está asociado a una cotización.', 'en_uso');
+            }
+            $responderError('Error de base de datos al eliminar el producto.', 'db_error');
+            return;
+        }
+
+        if ($eliminado) {
             if ($esAjax) {
                 header('Content-Type: application/json');
                 echo json_encode(['status' => 'success']);
