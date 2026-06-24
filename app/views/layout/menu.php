@@ -72,7 +72,9 @@ $basePath  = defined('BASE_URL') ? BASE_URL : '/SistemaSodicol/';
             <h3>Cotizaciones</h3>
             <li><a href="<?= $basePath ?>?module=cotizaciones&action=crear"><i class="fas fa-dollar-sign"></i> Crear Cotización</a></li>
             <li><a href="<?= $basePath ?>?module=cotizaciones&action=consultar"><i class="fas fa-list"></i> Consultar Cotización</a></li>
+            <?php if ($rol === 'admin'): ?>
             <li><a href="<?= $basePath ?>?module=productos&action=lista"><i class="fas fa-box"></i> Lista de Productos</a></li>
+            <?php endif; ?>
         `
     };
 
