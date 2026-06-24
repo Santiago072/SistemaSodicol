@@ -5,6 +5,19 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere al [Versionamiento Semántico](https://semver.org/lang/es/).
 
+## [v1.2.5] - 2026-06-24
+### Agregado
+- **Script de Restauración**: Se creó un script local (`restaurar.php`) para restaurar los 18 productos originales sin tildes ni caracteres especiales, previniendo distorsión en la codificación de la base de datos.
+- **Respaldo Seguro**: Se añadió `restaurar.php` al `.gitignore` para mantenerlo como respaldo local exclusivo, asegurando que no se despliegue en el VPS de producción por motivos de seguridad.
+
+### Modificado
+- **Seguridad de Productos**: Se restringió el acceso al módulo "Gestión de Productos". Ahora, la opción de menú (`menu.php`) y las rutas de listar, editar y eliminar (`ProductoController.php`) solo están disponibles para cuentas con el rol de `admin`.
+- **Prevención de Caché (Cache Busting)**: Se agregó un parámetro dinámico (`?v=time()`) a la importación de `ajax_tables.js` en `footer.php` para forzar a los navegadores a descargar la versión más reciente del script, solucionando el problema del "doble prompt de confirmación".
+
+### Corregido
+- **Fallo Crítico AJAX en Eliminación**: Se arregló un bug engañoso en `ajax_tables.js` donde la animación de eliminación fallaba silenciosamente (`TypeError` por no encontrar un elemento `<tr>` en un diseño de grilla o `.card-item`), lo cual desencadenaba un mensaje genérico falso de "Error de conexión al servidor".
+- **Limpieza de Respuesta JSON**: Se incorporó el uso estricto de `@ob_clean()` antes de imprimir `json_encode` en los controladores `UsuarioController` y `ProductoController`, garantizando respuestas JSON impecables y evitando fallos de parseo en JavaScript causados por advertencias o espacios en blanco residuales.
+
 ## [v1.2.4] - 2026-06-23
 ### Agregado
 - **Despliegue Automático**: Se incorporó el script `deploy.sh` en la raíz del proyecto para automatizar actualizaciones en producción (manejo de permisos, git reset y docker compose up), basado en las mejores prácticas de la DocumentacionVPS.
