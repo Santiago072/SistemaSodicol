@@ -2,30 +2,29 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-$appBase = $_ENV['APP_BASE'] ?? getenv('APP_BASE') ?: null;
-if (!$appBase) {
-    require_once __DIR__ . '/config/conexion.php';
-} else {
-    // If not loaded, manual connect
-    $db_host = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'sodicol_db';
-    $db_user = $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'sodicol_user';
-    $db_pass = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?: 'root';
-    $db_name = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'sistema_sodicol';
+$db_host = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'sodicol_db';
+$db_user = $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'sodicol_user';
+$db_pass = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?: 'root';
+$db_name = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'sistema_sodicol';
 
-    try {
-        $conexion = new mysqli($db_host, $db_user, $db_pass, $db_name);
+try {
+    $conexion = new mysqli($db_host, $db_user, $db_pass, $db_name);
+    if ($conexion->connect_error) {
+        // Fallback for local XAMPP if docker env vars are missing
+        $conexion = new mysqli('localhost', 'root', '', 'sistema_sodicol');
         if ($conexion->connect_error) {
             die("Connection failed: " . $conexion->connect_error);
         }
-        $conexion->set_charset("utf8mb4");
-        
-        $sql = "DELETE FROM productos";
-        $conexion->query($sql);
-        
-        $sql = "ALTER TABLE productos AUTO_INCREMENT = 1";
-        $conexion->query($sql);
+    }
+    $conexion->set_charset("utf8mb4");
+    
+    $sql = "DELETE FROM productos";
+    $conexion->query($sql);
+    
+    $sql = "ALTER TABLE productos AUTO_INCREMENT = 1";
+    $conexion->query($sql);
 
-        $sql_insert = "INSERT INTO `productos` (`id`, `titulo`, `foto`, `descripcion`, `cantidad`, `iva`, `precio`) VALUES
+    $sql_insert = "INSERT INTO `productos` (`id`, `titulo`, `foto`, `descripcion`, `cantidad`, `iva`, `precio`) VALUES
 (1, 'ESTACION 2380', '1774732866_Item1.png', 'De 2380mm x 630mm; en su area de trabajo\\ry 960mm de alto. Mueble en aglomerado\\rPELIKANO RH fresno y blanco de 15mm.\\rCon nariz en el tablero de 30mm, CANTO\\rRIGIDO y PVC 19MM – 33MM termo\\rfundido...', 1, 'si', 4280000.00),
 (2, 'ESCRITORIO EN L 1300', '1774732915_Item2.png', 'De 1300mm x 1500mm; 715 mm de alto.\\rMueble en aglomerado PELIKANO RH fresno\\rde 15mm. Consta de una (1) puertas con sus\\rrespectivas MANIJA. ALUMINIO 671 NIQUEL\\rCEP CC. 96 MM; una (1) Gaveta con su\\rrespectivo RIEL EXT TOTAL ZINC PESADO\\r450MMX350MM 45Kg; PATA 697 ACERO\\r201 CON NIVELADOR 40MM (HPA697-04)\\r(HRE126-25n nariz en el tablero de 30mm,\\rCANTO RIGIDO y PVC 19MM – 33MM termo\\rfundido...', 4, 'si', 3500000.00),
 (3, 'ESCRITORIO EN L 1400', '1774732953_Item3.png', 'De 1400mm x 1500mm; 715 mm de alto.\\rMueble en aglomerado PELIKANO RH fresno\\rde 15mm. Consta de una (1) puertas con sus\\rrespectivas MANIJA. ALUMINIO 671 NIQUEL\\rCEP CC. 96 MM; una (1) Gaveta con su\\rrespectivo RIEL EXT TOTAL ZINC PESADO\\r45X350MMM 45Kg; PATA 697 ACERO 201\\rCON NIVELADOR 40MM (HPA697-04)\\r(HRE126-25n nariz en el tablero de 30mm,\\rCANTO RIGIDO y PVC 19MM – 33MM termo\\rfundido...', 2, 'si', 3550000.00),
@@ -45,16 +44,15 @@ if (!$appBase) {
 (17, 'MODULO ESTANTE 1270', '1775430858_Item17.png', 'De 730mm ancho x 1270mm alto x por 300mm de fondo.\\rMueble totalmente en aglomerado PELIKANO RH color\\rblanco de 15mm, PATA 697 ACERO 201 CON NIVELADOR\\r40MM (HPA697-04) CANTO RIGIDO ORANGE blanco\\r19MM – 33MM termo fundido.', 4, 'si', 1400000.00),
 (18, 'MODULO GAVETERO 730', '1775430911_Item18.png', 'De 730mm de alto x 700mm de ancho y\\r550mm de fondo. Mueble totalmente en\\raglomerado PELIKANO FRESNO de 15mm\\rConsta de tres (3) Gavetas con sus\\rrespectivas MANIJA. ALUMINIO 671 NIQUEL\\rCEP CC. 96 MM; RIEL EXT TOTAL ZINC\\rPESADO 350MMM 45Kg; PATA 697 ACERO\\r201 CON NIVELADOR 40MM (HPA697-04)\\r(HRE126-25n nariz en el tablero de 30mm,\\rCANTO RIGIDO color PLOMO 19MM –\\r33MM termo fundido...', 1, 'si', 1720000.00)";
 
-        if ($conexion->query($sql_insert)) {
-            echo "<h1>¡Éxito!</h1>";
-            echo "<p>Se han eliminado los productos antiguos y se han restaurado los 18 productos sin tildes ni caracteres especiales.</p>";
-            echo "<a href='/?module=productos&action=lista'>Volver a la lista de productos</a>";
-        } else {
-            echo "Error al insertar: " . $conexion->error;
-        }
-
-    } catch (Exception $e) {
-        echo "Excepción: " . $e->getMessage();
+    if ($conexion->query($sql_insert)) {
+        echo "<h1 style='color:green;'>¡Éxito! Productos Restaurados</h1>";
+        echo "<p>Se han eliminado los productos antiguos y se han restaurado los 18 productos originales sin tildes ni caracteres especiales.</p>";
+        echo "<a href='/?module=productos&action=lista' style='padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;'>Volver a la lista de productos</a>";
+    } else {
+        echo "Error al insertar: " . $conexion->error;
     }
+
+} catch (Exception $e) {
+    echo "Excepción: " . $e->getMessage();
 }
 ?>
