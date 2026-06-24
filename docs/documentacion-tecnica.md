@@ -99,7 +99,7 @@ Genera el tablero de control de la aplicación calculando totales de cotizacione
 CRUD completo y gestión de cuentas. La contraseña siempre es hasheada con BCRYPT. Un administrador no puede auto-eliminarse ni borrar al último administrador activo del sistema.
 
 ### 4.4 Productos (`ProductoController.php`)
-Gestiona el catálogo base que se utiliza para generar cotizaciones. Verifica que la foto de un producto no se elimine del servidor si el producto todavía se encuentra asociado o referenciado dentro de un PDF/Cotización generada en el pasado.
+Gestiona el catálogo base que se utiliza para generar cotizaciones. Verifica que la foto de un producto no se elimine del servidor si el producto todavía se encuentra asociado o referenciado dentro de un PDF/Cotización generada en el pasado. Su acceso está estrictamente limitado a usuarios con rol de `admin`.
 
 ### 4.5 Cotizaciones (`CotizacionController.php`)
 Permite crear un borrador temporal asignado al usuario activo en la sesión. Incorpora un buscador AJAX de productos y permite subir imágenes personalizadas por ítem si el producto no se encuentra en el catálogo. Finaliza el proceso calculando el consecutivo seguro y llamando a la generación del PDF.
@@ -116,6 +116,8 @@ El sistema implementa sólidas garantías de seguridad y estabilidad en todo su 
 - Tokens CSRF implementados con `random_bytes()` y verificados a través de comparaciones `hash_equals()`.
 - Rotación del token estructurada exclusivamente durante la autenticación y en acciones críticas post-login, permitiendo el uso multi-pestaña para búsquedas (Multi-Tab Browsing) sin perder sincronización.
 - **Manejador Global de Excepciones**: Utiliza `set_exception_handler()` para interceptar todos los errores del backend sin crashear el proceso HTTP, devolviendo un JSON seguro y limpio al cliente.
+- **Limpieza de Buffer (Output Buffering)**: Implementación de `@ob_clean()` antes de imprimir `json_encode()` en controladores AJAX para evitar que advertencias de PHP silenciosas o espacios en blanco corrompan las respuestas asíncronas.
+- **Cache Busting**: Uso de versionamiento dinámico (`?v=time()`) en la inclusión de scripts del cliente (como `ajax_tables.js`) para asegurar que el navegador obtenga instantáneamente la última lógica asíncrona, evadiendo fallos por caché obsoleta.
 - **Rate Limiting Nativo**: Restringe el límite de tráfico de los usuarios para módulos críticos (Ej: 15 peticiones por minuto en Autenticación, Búsquedas y PDFs) mediante `verificar_rate_limit()`, mitigando vulnerabilidades como DDoS a nivel de aplicación o scraping excesivo.
 
 ---
