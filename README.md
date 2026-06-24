@@ -29,65 +29,72 @@ Sistema web de gestión interno para **Sodicol Zomac S.A.S**, empresa de diseño
 
 ## Requisitos
 
-- PHP 7.4 o superior (`mysqli`, `gd`, `mbstring`, `fileinfo`)
-- MySQL 5.7 o superior
-- Servidor web Apache/Nginx (XAMPP en desarrollo)
-- mod_rewrite habilitado (para el routing MVC)
+- Entorno de producción: **Docker** y **Docker Compose**
+- Entorno de desarrollo: XAMPP (PHP 8.2 o superior), Composer
+- Servidor web: Caddy (incluido en contenedor) o Apache (local)
 
 ---
 
-## Instalación
+## Instalación en Producción (Docker VPS)
 
 ### 1. Clonar
 
 ```bash
 git clone https://github.com/Santiago072/SistemaSodicol.git
+cd SistemaSodicol
 ```
 
-### 2. Base de datos
+### 2. Variables de entorno
+
+Copia `.env.example` a `.env`:
 
 ```bash
-mysql -u root -p < BD.txt
+cp .env.example .env
 ```
 
-### 3. Variables de entorno / Conexión
-
-Si usas entorno de producción, copia `.env.example` a `config/.env`:
-
-```bash
-cp .env.example config/.env
-```
-
-Y edita `config/.env`:
+Y edita `.env` con tus contraseñas seguras:
 
 ```env
-DB_HOST=localhost
-DB_USER=root
-DB_PASS=tu_contraseña
+DB_HOST=sodicol_db
+DB_USER=sodicol
+DB_PASS=tu_contraseña_segura
 DB_NAME=sistema_sodicol
 SESSION_LIFETIME=3600
-COOKIE_SECURE=0
+COOKIE_SECURE=1
 UPLOAD_MAX_SIZE=5242880
 ALLOWED_EXTENSIONS=jpg,jpeg,png,gif,webp
 ```
 
-Si estás en desarrollo y prefieres configurar directamente PHP, copia `config/conexion_example.php` a `config/conexion.php` y edita tus credenciales dentro de `conexion.php`.
+### 3. Despliegue Automático
 
-### 4. Permisos
+El proyecto incluye un script de despliegue que maneja permisos, descargas de GitHub y contenedores de forma automatizada:
 
 ```bash
-chmod 755 uploads/
+./deploy.sh
 ```
 
-### 5. Acceder
+El servidor web interno (Caddy) y PHP estarán corriendo en el puerto `8891`. Solo necesitas configurar un proxy inverso (Nginx) para apuntar tu dominio a `127.0.0.1:8891`.
+
+### 4. Acceder
 
 ```
-http://localhost/SistemaSodicol/
+http://tudominio.com/
 ```
 
-**Credenciales iniciales** (usuario creado en BD.txt):
+**Credenciales iniciales** (usuario administrador por defecto):
 - Correo: `admin@sodicol.com`
-- Contraseña: `[REDACTED]` (cambiar tras el primer acceso)
+- Contraseña: Se te asignará temporalmente o deberás restaurar tu copia local de la BD (ver abajo).
+
+---
+
+## Restaurar Base de Datos Local
+
+Si tienes tu base de datos de desarrollo (ej. `sistema_sodicol_con_datos_utf8.sql`), puedes inyectarla en producción:
+
+```bash
+source .env
+docker exec -i sodicol_db mariadb -u $DB_USER -p$DB_PASS $DB_NAME < database/sistema_sodicol_con_datos_utf8.sql
+```
 
 ---
 
@@ -138,8 +145,8 @@ SistemaSodicol/
 ├── uploads/                  # Imágenes subidas por usuarios (en .gitignore)
 ├── index.php                 # Front Controller / Router (Punto de entrada único)
 ├── logs/                     # Logs de errores PHP (en .gitignore)
-├── .htaccess                 # Routing hacia index.php y bloqueos de seguridad
 ├── BD.txt                    # Script SQL
+├── deploy.sh                 # Script automático de despliegue en servidor Linux
 ├── .env.example
 └── .gitignore
 ```
@@ -186,11 +193,11 @@ SistemaSodicol/
 
 | Problema | Solución |
 |---|---|
-| Error de conexión a BD | Verifica `config/.env` o `config/conexion.php` y que MySQL esté corriendo |
-| Errores "File not found" al navegar | Asegúrate de que Apache tiene `mod_rewrite` activo para `.htaccess` |
-| Error al subir imágenes | Verifica permisos de `uploads/` y `upload_max_filesize` en `php.ini` |
-| Sesión expira constantemente | Aumentar `SESSION_LIFETIME` en `config/.env` |
-| PDF no genera | Verifica que `dompdf/vendor/` esté presente (instálalo manual si falta) |
+| Error de conexión a BD | Verifica `.env` y asegúrate de usar `DB_HOST=sodicol_db` |
+| Error 502 Bad Gateway | El contenedor de la app no está corriendo, revisa `docker compose logs app` |
+| Error al subir imágenes | Verifica permisos de `uploads/` (`chown -R www-data:www-data uploads`) |
+| Sesión expira constantemente | Aumentar `SESSION_LIFETIME` en `.env` |
+| PDF no genera | Ejecuta `docker exec -it sodicol_app composer install` para instalar DomPDF |
 
 ---
 
