@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const url = this.getAttribute('href') + '&ajax=1';
-                const fila = this.closest('tr');
+                const fila = this.closest('tr') || this.closest('.card-item');
                 
                 // Mostrar estado de carga (opcional)
                 this.innerHTML = '<i class="bi bi-hourglass-split"></i>';
@@ -49,9 +49,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     if (res.status === 'success') {
-                        fila.style.transition = 'all 0.4s ease';
-                        fila.style.opacity = '0';
-                        setTimeout(() => fila.remove(), 400);
+                        if (fila) {
+                            fila.style.transition = 'all 0.4s ease';
+                            fila.style.opacity = '0';
+                            setTimeout(() => fila.remove(), 400);
+                        } else {
+                            window.location.reload();
+                        }
                     } else {
                         alert(res.message || 'Error al eliminar el registro');
                         this.innerHTML = '<i class="fas fa-trash"></i>';
@@ -59,8 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 })
                 .catch(err => {
-                    console.error(err);
-                    alert('Error de conexión al servidor');
+                    console.error('JS Error in fetch chain:', err);
+                    alert('Error en el navegador (JS): ' + err.message);
                     this.innerHTML = '<i class="fas fa-trash"></i>';
                     this.style.pointerEvents = 'auto';
                 });
