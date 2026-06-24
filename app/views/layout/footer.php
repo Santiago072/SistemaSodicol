@@ -6,7 +6,7 @@
  */
 $basePath = $basePath ?? '/SistemaSodicol/';
 ?>
-<script src="<?= $basePath ?>public/js/script.js"></script>
-<script src="<?= $basePath ?>public/js/ajax_tables.js"></script>
+<script src="<?= $basePath ?>public/js/script.js?v=<?= time() ?>"></script>
+<script src="<?= $basePath ?>public/js/ajax_tables.js?v=<?= time() ?>"></script>
 </body>
 </html>
