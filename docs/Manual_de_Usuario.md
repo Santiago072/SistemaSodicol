@@ -91,7 +91,7 @@ Al pasar el cursor por los íconos de submenú aparece un **panel flotante** con
 ### Submenú de Cotizaciones
 - **Crear Cotización**: Iniciar una nueva cotización.
 - **Consultar Cotización**: Buscar cotizaciones existentes.
-- **Lista de Productos**: Ver y gestionar el catálogo.
+- **Lista de Productos**: Ver y gestionar el catálogo *(solo Admin)*.
 
 ---
 
@@ -190,7 +190,7 @@ Los resultados se muestran **paginados** (10 por página) con botones de navegac
 
 ---
 
-## 6. Módulo de Productos (Catálogo)
+## 6. Módulo de Productos (Solo Administradores)
 
 Accede desde **menú 💲 > Lista de Productos**.
 
@@ -309,8 +309,8 @@ El sistema tiene dos tipos de cuenta con accesos diferenciados:
 | Ver y marcar propias tareas | ✅ | ✅ |
 | Crear cotizaciones | ✅ | ✅ |
 | Consultar cotizaciones | ✅ | ✅ |
-| Ver lista de productos | ✅ | ✅ |
-| Editar / Eliminar productos | ✅ | ✅ |
+| Ver lista de productos | ✅ | ❌ |
+| Editar / Eliminar productos | ✅ | ❌ |
 | Crear y gestionar usuarios | ✅ | ❌ |
 | Crear / Editar / Eliminar tareas | ✅ | ❌ |
 | Ver tareas de todos los usuarios | ✅ | ❌ |

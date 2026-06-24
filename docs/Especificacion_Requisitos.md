@@ -136,12 +136,12 @@ De acuerdo con el diagrama de modularización, el sistema se divide en:
 - El ítem guardado debe aparecer inmediatamente en la tabla temporal.
 
 ### HU-09: Gestión de Productos
-**Como** Empleado o Administrador, **Quiero** disponer de un módulo de lista de productos para buscar, editar y eliminar productos, **Para** mantener actualizado el catálogo.
+**Como** Administrador, **Quiero** disponer de un módulo de lista de productos para buscar, editar y eliminar productos, **Para** mantener actualizado el catálogo sin que usuarios sin autorización puedan alterar datos.
 
 **Criterios de Aceptación:**
 - El sistema debe listar automáticamente productos registrados desde cotizaciones.
 - Debe permitir buscar productos por nombre con filtrado.
-- El usuario debe poder modificar la información de productos o eliminarlos permanentemente (sin afectar las cotizaciones en las que ya se haya usado).
+- El administrador debe poder modificar la información de productos o eliminarlos permanentemente (sin afectar las cotizaciones en las que ya se haya usado).
 - Los cambios se reflejan inmediatamente en el select del módulo de cotizaciones.
 - La lista debe ser paginada y la búsqueda de productos en la tabla se realiza en tiempo real (Live Search) sin recargar la página. La eliminación también es asíncrona.
 
