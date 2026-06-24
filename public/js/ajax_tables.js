@@ -35,8 +35,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
-                .then(r => r.json())
-                .then(res => {
+                .then(r => r.text())
+                .then(text => {
+                    let res;
+                    try {
+                        res = JSON.parse(text);
+                    } catch (e) {
+                        console.error('Invalid JSON:', text);
+                        alert('Respuesta inválida del servidor: ' + text.substring(0, 100));
+                        this.innerHTML = '<i class="fas fa-trash"></i>';
+                        this.style.pointerEvents = 'auto';
+                        return;
+                    }
+
                     if (res.status === 'success') {
                         fila.style.transition = 'all 0.4s ease';
                         fila.style.opacity = '0';
