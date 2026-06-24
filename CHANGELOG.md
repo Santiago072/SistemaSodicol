@@ -5,6 +5,17 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere al [Versionamiento Semántico](https://semver.org/lang/es/).
 
+## [v1.2.4] - 2026-06-23
+### Agregado
+- **Despliegue Automático**: Se incorporó el script `deploy.sh` en la raíz del proyecto para automatizar actualizaciones en producción (manejo de permisos, git reset y docker compose up), basado en las mejores prácticas de la DocumentacionVPS.
+
+### Modificado
+- **Docker Network**: Se renombró el servicio de base de datos de `db` a `sodicol_db` en `docker-compose.yml` para evitar colisiones de alias de red internos con otros proyectos en la misma VPS (ej. SistemaPQRS).
+- **Seguridad (Historial Git)**: Se reescribió el historial completo del repositorio mediante `git filter-branch` para erradicar permanentemente volcados locales de base de datos (`database/`) que contenían información sensible.
+
+### Corregido
+- Bug en `ProductoController` que tras la edición exitosa de un producto, redirigía a una búsqueda vacía (`busqueda=1`) en vez de mostrar el banner de éxito (`updated=1`).
+
 ## [v1.2.3] - 2026-06-23
 ### Agregado
 - **Límites de Campos**: Se añadieron restricciones estrictas de longitud en backend mediante `mb_substr()` a los controladores principales (`Usuario`, `Producto`, `Cotizacion`, `Tarea`) para prevenir el envío de cadenas maliciosamente largas.
