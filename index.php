@@ -35,9 +35,13 @@ set_exception_handler(function (Throwable $e) {
     http_response_code(500);
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
         header('Content-Type: application/json; charset=utf-8');
-        echo json_encode(['status' => 'error', 'message' => 'Ocurrió un error interno en el servidor.']);
+        // Para depuración, enviamos el mensaje real del error
+        echo json_encode([
+            'status' => 'error', 
+            'message' => 'Ocurrió un error interno: ' . $e->getMessage() . ' en ' . $e->getFile() . ':' . $e->getLine()
+        ]);
     } else {
-        echo "<h1>500 - Error Interno</h1><p>Ocurrió un error inesperado. El administrador ha sido notificado.</p>";
+        echo "<h1>500 - Error Interno</h1><p>Ocurrió un error inesperado. El administrador ha sido notificado.</p><p>Error: " . htmlspecialchars($e->getMessage()) . "</p>";
     }
     exit();
 });
