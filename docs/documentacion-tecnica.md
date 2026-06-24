@@ -145,25 +145,24 @@ php phpunit.phar tests/Unit/SeguridadTest.php
 ## 8. Instalación y Configuración
 
 ### 8.1 Variables de Entorno (Recomendado)
-El sistema confía en el archivo `config/.env` para ocultar las variables críticas del repositorio público.
+El sistema confía en el archivo `.env` en la raíz del proyecto para ocultar las variables críticas del repositorio público.
 ```env
-DB_HOST=localhost
-DB_USER=root
+DB_HOST=sodicol_db
+DB_USER=sodicol
 DB_PASS=tu_contraseña_segura
 DB_NAME=sistema_sodicol
-APP_BASE=/SistemaSodicol/
 SESSION_LIFETIME=3600
-COOKIE_SECURE=0
+COOKIE_SECURE=1
 ```
 
-### 7.2 Docker Compose (Producción)
+### 8.2 Despliegue en Producción (Docker Compose)
+Se proporciona un script automatizado `deploy.sh` que se encarga de descargar la última versión y levantar los contenedores:
 ```bash
-cd docker
-docker compose up -d
+./deploy.sh
 ```
-Automáticamente mapea el código PHP hacia el contenedor y sirve la aplicación en el puerto asignado (por ejemplo, `8891`).
+Automáticamente mapea el código PHP hacia el contenedor y sirve la aplicación en el puerto asignado (por defecto, `8891`).
 
-### 7.3 Credenciales Iniciales
+### 8.3 Credenciales Iniciales
 ```text
 Correo: admin@sodicol.com
 Contraseña: [REDACTED]
