@@ -104,51 +104,51 @@ El proyecto utiliza un patrón MVC completo con un único punto de entrada (Fron
 
 ```text
 SistemaSodicol/
-├── app/
+├── app/                      # Carpeta principal del backend (Lógica de Negocio)
 │   ├── contracts/            # Interfaces (Principios SOLID)
-│   │   └── RepositoryInterface.php
-│   ├── controllers/
-│   │   ├── AuthController.php
-│   │   ├── PanelController.php
-│   │   ├── UsuarioController.php
-│   │   ├── ProductoController.php
-│   │   ├── TareaController.php
-│   │   └── CotizacionController.php
-│   ├── models/               # Patrón Repository
-│   │   ├── UsuarioModel.php
-│   │   ├── ProductoModel.php
-│   │   ├── TareaModel.php
-│   │   └── CotizacionModel.php
+│   │   └── RepositoryInterface.php   # Define los métodos obligatorios para los modelos
+│   ├── controllers/          # Coordinan las peticiones del usuario
+│   │   ├── AuthController.php        # Maneja el inicio y cierre de sesión seguro
+│   │   ├── PanelController.php       # Genera los indicadores y gráficas del Dashboard
+│   │   ├── UsuarioController.php     # CRUD y gestión de cuentas de empleados
+│   │   ├── ProductoController.php    # Gestión del inventario y subida de fotos
+│   │   ├── TareaController.php       # Asignación y seguimiento de tickets/tareas
+│   │   └── CotizacionController.php  # Creador de cotizaciones y generación de PDFs
+│   ├── models/               # Patrón Repository (Consultas SQL)
+│   │   ├── UsuarioModel.php          # Acceso a datos de la tabla usuarios
+│   │   ├── ProductoModel.php         # Acceso a datos de la tabla productos
+│   │   ├── TareaModel.php            # Acceso a datos de la tabla tareas
+│   │   └── CotizacionModel.php       # Transacciones complejas para cotizaciones
 │   ├── services/             # Lógica de negocio reutilizable
-│   │   └── FileUploadService.php
-│   └── views/
-│       ├── auth/
-│       ├── cotizaciones/
-│       ├── layout/
-│       ├── panel/
-│       ├── partials/
-│       ├── productos/
-│       ├── tareas/
-│       └── usuarios/
-├── config/
-│   ├── conexion.php          # Crea y devuelve la conexión mysqli
-│   ├── conexion_example.php  # Plantilla de conexión pública
-│   ├── EnvLoader.php         # Carga de variables de entorno (.env)
-│   ├── seguridad.php         # Funciones de seguridad centralizadas
-│   └── .env                  # Variables de entorno (en .gitignore)
-├── public/                   # Recursos públicos
+│   │   └── FileUploadService.php     # Servicio aislado para validar y subir imágenes
+│   └── views/                # Capa de Presentación (HTML/PHP)
+│       ├── auth/             # Pantalla de login
+│       ├── cotizaciones/     # Formularios y listas de cotizaciones
+│       ├── layout/           # Plantillas maestras (Header, Footer, Menú lateral)
+│       ├── panel/            # Vista principal del Dashboard
+│       ├── partials/         # Componentes reutilizables (Paginación)
+│       ├── productos/        # Vistas de inventario
+│       ├── tareas/           # Vistas de gestión de tickets
+│       └── usuarios/         # Vistas de administración de cuentas
+├── config/                   # Archivos de configuración y seguridad
+│   ├── conexion.php          # Inicializa PDO/MySQLi leyendo credenciales del .env
+│   ├── conexion_example.php  # Plantilla segura de conexión (XAMPP)
+│   ├── EnvLoader.php         # Clase para leer y parsear el archivo .env
+│   ├── seguridad.php         # Funciones anti-XSS, CSRF y Rate Limiting
+│   └── .env                  # Variables secretas (Ignorado en GitHub por seguridad)
+├── public/                   # Recursos expuestos directamente al navegador
 │   └── js/
-│       └── script.js
-├── css/
-├── img/                      # Imágenes del sistema (logo, firma, iconos)
-├── logo/
-├── uploads/                  # Imágenes subidas por usuarios (en .gitignore)
-├── index.php                 # Front Controller / Router (Punto de entrada único)
-├── logs/                     # Logs de errores PHP (en .gitignore)
-├── BD.txt                    # Script SQL
-├── deploy.sh                 # Script automático de despliegue en servidor Linux
-├── .env.example
-└── .gitignore
+│       └── script.js         # Lógica frontend (Buscador AJAX, validaciones)
+├── css/                      # Estilos visuales del sistema
+├── img/                      # Imágenes del sistema (Logo corporativo, firmas)
+├── logo/                     # Variantes de marca
+├── uploads/                  # Carpeta protegida para imágenes subidas por los usuarios
+├── index.php                 # Front Controller / Router (Recibe absolutamente TODO)
+├── logs/                     # Registro de errores silenciosos de PHP
+├── BD.txt                    # Script SQL oficial para crear la base de datos
+├── deploy.sh                 # Script automático de actualización en servidor Linux
+├── .env.example              # Plantilla para que otros desarrolladores sepan qué configurar
+└── .gitignore                # Reglas para ocultar archivos sensibles a Git
 ```
 
 ### Arquitectura MVC y SOLID
