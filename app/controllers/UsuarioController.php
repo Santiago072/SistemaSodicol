@@ -173,11 +173,12 @@ class UsuarioController
     {
         verificar_admin();
 
-        $esAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-                  strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+        $esAjax = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+                  strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || !empty($_GET['ajax']);
 
         $responderError = function (string $msg, string $queryParam) use ($esAjax): void {
             if ($esAjax) {
+                if (ob_get_length()) @ob_clean();
                 header('Content-Type: application/json');
                 echo json_encode(['status' => 'error', 'message' => $msg]);
                 exit();
@@ -214,6 +215,7 @@ class UsuarioController
 
         if ($eliminado) {
             if ($esAjax) {
+                if (ob_get_length()) @ob_clean();
                 header('Content-Type: application/json');
                 echo json_encode(['status' => 'success']);
                 exit();
