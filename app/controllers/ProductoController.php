@@ -25,7 +25,7 @@ class ProductoController
     // ── LISTAR ───────────────────────────────────────────────────────────────
     public function listar(): array
     {
-        verificar_autenticacion();
+        verificar_admin();
 
         $busqueda     = sanitizar_entrada($_GET['busqueda'] ?? '');
         $paginaActual = max(1, (int)($_GET['pagina'] ?? 1));
@@ -54,7 +54,7 @@ class ProductoController
     // ── EDITAR ────────────────────────────────────────────────────────────────
     public function editar(): array
     {
-        verificar_autenticacion();
+        verificar_admin();
 
         $mensajeError = '';
         $csrf_token   = generar_token_csrf();
@@ -121,7 +121,7 @@ class ProductoController
     // ── ELIMINAR ──────────────────────────────────────────────────────────────
     public function eliminar(): void
     {
-        verificar_autenticacion();
+        verificar_admin();
 
         $esAjax = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
                   strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || !empty($_GET['ajax']);
