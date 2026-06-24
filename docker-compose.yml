@@ -7,7 +7,7 @@ services:
     restart: always
     environment:
       - PORT=${PORT:-80}
-      - DB_HOST=${DB_HOST:-db}
+      - DB_HOST=${DB_HOST:-sodicol_db}
       - DB_NAME=${DB_NAME:-sistema_sodicol}
       - DB_USER=${DB_USER:-sodicol_user}
       - DB_PASS=${DB_PASS:-root}
@@ -21,11 +21,11 @@ services:
     ports:
       - "8891:80"
     depends_on:
-      - db
+      - sodicol_db
     networks:
       - sodicol_network
 
-  db:
+  sodicol_db:
     image: mariadb:10.11
     container_name: sodicol_db
     restart: always
