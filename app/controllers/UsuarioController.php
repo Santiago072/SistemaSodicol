@@ -202,7 +202,17 @@ class UsuarioController
             $responderError('No se puede eliminar al último administrador', 'last_admin');
         }
 
-        if ($this->model->eliminar($id)) {
+        try {
+            $eliminado = $this->model->eliminar($id);
+        } catch (\mysqli_sql_exception $e) {
+            if ($e->getCode() == 1451) {
+                $responderError('No se puede eliminar el usuario porque tiene tareas asignadas.', 'en_uso');
+            }
+            $responderError('Error de base de datos al eliminar el usuario.', 'db_error');
+            return;
+        }
+
+        if ($eliminado) {
             if ($esAjax) {
                 header('Content-Type: application/json');
                 echo json_encode(['status' => 'success']);

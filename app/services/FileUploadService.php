@@ -101,7 +101,7 @@ class FileUploadService
         }
         $ruta = $this->uploadDir . basename($nombre);
         if (file_exists($ruta)) {
-            unlink($ruta);
+            @unlink($ruta);
         }
     }
 
