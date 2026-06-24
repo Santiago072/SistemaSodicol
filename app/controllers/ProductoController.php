@@ -150,8 +150,8 @@ class ProductoController
 
         try {
             $eliminado = $this->model->eliminar($id);
-        } catch (\mysqli_sql_exception $e) {
-            if ($e->getCode() == 1451) {
+        } catch (\Throwable $e) {
+            if (strpos($e->getMessage(), 'foreign key constraint fails') !== false || $e->getCode() == 1451) {
                 $responderError('No se puede eliminar el producto porque está asociado a una cotización.', 'en_uso');
             }
             $responderError('Error de base de datos al eliminar el producto.', 'db_error');

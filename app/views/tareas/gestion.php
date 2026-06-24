@@ -97,7 +97,7 @@ include dirname(__DIR__) . '/layout/menu.php';
                        class="boton-editar"><i class="bi bi-pencil-square"></i> Editar</a>
                     <a href="<?= $basePath ?>?module=tareas&action=eliminar&id=<?= intval($row['id']) ?>"
                        class="boton-eliminar"
-                       onclick="return confirm('¿Está seguro de eliminar esta tarea?')">
+                       data-confirm="¿Está seguro de eliminar esta tarea?">
                         <i class="bi bi-trash"></i> Eliminar
                     </a>
                 </div>

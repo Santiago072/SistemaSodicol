@@ -58,7 +58,7 @@ include dirname(__DIR__) . '/layout/menu.php';
                 </a>
                 <a href="<?= $basePath ?>?module=usuarios&action=eliminar&id=<?= intval($u['id']) ?>"
                    class="boton-eliminar"
-                   onclick="return confirm('¿Está seguro de eliminar este usuario?');">
+                   data-confirm="¿Está seguro de eliminar este usuario?">
                     <i class="fas fa-trash"></i>
                 </a>
             </div>

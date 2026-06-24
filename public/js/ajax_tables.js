@@ -18,7 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 
-                if (!confirm(this.getAttribute('onclick').replace("return confirm('", "").replace("');", "") || '¿Está seguro?')) {
+                const msg = this.getAttribute('data-confirm') || '¿Está seguro?';
+                if (!confirm(msg)) {
                     return;
                 }
 

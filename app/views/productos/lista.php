@@ -65,7 +65,7 @@ include dirname(__DIR__) . '/layout/menu.php';
                 </a>
                 <a href="<?= $basePath ?>?module=productos&action=eliminar&id=<?= intval($p['id']) ?>"
                    class="boton-eliminar"
-                   onclick="return confirm('¿Está seguro de eliminar este producto?')">
+                   data-confirm="¿Está seguro de eliminar este producto?">
                     <i class="fas fa-trash"></i>
                 </a>
             </div>
