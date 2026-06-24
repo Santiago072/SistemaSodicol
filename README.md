@@ -164,6 +164,11 @@ SistemaSodicol/
 - Lista de Usuarios: `/SistemaSodicol/?module=usuarios&action=lista`
 - Crear Cotización: `/SistemaSodicol/?module=cotizaciones&action=crear`
 
+### ¿Por qué esta estructura es importante en el VPS?
+1. **Seguridad:** Todas las peticiones web externas apuntan a `index.php`. El código de negocio (`app/`) y las credenciales (`.env`) están aisladas y protegidas mediante reglas en el servidor web interno (Caddy) y por bloqueo de `.htaccess`.
+2. **Persistencia (Volúmenes Docker):** Las carpetas `uploads/` y `logs/` se montan como volúmenes persistentes en `docker-compose.yml`. Al actualizar el sistema con `./deploy.sh`, **no se pierden las imágenes subidas por los usuarios ni los registros de errores**.
+3. **Escalabilidad:** Separar el código frontal (`public/`) permite que el servidor web sirva los archivos CSS y JS de forma inmediata, sin cargar ni invocar el intérprete de PHP, mejorando radicalmente la velocidad.
+
 ---
 
 ## Seguridad implementada
