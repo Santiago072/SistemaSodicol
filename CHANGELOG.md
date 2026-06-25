@@ -5,6 +5,16 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere al [Versionamiento Semántico](https://semver.org/lang/es/).
 
+## [v1.2.7] - 2026-06-25
+### Agregado
+- **Live Search Avanzado**: Se perfeccionó la búsqueda asíncrona en todas las tablas del sistema. Ahora filtra resultados en tiempo real mientras se escribe (sin perder el foco del teclado) y reacciona instantáneamente a los cambios en calendarios (`input type="date"`).
+- **Rediseño Tarjetas de Usuario**: Modernización de la interfaz en `Gestión Usuarios`. Se implementaron "badges" (etiquetas) flotantes para el estado Activo/Inactivo y se incluyeron íconos de contacto (correo y teléfono) directamente en la tarjeta.
+
+### Corregido
+- **Bug de Recarga en Búsqueda**: Se eliminó un script duplicado y conflictivo (`script.js`) que forzaba un `form.submit()` nativo y causaba la recarga abrupta de la página, rompiendo la experiencia AJAX.
+- **Limpieza de Formularios (AJAX)**: Al usar el botón "Limpiar" en los filtros, las cajas de texto y fechas ahora se vacían visualmente de forma automática.
+- **Contraste de Modo Claro**: Se solucionó la ilegibilidad de letras blancas en modo claro para la información de contacto de las tarjetas de usuario, asignando dinámicamente un color oscuro elegante.
+
 ## [v1.2.6] - 2026-06-25
 ### Agregado
 - **Límites Estrictos en Frontend (UX/Seguridad)**: Se inyectaron atributos `maxlength`, `min` y `max` en todos los formularios HTML de la plataforma para prevenir la inserción de texto o valores basura desde la interfaz gráfica.
