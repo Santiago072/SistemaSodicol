@@ -57,9 +57,9 @@ include dirname(__DIR__) . '/layout/menu.php';
                 <span class="role-badge" style="font-size: 13px; padding: 6px 12px;"><i class="bi bi-shield-check"></i> Rol: <?= htmlspecialchars(ucfirst($u['rol'])) ?></span>
             </div>
             
-            <div class="card-info" style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 20px;">
-                <div><i class="bi bi-envelope" style="color: var(--gold); margin-right: 8px;"></i> <?= htmlspecialchars($u['correo']) ?></div>
-                <div><i class="bi bi-telephone" style="color: var(--gold); margin-right: 8px;"></i> <?= htmlspecialchars($u['telefono']) ?></div>
+            <div class="card-info card-subtitle" style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center;"><i class="bi bi-envelope" style="color: var(--gold); margin-right: 8px;"></i> <?= htmlspecialchars($u['correo']) ?></div>
+                <div style="display: flex; align-items: center;"><i class="bi bi-telephone" style="color: var(--gold); margin-right: 8px;"></i> <?= htmlspecialchars($u['telefono']) ?></div>
             </div>
 
             <div class="card-actions">
