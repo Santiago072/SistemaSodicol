@@ -200,6 +200,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (nuevoLimpiar && viejoLimpiar) {
                     viejoLimpiar.outerHTML = nuevoLimpiar.outerHTML;
                 }
+
+                // Sincronizar valores de inputs si no están en foco (para que 'Limpiar' o cambios externos funcionen visualmente)
+                const inputsNuevos = nuevoFormBusqueda.querySelectorAll('input, select');
+                inputsNuevos.forEach(nuevoInput => {
+                    const viejoInput = formActual.querySelector(`[name="${nuevoInput.name}"]`);
+                    if (viejoInput && document.activeElement !== viejoInput) {
+                        viejoInput.value = nuevoInput.value;
+                    }
+                });
             }
 
             // Bind events for pagination and the newly added Limpiar button
