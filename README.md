@@ -19,10 +19,10 @@ Sistema web de gestión interno para **Sodicol Zomac S.A.S**, empresa de diseño
 | Módulo | Descripción |
 |---|---|
 | **Autenticación** | Login con contraseñas bcrypt, roles (admin / usuario), timeout de sesión |
-| **Usuarios** | CRUD completo con paginación y búsqueda |
-| **Productos** | Catálogo con imágenes, paginación, búsqueda. Verificación de dependencias antes de eliminar |
+| **Usuarios** | CRUD completo con paginación y búsqueda (Live Search) |
+| **Productos** | Catálogo con imágenes, paginación, búsqueda (Live Search). Verificación de dependencias antes de eliminar |
 | **Tareas** | Asignación de instrucciones de trabajo a usuarios, seguimiento de estado, paginación |
-| **Cotizaciones** | Creación con ítems, auto-registro de productos, generación de PDF (DomPDF), consulta paginada |
+| **Cotizaciones** | Creación con ítems, auto-registro de productos, generación de PDF (DomPDF), consulta paginada (Live Search) |
 | **Panel** | Dashboard con contadores y tareas pendientes del usuario |
 
 ---
@@ -163,7 +163,8 @@ SistemaSodicol/
 │   └── .env                  # Variables secretas (Ignorado en GitHub por seguridad)
 ├── public/                   # Recursos expuestos directamente al navegador
 │   └── js/
-│       └── script.js         # Lógica frontend (Buscador AJAX, validaciones)
+│       ├── ajax_tables.js    # Búsqueda asíncrona (Live Search) y eventos de interfaz
+│       └── script.js         # Lógica frontend adicional y validaciones
 ├── css/                      # Estilos visuales del sistema
 ├── img/                      # Imágenes del sistema (Logo corporativo, firmas)
 ├── logo/                     # Variantes de marca
