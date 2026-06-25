@@ -182,21 +182,27 @@ document.addEventListener('DOMContentLoaded', () => {
             // Actualizar URL en el navegador
             window.history.pushState({}, '', url);
 
-            // Re-bindear eventos en los nuevos elementos
             contenedorTabla.style.opacity = '1';
             bindEliminarAjax();
-            bindPaginacionAjax();
             
-            // Si el botón de limpiar busqueda cambió
+            // Update 'Limpiar' button dynamically without touching the input to prevent focus loss
             const nuevoFormBusqueda = doc.querySelector('.formulario-busqueda');
             const formActual = document.querySelector('.formulario-busqueda');
             if (nuevoFormBusqueda && formActual) {
-                formActual.innerHTML = nuevoFormBusqueda.innerHTML;
-                // Re-bindear el live search al reemplazar el HTML interior
-                bindBusquedaAjax();
-                delete formActual.dataset.ajaxBound; // Forzar re-bind
-                bindBusquedaAjax(); 
+                const viejoLimpiar = formActual.querySelector('.boton-limpiar');
+                const nuevoLimpiar = nuevoFormBusqueda.querySelector('.boton-limpiar');
+                
+                if (nuevoLimpiar && !viejoLimpiar) {
+                    formActual.appendChild(nuevoLimpiar);
+                } else if (!nuevoLimpiar && viejoLimpiar) {
+                    viejoLimpiar.remove();
+                } else if (nuevoLimpiar && viejoLimpiar) {
+                    viejoLimpiar.outerHTML = nuevoLimpiar.outerHTML;
+                }
             }
+
+            // Bind events for pagination and the newly added Limpiar button
+            bindPaginacionAjax();
         })
         .catch(err => {
             console.error('Error cargando la tabla AJAX:', err);
