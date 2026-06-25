@@ -5,6 +5,15 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere al [Versionamiento Semántico](https://semver.org/lang/es/).
 
+## [v1.2.6] - 2026-06-25
+### Agregado
+- **Límites Estrictos en Frontend (UX/Seguridad)**: Se inyectaron atributos `maxlength`, `min` y `max` en todos los formularios HTML de la plataforma para prevenir la inserción de texto o valores basura desde la interfaz gráfica.
+  - **Usuarios**: Documento (15), Nombre (60), Correo (60), Teléfono (15), Contraseña (30).
+  - **Cotizaciones**: Profesión (40), Cliente (60), Especialidad (40), Entidad (60), Ciudad (30).
+  - **Productos**: Nombre (60), Descripción (500), Cantidad máxima (99), Precio máximo (9,999,999).
+  - **Tareas**: Descripción reducida a 150 caracteres para fomentar instrucciones directas.
+  - **Buscadores**: Se limitaron las longitudes de los inputs de búsqueda general a 60 caracteres.
+
 ## [v1.2.5] - 2026-06-24
 ### Agregado
 - **Script de Restauración**: Se creó un script local (`restaurar.php`) para restaurar los 18 productos originales sin tildes ni caracteres especiales, previniendo distorsión en la codificación de la base de datos.

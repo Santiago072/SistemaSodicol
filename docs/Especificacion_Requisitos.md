@@ -73,7 +73,7 @@ De acuerdo con el diagrama de modularización, el sistema se divide en:
 
 **Criterios de Aceptación:**
 - El sistema debe permitir registrar nuevos usuarios con documento, nombre, correo, contraseña (opcional, por defecto el documento), teléfono y rol.
-- El sistema debe validar en el servidor: formato de documento (numérico, 5-20 dígitos), longitud de nombre (3-100 caracteres), formato de correo, formato de teléfono (numérico, 7-20 dígitos), longitud mínima de contraseña (6 caracteres).
+- El sistema debe validar en el servidor: formato de documento (numérico, 5-15 dígitos), longitud de nombre (3-60 caracteres), formato de correo, formato de teléfono (numérico, 7-15 dígitos), longitud mínima de contraseña (6 caracteres).
 - El sistema debe permitir visualizar una lista paginada de todos los usuarios registrados sin recargar la página al cambiar de página.
 - El sistema debe permitir buscar usuarios específicos por nombre en tiempo real (Live Search), actualizando la tabla automáticamente al escribir.
 - Las eliminaciones de usuarios se deben procesar en segundo plano desapareciendo la fila afectada suavemente.
