@@ -27,23 +27,23 @@ include dirname(__DIR__) . '/layout/menu.php';
             <div class="form-grid-2">
                 <div class="grupo-campo">
                     <label for="documento"><i class="bi bi-person-badge"></i> Documento *</label>
-                    <input type="text" id="documento" name="documento"
-                           value="<?= htmlspecialchars($usuario['documento']) ?>" required maxlength="20">
+                    <input type="text" id="documento" name="documento" required maxlength="15"
+                           value="<?= htmlspecialchars($usuario['documento']) ?>">
                 </div>
                 <div class="grupo-campo">
                     <label for="nombre"><i class="bi bi-person"></i> Nombre Completo *</label>
-                    <input type="text" id="nombre" name="nombre"
-                           value="<?= htmlspecialchars($usuario['nombre']) ?>" required maxlength="100">
+                    <input type="text" id="nombre" name="nombre" required maxlength="60"
+                           value="<?= htmlspecialchars($usuario['nombre']) ?>">
                 </div>
                 <div class="grupo-campo">
                     <label for="correo"><i class="bi bi-envelope"></i> Correo Electrónico *</label>
-                    <input type="email" id="correo" name="correo"
-                           value="<?= htmlspecialchars($usuario['correo']) ?>" required maxlength="100">
+                    <input type="email" id="correo" name="correo" required maxlength="60"
+                           value="<?= htmlspecialchars($usuario['correo']) ?>">
                 </div>
                 <div class="grupo-campo">
                     <label for="telefono"><i class="bi bi-telephone"></i> Teléfono *</label>
-                    <input type="text" id="telefono" name="telefono"
-                           value="<?= htmlspecialchars($usuario['telefono']) ?>" required maxlength="20">
+                    <input type="text" id="telefono" name="telefono" required maxlength="15"
+                           value="<?= htmlspecialchars($usuario['telefono']) ?>">
                 </div>
                 <div class="grupo-campo">
                     <label for="rol"><i class="bi bi-shield"></i> Rol *</label>
@@ -63,7 +63,7 @@ include dirname(__DIR__) . '/layout/menu.php';
                 </div>
                 <div class="grupo-campo">
                     <label for="nueva_password"><i class="bi bi-key"></i> Nueva Contraseña</label>
-                    <input type="password" id="nueva_password" name="nueva_password" minlength="6" maxlength="50">
+                    <input type="password" id="nueva_password" name="nueva_password" minlength="6" maxlength="30">
                     <small class="text-muted">Dejar en blanco para no cambiar</small>
                 </div>
             </div>

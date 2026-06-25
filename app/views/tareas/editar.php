@@ -38,8 +38,7 @@ include dirname(__DIR__) . '/layout/menu.php';
             </div>
             <div class="grupo-campo">
                 <label for="descripcion_tarea">Descripción</label>
-                <textarea id="descripcion_tarea" name="descripcion_tarea"
-                          required maxlength="500"><?= htmlspecialchars($tarea['descripcion_tarea']) ?></textarea>
+                <textarea id="descripcion_tarea" name="descripcion_tarea" required maxlength="150"><?= htmlspecialchars($tarea['descripcion_tarea']) ?></textarea>
             </div>
             <div class="grupo-campo">
                 <label for="estado">Estado</label>

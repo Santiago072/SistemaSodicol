@@ -26,19 +26,19 @@ include dirname(__DIR__) . '/layout/menu.php';
             <div class="form-grid-2">
                 <div class="grupo-campo">
                     <label for="documento"><i class="bi bi-person-badge"></i> Documento *</label>
-                    <input type="text" id="documento" name="documento" required maxlength="20">
+                    <input type="text" id="documento" name="documento" required maxlength="15">
                 </div>
                 <div class="grupo-campo">
                     <label for="nombre"><i class="bi bi-person"></i> Nombre Completo *</label>
-                    <input type="text" id="nombre" name="nombre" required maxlength="100">
+                    <input type="text" id="nombre" name="nombre" required maxlength="60">
                 </div>
                 <div class="grupo-campo">
                     <label for="correo"><i class="bi bi-envelope"></i> Correo Electrónico *</label>
-                    <input type="email" id="correo" name="correo" required maxlength="100">
+                    <input type="email" id="correo" name="correo" required maxlength="60">
                 </div>
                 <div class="grupo-campo">
                     <label for="telefono"><i class="bi bi-telephone"></i> Teléfono *</label>
-                    <input type="text" id="telefono" name="telefono" required maxlength="20">
+                    <input type="text" id="telefono" name="telefono" required maxlength="15">
                 </div>
                 <div class="grupo-campo">
                     <label for="rol"><i class="bi bi-shield"></i> Rol *</label>
@@ -50,7 +50,7 @@ include dirname(__DIR__) . '/layout/menu.php';
                 </div>
                 <div class="grupo-campo">
                     <label for="password"><i class="bi bi-key"></i> Contraseña (opcional)</label>
-                    <input type="password" id="password" name="password" minlength="6" maxlength="50">
+                    <input type="password" id="password" name="password" minlength="6" maxlength="30">
                     <small class="text-muted">Si no se proporciona, se usará el documento como contraseña temporal</small>
                 </div>
             </div>

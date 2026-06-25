@@ -29,9 +29,9 @@ include dirname(__DIR__) . '/layout/menu.php';
             <input type="date" name="fecha" value="<?= htmlspecialchars($busquedaFecha) ?>" 
                    class="filter-input" style="flex:0.5;">
             <input type="text" name="nombre_cliente" value="<?= htmlspecialchars($busquedaCliente) ?>"
-                   placeholder="Buscar por cliente..." maxlength="255" class="filter-input">
+                   placeholder="Buscar por cliente..." maxlength="60" class="filter-input">
             <input type="text" name="numero_cotizacion" value="<?= htmlspecialchars($busquedaNumero) ?>"
-                   placeholder="Número cotización..." maxlength="50" class="filter-input">
+                   placeholder="Número cotización..." maxlength="20" class="filter-input">
             
             <button type="submit" style="display:none;"></button> <!-- submit oculto para enter -->
             <?php if (!empty($cotizaciones) || $busquedaFecha || $busquedaCliente || $busquedaNumero): ?>

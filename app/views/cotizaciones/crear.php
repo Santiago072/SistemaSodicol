@@ -56,7 +56,7 @@ include dirname(__DIR__) . '/layout/menu.php';
             <div class="grupo-campo">
                 <label>Nombre del Producto *</label>
                 <input type="text" name="titulo"
-                       value="<?= htmlspecialchars($producto['titulo'] ?? '') ?>" required maxlength="100">
+                       value="<?= htmlspecialchars($producto['titulo'] ?? '') ?>" required maxlength="60">
             </div>
             <div class="grupo-campo">
                 <input type="hidden" name="foto_actual" value="<?= htmlspecialchars($producto['foto'] ?? '') ?>">
@@ -73,12 +73,12 @@ include dirname(__DIR__) . '/layout/menu.php';
             </div>
             <div class="grupo-campo">
                 <label>Descripción *</label>
-                <textarea name="descripcion" required maxlength="1000"><?= htmlspecialchars($producto['descripcion'] ?? '') ?></textarea>
+                <textarea name="descripcion" required maxlength="500"><?= htmlspecialchars($producto['descripcion'] ?? '') ?></textarea>
             </div>
             <div class="grupo-campo">
                 <label>Cantidad *</label>
                 <input type="number" name="cantidad"
-                       value="<?= intval($producto['cantidad'] ?? 0) ?>" required min="1">
+                       value="<?= intval($producto['cantidad'] ?? 0) ?>" required min="1" max="999">
             </div>
             <div class="grupo-campo">
                 <label>Valor con IVA *</label>
@@ -91,7 +91,7 @@ include dirname(__DIR__) . '/layout/menu.php';
             <div class="grupo-campo">
                 <label>Precio Unitario *</label>
                 <input type="number" name="precio"
-                       value="<?= floatval($producto['precio'] ?? 0) ?>" required min="0" step="0.01">
+                       value="<?= floatval($producto['precio'] ?? 0) ?>" required min="0" max="99999999" step="0.01">
             </div>
             <div class="grupo-campo">
                 <button type="submit" class="boton-primario">Guardar Ítem</button>
@@ -144,27 +144,27 @@ include dirname(__DIR__) . '/layout/menu.php';
             <div class="grupo-fila">
                 <div class="grupo-campo">
                     <label>Profesión *</label>
-                    <input type="text" name="profesion" required>
+                    <input type="text" name="profesion" required maxlength="40">
                 </div>
                 <div class="grupo-campo">
                     <label>Nombre del Cliente *</label>
-                    <input type="text" name="nombre_cliente" required>
+                    <input type="text" name="nombre_cliente" required maxlength="60">
                 </div>
             </div>
             <div class="grupo-fila">
                 <div class="grupo-campo">
                     <label>Especialidad *</label>
-                    <input type="text" name="especialidad" required>
+                    <input type="text" name="especialidad" required maxlength="40">
                 </div>
                 <div class="grupo-campo">
                     <label>Entidad *</label>
-                    <input type="text" name="entidad" required>
+                    <input type="text" name="entidad" required maxlength="60">
                 </div>
             </div>
             <div class="grupo-fila">
                 <div class="grupo-campo">
                     <label>Ciudad *</label>
-                    <input type="text" name="ciudad" required>
+                    <input type="text" name="ciudad" required maxlength="30">
                 </div>
                 <div class="grupo-campo">
                     <label>Fecha de Cotización *</label>
