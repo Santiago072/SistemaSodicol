@@ -3743,6 +3743,10 @@ body.modo-dia .user-card .card-subtitle span[style*="opacity:0.8"] {
     color: var(--text-mid) !important;
     font-weight: 500;
 }
+body.modo-dia .user-card .card-info, 
+body.modo-dia .user-card .card-subtitle {
+    color: var(--text-mid);
+}
 
 /* Product Card Fixes */
 .product-card .card-title {
