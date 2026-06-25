@@ -104,10 +104,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Live search (búsqueda en vivo asíncrona)
-        const inputs = formulario.querySelectorAll('input[type="text"], input[type="search"]');
+        const inputs = formulario.querySelectorAll('input[type="text"], input[type="search"], input[type="date"]');
         let timeoutBusqueda = null;
         inputs.forEach(input => {
-            input.addEventListener('input', function() {
+            const eventName = input.type === 'date' ? 'change' : 'input';
+            input.addEventListener(eventName, function() {
                 clearTimeout(timeoutBusqueda);
                 timeoutBusqueda = setTimeout(() => {
                     // Generar evento cancelable para que el preventDefault() del submit ajax lo pueda interceptar
