@@ -43,7 +43,7 @@ include dirname(__DIR__) . '/layout/menu.php';
                     <div class="form-grid-2">
                         <div class="grupo-campo" style="grid-column: 1 / -1;">
                             <label class="form-label"><i class="bi bi-card-text"></i> Descripción de la Tarea</label>
-                            <textarea name="descripcion_tarea" class="form-control" rows="2" required maxlength="500"
+                            <textarea name="descripcion_tarea" class="form-control" rows="2" required maxlength="150"
                                       placeholder="Describe la instrucción de trabajo..."></textarea>
                         </div>
                         <div class="grupo-campo">

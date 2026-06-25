@@ -101,7 +101,7 @@
                     <div class="iw">
                         <i class="bi bi-envelope bi-left"></i>
                         <input type="email" id="correo" name="correo" placeholder="correo@ejemplo.com"
-                               required autocomplete="email">
+                               required autocomplete="email" maxlength="60">
                     </div>
                 </div>
 
@@ -110,7 +110,7 @@
                     <div class="iw">
                         <i class="bi bi-lock bi-left"></i>
                         <input type="password" id="contrasena" name="contrasena" placeholder="••••••••"
-                               required autocomplete="current-password">
+                               required autocomplete="current-password" maxlength="30">
                         <button type="button" class="eye-btn" id="eyeBtn">
                             <i class="bi bi-eye-slash" id="eyeIcon"></i>
                         </button>

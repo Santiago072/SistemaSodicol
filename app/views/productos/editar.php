@@ -31,22 +31,22 @@ include dirname(__DIR__) . '/layout/menu.php';
                 <div class="form-split-left">
                     <div class="grupo-campo">
                         <label for="titulo"><i class="bi bi-tag"></i> Nombre del Producto *</label>
-                        <input type="text" id="titulo" name="titulo"
-                               value="<?= htmlspecialchars($producto['titulo']) ?>" required maxlength="255">
+                        <input type="text" id="titulo" name="titulo" required maxlength="60"
+                               value="<?= htmlspecialchars($producto['titulo']) ?>">
                     </div>
                     <div class="grupo-campo">
                         <label for="descripcion"><i class="bi bi-card-text"></i> Descripción *</label>
-                        <textarea id="descripcion" name="descripcion" required maxlength="1000"><?= htmlspecialchars($producto['descripcion']) ?></textarea>
+                        <textarea id="descripcion" name="descripcion" required maxlength="500"><?= htmlspecialchars($producto['descripcion']) ?></textarea>
                     </div>
                     <div class="form-grid-2">
                         <div class="grupo-campo">
                             <label for="cantidad"><i class="bi bi-box"></i> Cantidad *</label>
-                            <input type="number" id="cantidad" name="cantidad" required min="0"
+                            <input type="number" id="cantidad" name="cantidad" required min="0" max="999"
                                    value="<?= intval($producto['cantidad']) ?>">
                         </div>
                         <div class="grupo-campo">
                             <label for="precio"><i class="bi bi-currency-dollar"></i> Precio Unitario *</label>
-                            <input type="number" id="precio" name="precio" required min="0" step="0.01"
+                            <input type="number" id="precio" name="precio" required min="0" max="99999999" step="0.01"
                                    value="<?= floatval($producto['precio']) ?>">
                         </div>
                     </div>

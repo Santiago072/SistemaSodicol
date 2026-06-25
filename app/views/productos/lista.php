@@ -34,7 +34,7 @@ include dirname(__DIR__) . '/layout/menu.php';
         <form action="<?= $basePath ?>" method="GET" class="formulario-busqueda" style="display:flex; flex:1; gap:10px; align-items:center;">
             <input type="hidden" name="module" value="productos">
             <input type="hidden" name="action" value="lista">
-            <input type="text" name="busqueda" class="filter-input" value="<?= htmlspecialchars($busqueda) ?>" placeholder="Buscar producto...">
+            <input type="text" name="busqueda" class="filter-input" value="<?= htmlspecialchars($busqueda) ?>" placeholder="Buscar producto..." maxlength="60">
             <button type="submit" style="display:none;"></button>
             <?php if ($busqueda): ?>
             <a href="<?= $basePath ?>?module=productos&action=lista" class="boton-limpiar" style="white-space: nowrap;">
