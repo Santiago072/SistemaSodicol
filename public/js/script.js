@@ -246,33 +246,7 @@ if (eyeBtn) {
     });
 }
 
-/* ── FILTRADO AUTOMÁTICO EN BUSCADORES ── */
-(function() {
-    const formsBusqueda = document.querySelectorAll('.formulario-busqueda');
-    formsBusqueda.forEach(form => {
-        let timeoutId;
-        const inputs = form.querySelectorAll('input[type="text"], input[type="date"]');
-        
-        // Ocultar botón de "Buscar" manual ya que será automático
-        const btnBuscar = form.querySelector('button[type="submit"]');
-        if (btnBuscar) {
-            btnBuscar.style.display = 'none';
-        }
-
-        inputs.forEach(input => {
-            input.addEventListener('input', function() {
-                clearTimeout(timeoutId);
-                timeoutId = setTimeout(() => {
-                    form.submit();
-                }, 600); // 600ms de retraso al escribir
-            });
-            // Si es un datepicker, enviar al cambiar
-            if (input.type === 'date') {
-                input.addEventListener('change', function() {
-                    clearTimeout(timeoutId);
-                    form.submit();
-                });
-            }
-        });
-    });
-})();
+/* ── FILTRADO AUTOMÁTICO EN BUSCADORES ── 
+   Se eliminó este bloque porque forzaba un form.submit() nativo que recargaba la página,
+   interfiriendo con la búsqueda asíncrona real manejada en ajax_tables.js.
+*/
