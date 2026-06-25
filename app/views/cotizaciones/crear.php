@@ -78,7 +78,7 @@ include dirname(__DIR__) . '/layout/menu.php';
             <div class="grupo-campo">
                 <label>Cantidad *</label>
                 <input type="number" name="cantidad"
-                       value="<?= intval($producto['cantidad'] ?? 0) ?>" required min="1" max="999">
+                       value="<?= intval($producto['cantidad'] ?? 0) ?>" required min="1" max="99">
             </div>
             <div class="grupo-campo">
                 <label>Valor con IVA *</label>
@@ -91,7 +91,7 @@ include dirname(__DIR__) . '/layout/menu.php';
             <div class="grupo-campo">
                 <label>Precio Unitario *</label>
                 <input type="number" name="precio"
-                       value="<?= floatval($producto['precio'] ?? 0) ?>" required min="0" max="99999999" step="0.01">
+                       value="<?= floatval($producto['precio'] ?? 0) ?>" required min="0" max="9999999" step="0.01">
             </div>
             <div class="grupo-campo">
                 <button type="submit" class="boton-primario">Guardar Ítem</button>

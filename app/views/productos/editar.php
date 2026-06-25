@@ -41,12 +41,12 @@ include dirname(__DIR__) . '/layout/menu.php';
                     <div class="form-grid-2">
                         <div class="grupo-campo">
                             <label for="cantidad"><i class="bi bi-box"></i> Cantidad *</label>
-                            <input type="number" id="cantidad" name="cantidad" required min="0" max="999"
+                            <input type="number" id="cantidad" name="cantidad" required min="0" max="99"
                                    value="<?= intval($producto['cantidad']) ?>">
                         </div>
                         <div class="grupo-campo">
                             <label for="precio"><i class="bi bi-currency-dollar"></i> Precio Unitario *</label>
-                            <input type="number" id="precio" name="precio" required min="0" max="99999999" step="0.01"
+                            <input type="number" id="precio" name="precio" required min="0" max="9999999" step="0.01"
                                    value="<?= floatval($producto['precio']) ?>">
                         </div>
                     </div>
