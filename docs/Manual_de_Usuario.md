@@ -119,10 +119,10 @@ La pantalla muestra tres secciones en la parte superior:
 **C. Formulario del ítem**
 - Puedes editar cualquier campo del producto autocompletado o llenar todo manualmente para un producto nuevo.
 - Campos disponibles:
-  - **Nombre del Producto** *(obligatorio, máx. 100 caracteres)*
+  - **Nombre del Producto** *(obligatorio, máx. 60 caracteres)*
   - **Foto del Producto** *(opcional, formatos: JPG, PNG, GIF, WEBP, máx. 5MB)*
-  - **Descripción** *(obligatorio, máx. 1000 caracteres)*
-  - **Cantidad** *(obligatorio, mínimo 1)*
+  - **Descripción** *(obligatorio, máx. 500 caracteres)*
+  - **Cantidad** *(obligatorio, mínimo 1, máx. 99)*
   - **Valor con IVA** *(obligatorio, Sí/No)*
   - **Precio Unitario** *(obligatorio, mínimo 0)*
 - Haz clic en **Guardar Ítem** para agregar el producto a la lista de la cotización actual.
@@ -225,7 +225,7 @@ Accede desde **menú 👤 > Tareas Usuarios**.
 La pantalla está dividida en dos secciones:
 
 **A. Crear nueva tarea** (panel superior)
-1. Escribe la **Descripción de la Tarea** (instrucción de trabajo, máximo 500 caracteres).
+1. Escribe la **Descripción de la Tarea** (instrucción de trabajo, máximo 150 caracteres).
 2. Selecciona el **Usuario** al que se le asignará del listado de usuarios activos.
 3. Selecciona el **Estado inicial** (por defecto: Pendiente).
 4. Haz clic en **➕ Crear Tarea**.
@@ -263,11 +263,11 @@ Accede desde **menú 👤 > Nuevo Usuario**. Completa el formulario:
 
 | Campo | Descripción | Validación del servidor |
 |---|---|---|
-| **Documento** | Número de identificación del empleado | Numérico, 5-20 dígitos, único |
-| **Nombre completo** | Nombre del empleado | 3-100 caracteres |
-| **Correo electrónico** | Se usará para iniciar sesión | Formato de email válido, máx. 100 caracteres, único |
+| **Documento** | Número de identificación del empleado | Numérico, 5-15 dígitos, único |
+| **Nombre completo** | Nombre del empleado | 3-60 caracteres |
+| **Correo electrónico** | Se usará para iniciar sesión | Formato de email válido, máx. 60 caracteres, único |
 | **Contraseña** | Se almacena encriptada (bcrypt) | Mínimo 6 caracteres (opcional: si no se proporciona, se usa el documento) |
-| **Teléfono** | Número de contacto | Numérico, 7-20 dígitos |
+| **Teléfono** | Número de contacto | Numérico, 7-15 dígitos |
 | **Rol** | Tipo de cuenta | `admin` o `usuario` |
 
 > **Contraseña por defecto:** Si no se especifica una contraseña, el sistema usa el número de documento como contraseña temporal hasheada. Se recomienda que el administrador la actualice lo antes posible.
