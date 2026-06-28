@@ -1,11 +1,13 @@
 FROM php:8.2-fpm
 
-# Instalar dependencias del sistema para extensión GD (requerida por DomPDF)
+# Instalar dependencias del sistema para extensiones PHP (GD, mbstring, intl, zip)
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
     libzip-dev \
+    libonig-dev \
+    libicu-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Configurar e instalar extensiones PHP
