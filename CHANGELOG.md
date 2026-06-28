@@ -5,6 +5,11 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere al [Versionamiento Semántico](https://semver.org/lang/es/).
 
+## [v1.2.8] - 2026-06-28
+### Corregido
+- **Fallo 500 en PDF (Docker)**: Se añadieron las dependencias nativas faltantes (`libpng-dev`, `libjpeg-dev`, `libfreetype6-dev`, `libzip-dev`, `libonig-dev`, `libicu-dev`) y las extensiones correspondientes (`gd`, `mbstring`, `intl`) al `Dockerfile` para soportar la incrustación de imágenes en DomPDF.
+- **Codificación en PDFs**: Se reparó un problema de caracteres corrompidos (tildes y eñes) forzando el juego de caracteres `UTF-8` explícito al cargar el HTML en DomPDF y cambiando la fuente predeterminada a `DejaVu Sans`.
+
 ## [v1.2.7] - 2026-06-25
 ### Agregado
 - **Live Search Avanzado**: Se perfeccionó la búsqueda asíncrona en todas las tablas del sistema. Ahora filtra resultados en tiempo real mientras se escribe (sin perder el foco del teclado) y reacciona instantáneamente a los cambios en calendarios (`input type="date"`).
