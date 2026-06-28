@@ -279,8 +279,9 @@ $html = ob_get_clean();
 
 $options = new Options();
 $options->set('isRemoteEnabled', true);
+$options->set('defaultFont', 'DejaVu Sans');
 $dompdf  = new Dompdf($options);
-$dompdf->loadHtml($html);
+$dompdf->loadHtml($html, 'UTF-8');
 $dompdf->setPaper('A4', 'portrait');
 $dompdf->render();
 $dompdf->stream("cotizacion_{$numero_cotizacion}.pdf", ['Attachment' => $forzar_descarga]);
