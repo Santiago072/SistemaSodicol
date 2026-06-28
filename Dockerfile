@@ -1,7 +1,16 @@
 FROM php:8.2-fpm
 
-# Instalar extensiones PHP
-RUN docker-php-ext-install mysqli pdo pdo_mysql
+# Instalar dependencias del sistema para extensión GD (requerida por DomPDF)
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Configurar e instalar extensiones PHP
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install mysqli pdo pdo_mysql gd mbstring intl zip
 
 # Instalar dependencias del sistema + Composer
 RUN apt-get update && apt-get install -y \
