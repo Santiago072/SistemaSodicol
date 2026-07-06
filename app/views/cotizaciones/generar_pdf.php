@@ -69,7 +69,7 @@ foreach ($items as $it) {
     $pu = (float)$it['precio'];
     $q  = (int)$it['cantidad'];
     $valor_base_total += $pu * $q;
-    $valor_iva_total  += ($it['iva'] === 'si') ? $pu * 0.19 : 0;
+    $valor_iva_total  += ($it['iva'] === 'si') ? ($pu * $q) * 0.19 : 0;
 }
 $gran_total = $valor_base_total + $valor_iva_total;
 
@@ -134,15 +134,15 @@ ob_start(); ?>
         <?php $contador = 1; foreach ($items as $item):
             $pu    = (float)$item['precio'];
             $qty   = (int)$item['cantidad'];
-            $iva_u = ($item['iva'] === 'si') ? $pu * 0.19 : 0;
-            $vt    = $pu * $qty;
+            $iva_total_item = ($item['iva'] === 'si') ? ($pu * $qty) * 0.19 : 0;
+            $vt    = ($pu * $qty) + $iva_total_item;
         ?>
         <tr>
             <td class="col-item"><?= $contador++ ?></td>
             <td class="col-desc"><?= htmlspecialchars($item['titulo']) ?></td>
             <td class="col-cant"><?= $qty ?></td>
             <td class="col-vu">$&nbsp;<?= number_format($pu, 0, '', '.') ?></td>
-            <td class="col-iva">$&nbsp;<?= number_format($iva_u, 0, '', '.') ?></td>
+            <td class="col-iva">$&nbsp;<?= number_format($iva_total_item, 0, '', '.') ?></td>
             <td class="col-vt">$&nbsp;<?= number_format($vt, 0, '', '.') ?></td>
         </tr>
         <?php endforeach; ?>
