@@ -5,6 +5,11 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere al [Versionamiento Semántico](https://semver.org/lang/es/).
 
+## [v1.2.9] - 2026-07-06
+### Corregido
+- **Cálculo Matemático de IVA**: Se corrigió un fallo contable en la generación de PDF donde el sistema omitía el factor de cantidad al calcular el IVA por ítem. Ahora el cálculo aplica correctamente sobre el subtotal (`Precio x Cantidad`), garantizando la precisión del impuesto cobrado.
+- **Formato Contable V/T (PDF)**: Se modificó la columna "Valor Total" (V/T) dentro de la tabla de cotización para que excluya el IVA en el desglose por fila. De esta forma, el subtotal por fila, la suma total Base y la suma del IVA cuadran perfectamente en el balance general.
+
 ## [v1.2.8] - 2026-06-28
 ### Corregido
 - **Fallo 500 en PDF (Docker)**: Se añadieron las dependencias nativas faltantes (`libpng-dev`, `libjpeg-dev`, `libfreetype6-dev`, `libzip-dev`, `libonig-dev`, `libicu-dev`) y las extensiones correspondientes (`gd`, `mbstring`, `intl`) al `Dockerfile` para soportar la incrustación de imágenes en DomPDF.
