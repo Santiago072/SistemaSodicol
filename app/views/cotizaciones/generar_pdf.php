@@ -135,7 +135,7 @@ ob_start(); ?>
             $pu    = (float)$item['precio'];
             $qty   = (int)$item['cantidad'];
             $iva_total_item = ($item['iva'] === 'si') ? ($pu * $qty) * 0.19 : 0;
-            $vt    = ($pu * $qty) + $iva_total_item;
+            $vt    = $pu * $qty;
         ?>
         <tr>
             <td class="col-item"><?= $contador++ ?></td>
