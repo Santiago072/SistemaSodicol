@@ -1,0 +1,563 @@
+/* theme-day.css */
+/* ════════════════════════════════════════════════════════════
+   BOTÓN MODO DÍA / NOCHE
+════════════════════════════════════════════════════════════ */
+.btn-modo {
+    display: inline-flex;
+    align-items: center;
+    top: 8px;
+    right: 12px;
+    padding: 10px 14px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-main);
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 1000;
+    transition: all .35s cubic-bezier(0.16, 1, 0.3, 1);
+    position: absolute;
+    overflow: hidden;
+}
+
+body:not(.modo-dia) .btn-modo {
+    background: rgba(255, 255, 255, .07);
+    border: 1px solid rgba(228, 169, 74, .25);
+    color: #f0c96a;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, .25);
+}
+
+body:not(.modo-dia) .btn-modo:hover {
+    background: rgba(255, 255, 255, .12);
+    border-color: rgba(228, 169, 74, .5);
+    box-shadow: 0 8px 28px rgba(228, 169, 74, .2);
+    transform: translateY(-2px);
+}
+
+body:not(.modo-dia) .btn-modo .modo-icon-dia {
+    display: inline-flex;
+}
+
+body:not(.modo-dia) .btn-modo .modo-icon-noche {
+    display: none;
+}
+
+body.modo-dia .btn-modo {
+    background: rgba(139, 74, 14, .1);
+    border: 1px solid rgba(139, 74, 14, .3);
+    color: #6b3209;
+    box-shadow: 0 4px 18px rgba(139, 74, 14, .15);
+}
+
+body.modo-dia .btn-modo:hover {
+    background: rgba(139, 74, 14, .18);
+    border-color: rgba(139, 74, 14, .5);
+    box-shadow: 0 8px 28px rgba(139, 74, 14, .2);
+    transform: translateY(-2px);
+}
+
+body.modo-dia .btn-modo .modo-icon-noche {
+    display: inline-flex;
+}
+
+body.modo-dia .btn-modo .modo-icon-dia {
+    display: none;
+}
+
+.btn-modo .modo-icon-dia,
+.btn-modo .modo-icon-noche {
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-modo i {
+    font-size: 14px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   TRANSICIÓN GLOBAL AL CAMBIAR MODO
+════════════════════════════════════════════════════════════ */
+body,
+body * {
+    transition-property: background-color, border-color, color, box-shadow, opacity;
+    transition-duration: .35s;
+    transition-timing-function: ease;
+}
+
+/* ════════════════════════════════════════════════════════════
+   MODO DÍA — "Papel Tostado"
+════════════════════════════════════════════════════════════ */
+body.modo-dia {
+    background: #f0e6d3;
+    color: #2d1a0a;
+    --ink: #f0e6d3;
+    --bark: #e8d8bf;
+    --honey: #a0520d;
+    --amber: #8b4a0e;
+    --gilt: #6b3209;
+    --parchment: #2d1a0a;
+    --white: #2d1a0a;
+    --brown-warm: #a0520d;
+    --brown-light: #c8843e;
+    --gold: #8b4a0e;
+    --gold-light: #6b3209;
+    --cream: #f7ede0;
+    --glass-bg: rgba(255, 255, 255, .55);
+    --glass-bg-light: rgba(255, 255, 255, .65);
+    --glass-bg-medium: rgba(255, 255, 255, .75);
+    --glass-border: rgba(139, 74, 14, .15);
+    --glass-border-medium: rgba(139, 74, 14, .22);
+    --glass-border-strong: rgba(139, 74, 14, .35);
+    --shadow-sm: 0 4px 16px rgba(100, 50, 10, .10);
+    --shadow-md: 0 10px 32px rgba(100, 50, 10, .14);
+    --shadow-lg: 0 28px 56px rgba(100, 50, 10, .22);
+    --shadow-gold: 0 0 24px rgba(139, 74, 14, .15);
+}
+
+body.modo-dia::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 70% 55% at 10% 30%, rgba(200, 132, 62, .12) 0%, transparent 65%),
+        radial-gradient(ellipse 55% 45% at 90% 70%, rgba(139, 74, 14, .08) 0%, transparent 65%);
+}
+
+body.modo-dia #particle-canvas {
+    opacity: .6;
+}
+
+body.modo-dia .noise-overlay {
+    opacity: .015;
+}
+
+/* Sidebar modo día */
+body.modo-dia .menu-lateral {
+    background: rgba(255, 255, 255, .78);
+    border-right-color: rgba(139, 74, 14, .18);
+}
+
+body.modo-dia .logo-empresa img {
+    border-color: rgba(139, 74, 14, .3);
+    box-shadow: 0 0 20px rgba(139, 74, 14, .12);
+}
+
+body.modo-dia .lista-menu-lateral a {
+    background: rgba(139, 74, 14, .05);
+    border-color: rgba(139, 74, 14, .12);
+    color: #4a2008;
+}
+
+body.modo-dia .lista-menu-lateral a:hover {
+    background: rgba(139, 74, 14, .14);
+    border-color: rgba(139, 74, 14, .3);
+    box-shadow: 0 8px 22px rgba(139, 74, 14, .12);
+}
+
+body.modo-dia .lista-menu-lateral a i {
+    color: #8b4a0e;
+}
+
+body.modo-dia .lista-menu-lateral a:hover i {
+    color: #6b3209;
+}
+
+body.modo-dia .panel-flotante {
+    background: rgba(255, 255, 255, .88);
+    border-right-color: rgba(139, 74, 14, .15);
+    box-shadow: 14px 0 40px rgba(100, 50, 10, .12);
+}
+
+body.modo-dia .submenu h3 {
+    color: #8b4a0e;
+    border-bottom-color: rgba(139, 74, 14, .15);
+}
+
+body.modo-dia .submenu a {
+    color: rgba(45, 26, 10, .7);
+}
+
+body.modo-dia .submenu a:hover {
+    background: rgba(139, 74, 14, .08);
+    border-color: rgba(139, 74, 14, .2);
+    color: #6b3209;
+}
+
+body.modo-dia .submenu a i {
+    color: #8b4a0e;
+}
+
+/* Cabecera modo día */
+body.modo-dia .cabecera-superior {
+    border-bottom-color: rgba(139, 74, 14, .15);
+}
+
+/* ── Título de bienvenida del panel ───────────────────────────────────────── */
+.bienvenida-titulo {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    background: linear-gradient(135deg, var(--white), var(--gold-light));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body.modo-dia .bienvenida-titulo {
+    background: linear-gradient(135deg, #1a0a00, #6b2f00);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body.modo-dia .cabecera-bienvenida h3 {
+    background: linear-gradient(135deg, #2d1a0a, #8b4a0e);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body.modo-dia .boton-menu-ocultar {
+    background: rgba(255, 255, 255, .65);
+    border-color: rgba(139, 74, 14, .2);
+    color: #4a2008;
+}
+
+body.modo-dia .boton-menu-ocultar:hover {
+    background: rgba(139, 74, 14, .1);
+    border-color: rgba(139, 74, 14, .35);
+    box-shadow: 0 10px 24px rgba(139, 74, 14, .12);
+}
+
+body.modo-dia .boton-menu-ocultar i {
+    color: #8b4a0e;
+}
+
+body.modo-dia .rol-admin {
+    background: rgba(139, 74, 14, .1);
+    border-color: rgba(139, 74, 14, .25);
+    color: #6b3209;
+}
+
+body.modo-dia .rol-usuario {
+    background: rgba(45, 26, 10, .06);
+    border-color: rgba(45, 26, 10, .15);
+    color: #4a2008;
+}
+
+/* Tarjetas modo día */
+body.modo-dia .tarjeta-dashboard {
+    background: rgba(255, 255, 255, .72);
+    border-color: rgba(139, 74, 14, .12);
+    box-shadow: 0 4px 20px rgba(100, 50, 10, .1);
+}
+
+body.modo-dia .tarjeta-dashboard:hover {
+    box-shadow: 0 16px 44px rgba(100, 50, 10, .18);
+    border-color: rgba(139, 74, 14, .28);
+}
+
+body.modo-dia .tarjeta-dashboard::before {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .6), transparent);
+}
+
+body.modo-dia .titulo-tarjeta {
+    color: rgba(45, 26, 10, .5);
+}
+
+body.modo-dia .tarjeta-dashboard:nth-child(1) .numero-principal {
+    background: linear-gradient(135deg, #8b4a0e, #6b3209);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body.modo-dia .tarjeta-dashboard:nth-child(2) .numero-principal {
+    background: linear-gradient(135deg, #a0520d, #8b4a0e);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body.modo-dia .tarjeta-dashboard:nth-child(3) .numero-principal {
+    background: linear-gradient(135deg, #c8843e, #a0520d);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body.modo-dia .icono-tarjeta {
+    box-shadow: none;
+}
+
+body.modo-dia .icono-tarjeta.administradores {
+    background: rgba(139, 74, 14, .1);
+    color: #8b4a0e;
+    border-color: rgba(139, 74, 14, .2);
+}
+
+body.modo-dia .icono-tarjeta.usuarios {
+    background: rgba(160, 82, 13, .08);
+    color: #a0520d;
+    border-color: rgba(160, 82, 13, .18);
+}
+
+body.modo-dia .icono-tarjeta.cotizaciones {
+    background: rgba(200, 132, 62, .1);
+    color: #c8843e;
+    border-color: rgba(200, 132, 62, .2);
+}
+
+/* Botones modo día */
+body.modo-dia .boton-primario {
+    background: linear-gradient(135deg, #c8843e, #a0520d);
+    color: #fff8f2;
+    box-shadow: 0 8px 24px rgba(139, 74, 14, .22);
+}
+
+body.modo-dia .boton-primario:hover {
+    box-shadow: 0 16px 36px rgba(139, 74, 14, .3);
+}
+
+body.modo-dia .boton-limpiar,
+body.modo-dia .boton-secundario {
+    background: rgba(255, 255, 255, .6);
+    border-color: rgba(45, 26, 10, .18);
+    color: rgba(45, 26, 10, .7);
+}
+
+body.modo-dia .boton-limpiar:hover,
+body.modo-dia .boton-secundario:hover {
+    background: rgba(192, 57, 43, .08);
+    border-color: rgba(192, 57, 43, .3);
+    color: #c0392b;
+    box-shadow: 0 10px 24px rgba(192, 57, 43, .12);
+}
+
+body.modo-dia .boton-editar,
+body.modo-dia .boton-generar-pdf {
+    background: rgba(37, 116, 169, .08);
+    border-color: rgba(37, 116, 169, .25);
+    color: #1a6898;
+}
+
+body.modo-dia .boton-editar:hover,
+body.modo-dia .boton-generar-pdf:hover {
+    background: rgba(37, 116, 169, .15);
+    border-color: rgba(37, 116, 169, .4);
+    color: #145582;
+    box-shadow: 0 8px 20px rgba(37, 116, 169, .15);
+}
+
+body.modo-dia .boton-eliminar {
+    background: rgba(192, 57, 43, .08);
+    border-color: rgba(192, 57, 43, .22);
+    color: #c0392b;
+}
+
+body.modo-dia .boton-eliminar:hover {
+    background: rgba(192, 57, 43, .15);
+    border-color: rgba(192, 57, 43, .4);
+    color: #a93226;
+    box-shadow: 0 8px 20px rgba(192, 57, 43, .15);
+}
+
+/* Tablas modo día */
+body.modo-dia .tabla-contenedor {
+    background: rgba(255, 255, 255, .72);
+    border-color: rgba(139, 74, 14, .12);
+    box-shadow: 0 4px 20px rgba(100, 50, 10, .1);
+}
+
+body.modo-dia .tabla-datos thead {
+    background: rgba(139, 74, 14, .06);
+    border-bottom-color: rgba(139, 74, 14, .12);
+}
+
+body.modo-dia .tabla-datos th {
+    color: #8b4a0e;
+}
+
+body.modo-dia .tabla-datos tbody tr {
+    border-bottom-color: rgba(45, 26, 10, .06);
+}
+
+body.modo-dia .tabla-datos tbody tr:hover {
+    background: rgba(139, 74, 14, .04);
+}
+
+body.modo-dia .tabla-datos td {
+    color: rgba(45, 26, 10, .85);
+}
+
+/* Formularios modo día */
+body.modo-dia .formulario-contenedor {
+    background: rgba(255, 255, 255, .68);
+    border-color: rgba(139, 74, 14, .14);
+    box-shadow: 0 4px 20px rgba(100, 50, 10, .1);
+}
+
+body.modo-dia .formulario label {
+    color: rgba(45, 26, 10, .65);
+}
+
+body.modo-dia .formulario input,
+body.modo-dia .formulario select,
+body.modo-dia .formulario textarea {
+    background: rgba(255, 255, 255, .8);
+    border-color: rgba(139, 74, 14, .2);
+    color: #2d1a0a;
+}
+
+body.modo-dia .formulario input::placeholder {
+    color: rgba(45, 26, 10, .35);
+}
+
+body.modo-dia .formulario select option,
+body.modo-dia .seleccion-producto .producto-existente option {
+    background: #f5ede0;
+    color: #2d1a0a;
+}
+
+body.modo-dia .formulario input:focus,
+body.modo-dia .formulario select:focus,
+body.modo-dia .formulario textarea:focus {
+    border-color: rgba(139, 74, 14, .5);
+    background: rgba(255, 255, 255, .95);
+    box-shadow: 0 0 20px rgba(139, 74, 14, .1);
+}
+
+/* Modal modo día */
+body.modo-dia .modal {
+    background: rgba(45, 26, 10, .5);
+}
+
+body.modo-dia .modal-contenido {
+    background: linear-gradient(145deg, rgba(255, 255, 255, .95), rgba(245, 237, 224, .9));
+    border-color: rgba(139, 74, 14, .2);
+    border-top-color: rgba(255, 255, 255, .8);
+    box-shadow: 0 24px 60px rgba(100, 50, 10, .22);
+}
+
+body.modo-dia .modal-contenido h2 {
+    background: linear-gradient(135deg, #2d1a0a, #8b4a0e);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    border-bottom-color: rgba(139, 74, 14, .15);
+}
+
+body.modo-dia .modal-contenido .grupo-campo input[type="text"],
+body.modo-dia .grupo-campo input[type="date"] {
+    background: rgba(255, 255, 255, .85);
+    border-color: rgba(139, 74, 14, .2);
+    color: #2d1a0a;
+}
+
+body.modo-dia .cerrar {
+    color: rgba(45, 26, 10, .45);
+    border-color: rgba(45, 26, 10, .12);
+    background: rgba(45, 26, 10, .04);
+}
+
+body.modo-dia .cerrar:hover {
+    background: rgba(192, 57, 43, .1);
+    border-color: rgba(192, 57, 43, .3);
+    color: #c0392b;
+}
+
+body.modo-dia .grupo-acciones {
+    border-top-color: rgba(139, 74, 14, .15);
+}
+
+/* Búsqueda modo día */
+body.modo-dia .formulario-busqueda input[type="text"] {
+    background: rgba(255, 255, 255, .75);
+    border-color: rgba(139, 74, 14, .2);
+    color: #2d1a0a;
+}
+
+body.modo-dia .formulario-busqueda input[type="text"]::placeholder {
+    color: rgba(45, 26, 10, .35);
+}
+
+body.modo-dia .formulario-busqueda input[type="text"]:focus {
+    border-color: rgba(139, 74, 14, .5);
+    box-shadow: 0 0 20px rgba(139, 74, 14, .1);
+}
+
+/* Panel tareas modo día */
+body.modo-dia .columna-derecha .usuario-principal {
+    background: rgba(255, 255, 255, .72);
+    border-color: rgba(139, 74, 14, .15);
+    box-shadow: 0 4px 20px rgba(100, 50, 10, .1);
+}
+
+body.modo-dia .columna-derecha .usuario-principal-nombre h3 {
+    background: linear-gradient(135deg, #2d1a0a, #8b4a0e);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body.modo-dia .columna-derecha .login-sub {
+    color: rgba(45, 26, 10, .5);
+}
+
+body.modo-dia .svc-tarea {
+    background: rgba(255, 255, 255, .6);
+    border-color: rgba(139, 74, 14, .14);
+}
+
+body.modo-dia .svc-tarea {
+    background: rgba(255, 255, 255, .85);
+    border-color: rgba(139, 74, 14, .3);
+}
+
+body.modo-dia .svc-tarea .svc-icon {
+    background: rgba(139, 74, 14, .1);
+    color: #8b4a0e;
+}
+
+body.modo-dia .svc-tarea .svc-text strong {
+    color: #6b3209;
+}
+
+body.modo-dia .svc-tarea .svc-text span {
+    color: rgba(45, 26, 10, .8);
+    opacity: 1;
+}
+
+body.modo-dia .tareas-vacias {
+    background: rgba(139, 74, 14, .04);
+    border-color: rgba(139, 74, 14, .22);
+    color: #8b4a0e;
+}
+
+/* Error box modo día */
+body.modo-dia .error-box {
+    background: rgba(192, 57, 43, .08);
+    border-color: rgba(192, 57, 43, .25);
+    color: #c0392b;
+}
+
+/* Scrollbar modo día */
+body.modo-dia ::-webkit-scrollbar-track {
+    background: rgba(45, 26, 10, .04);
+}
+
+body.modo-dia ::-webkit-scrollbar-thumb {
+    background: rgba(139, 74, 14, .2);
+}
+
+body.modo-dia ::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 74, 14, .38);
+}
+
+body.modo-dia .services .svc-tarea .svc-text strong {
+    color: #6b3209;
+}
+

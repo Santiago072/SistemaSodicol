@@ -1,0 +1,75 @@
+/* responsive.css */
+/* ════════════════════════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+    .grupo-fila {
+        grid-template-columns: 1fr;
+    }
+
+    .panel-right {
+        padding: 30px 20px;
+    }
+
+    .formulario-contenedor {
+        padding: 25px;
+    }
+
+    .tabla-datos th,
+    .tabla-datos td {
+        padding: 12px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 768px) {
+    .menu-lateral {
+        margin-left: -120px;
+    }
+
+    .menu-lateral.visible {
+        margin-left: 0;
+    }
+
+    .contenido-principal {
+        margin-left: 0 !important;
+        padding: 20px;
+    }
+
+    .panel-flotante {
+        left: 120px;
+        width: 260px;
+    }
+
+    .card-wrapper {
+        flex-direction: column;
+        min-height: auto;
+    }
+
+    .panel-left {
+        display: none;
+    }
+
+    .panel-right {
+        padding: 40px 30px;
+    }
+
+    .numero-principal {
+        font-size: 40px;
+    }
+
+    .contenedor-tarjetas {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 900px) {
+    .panel-dos-columnas {
+        grid-template-columns: 1fr;
+    }
+
+    .contenedor-tarjetas {
+        grid-template-columns: 1fr;
+    }
+}
+

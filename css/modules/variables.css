@@ -1,0 +1,297 @@
+/* variables.css */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    /* Palette */
+    --ink: #0a0705;
+    --bark: #1a0f07;
+    --ember: #3d1f0c;
+    --copper: #9b5a2a;
+    --honey: #c8843e;
+    --amber: #e4a94a;
+    --gilt: #f0c96a;
+    --parchment: #f7edd8;
+    --white: #ffffff;
+    --danger: #e03c3c;
+    --info: #3a9fd5;
+
+    /* Legacy aliases */
+    --brown-deep: var(--ink);
+    --brown-rich: var(--bark);
+    --brown-mid: var(--copper);
+    --brown-warm: var(--honey);
+    --brown-light: #e8c49a;
+    --gold: var(--amber);
+    --gold-light: var(--gilt);
+    --cream: var(--parchment);
+    --text-dark: #1c1008;
+    --text-mid: #5c3d20;
+    --text-soft: #9b7355;
+
+    /* Glass */
+    --glass-bg: rgba(255, 255, 255, 0.04);
+    --glass-bg-light: rgba(255, 255, 255, 0.06);
+    --glass-bg-medium: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(228, 169, 74, 0.14);
+    --glass-border-medium: rgba(228, 169, 74, 0.20);
+    --glass-border-strong: rgba(228, 169, 74, 0.30);
+
+    /* Shadows */
+    --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.25);
+    --shadow-md: 0 10px 32px rgba(0, 0, 0, 0.35);
+    --shadow-lg: 0 28px 56px rgba(0, 0, 0, 0.55);
+    --shadow-gold: 0 0 28px rgba(228, 169, 74, 0.18);
+
+    /* Typography */
+    --font-main: 'Outfit', sans-serif;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+
+    /* Transitions */
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-fast: 0.18s ease;
+    --transition-normal: 0.28s ease;
+    --transition-slow: 0.5s ease;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-main);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: var(--ink);
+    color: var(--white);
+    line-height: 1.65;
+}
+
+body.login-page {
+    overflow: hidden;
+    height: 100vh;
+}
+
+/* ════════════════════════════════════════════════════════════
+   KEYFRAMES
+════════════════════════════════════════════════════════════ */
+@keyframes floatBlob {
+    0% {
+        transform: translate(0, 0) scale(1)
+    }
+
+    100% {
+        transform: translate(40px, 30px) scale(1.08)
+    }
+}
+
+@keyframes ringSpin {
+    to {
+        transform: rotate(360deg)
+    }
+}
+
+@keyframes spinRing {
+    to {
+        transform: rotate(360deg)
+    }
+}
+
+@keyframes haloPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: .45
+    }
+
+    50% {
+        transform: scale(1.06);
+        opacity: .9
+    }
+}
+
+@keyframes dashSpin {
+    to {
+        transform: rotate(360deg)
+    }
+}
+
+@keyframes logoPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 24px rgba(228, 169, 74, .5), 0 0 50px rgba(200, 132, 62, .3)
+    }
+
+    50% {
+        box-shadow: 0 0 44px rgba(228, 169, 74, .75), 0 0 90px rgba(200, 132, 62, .55)
+    }
+}
+
+@keyframes textShine {
+    to {
+        background-position: 200% center
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px)
+    }
+
+    to {
+        opacity: 1;
+        transform: none
+    }
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(14px)
+    }
+
+    to {
+        opacity: 1;
+        transform: none
+    }
+}
+
+@keyframes logoReveal {
+    from {
+        opacity: 0;
+        transform: scale(.78) translateY(-10px)
+    }
+
+    to {
+        opacity: 1;
+        transform: none
+    }
+}
+
+@keyframes cardReveal {
+    from {
+        opacity: 0;
+        transform: translateY(44px) scale(.96)
+    }
+
+    to {
+        opacity: 1;
+        transform: none
+    }
+}
+
+@keyframes shine {
+    0% {
+        transform: translateX(-100%) rotate(45deg)
+    }
+
+    100% {
+        transform: translateX(100%) rotate(45deg)
+    }
+}
+
+@keyframes shimmer {
+    from {
+        transform: translateX(-100%)
+    }
+
+    to {
+        transform: translateX(100%)
+    }
+}
+
+@keyframes spinLoad {
+    to {
+        transform: rotate(360deg)
+    }
+}
+
+@keyframes pulseText {
+
+    0%,
+    100% {
+        opacity: .4
+    }
+
+    50% {
+        opacity: 1
+    }
+}
+
+@keyframes errorShine {
+    0% {
+        left: -100%
+    }
+
+    100% {
+        left: 100%
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0)
+    }
+
+    25% {
+        transform: translateX(-7px)
+    }
+
+    75% {
+        transform: translateX(7px)
+    }
+}
+
+@keyframes countUp {
+    from {
+        opacity: 0;
+        transform: translateY(18px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(28px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(18px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+}
+
+@keyframes rippleEffect {
+    to {
+        transform: scale(4);
+        opacity: 0
+    }
+}
+

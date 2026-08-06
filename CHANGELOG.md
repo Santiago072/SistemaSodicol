@@ -5,6 +5,23 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere al [Versionamiento Semántico](https://semver.org/lang/es/).
 
+## [v1.3.1] - 2026-08-06
+### Modularización de Arquitectura CSS y Limpieza de Repositorio
+
+#### 🎨 Modularización de Estilos CSS (SMACSS / ITCSS)
+- **Refactorización de `css/estilos.css`**: Se dividió el archivo monolítico de 3,780 líneas en 7 módulos independientes dentro del directorio `css/modules/`:
+  - `variables.css`: Reset global, paleta de colores `:root` y animaciones `@keyframes`.
+  - `layout.css`: Estructura general, Sidebar, Header, Contenedores principales y Grids responsive.
+  - `components.css`: Tarjetas de información, Botones, Tablas, Modales, Paginación, Estados vacíos y Visor PDF.
+  - `forms.css`: Controles de formulario, inputs, selects, datepickers y cuadros de validación.
+  - `auth.css`: Interfaz de inicio de sesión, animación de partículas canvas y campos de acceso.
+  - `theme-day.css`: Transición global y overrides del tema claro ("Modo Día" / Papel Tostado).
+  - `responsive.css`: Media queries para soporte responsivo móvil y tablet.
+- **Punto de Entrada Ligero**: `css/estilos.css` actúa ahora como el orquestador principal mediante `@import url('modules/...')`, manteniendo 100% la compatibilidad con las vistas PHP existentes sin necesidad de modificar enlaces en los encabezados.
+
+#### 🧹 Higiene del Repositorio
+- **Control de Caché en `.gitignore`**: Exclusión de `.phpunit.result.cache` y `.vscode/` para evitar que archivos generados localmente por la suite de pruebas o el editor aparezcan como no rastreados.
+
 ## [v1.3.0] - 2026-08-06
 ### Pruebas Automatizadas, CI/CD y Madurez del Repositorio
 
