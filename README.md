@@ -1,18 +1,20 @@
-# Sistema Sodicol — Sistema de Gestión Empresarial
+# 🪑 Sistema Sodicol — Sistema de Gestión Empresarial (v1.3.1)
 
-Sistema web de gestión interno para **Sodicol Zomac S.A.S**, empresa de diseño y mobiliario. Desarrollado en PHP nativo con MySQL, sin frameworks externos.
+Bienvenido al **Sistema Sodicol**. Es una solución web integral de gestión empresarial desarrollada para **Sodicol Zomac S.A.S** (empresa de diseño y mobiliario) en PHP nativo con MySQLi, arquitectura MVC, Principios SOLID y despliegue modular en Docker.
 
 ---
 
-## 📚 Documentación y Manuales
-- [Especificación de Requisitos](docs/Especificacion_Requisitos.md)
-- [Documentación Técnica](docs/documentacion-tecnica.md)
-- [Manual de Usuario](docs/Manual_de_Usuario.md)
-- [Arquitectura y Seguridad](docs/ARQUITECTURA_Y_SEGURIDAD.md)
-- [Gestión de Datos y Versionamiento](docs/BACKUPS_Y_VERSIONAMIENTO.md)
-- [Guía para Colaboradores](docs/CONTRIBUTING.md)
-- [Licencia MIT](LICENSE)
-- [Registro de Cambios (Changelog)](CHANGELOG.md)
+| Documento | Descripción |
+|-----------|-------------|
+| 👤 [Manual de Usuario](docs/Manual_de_Usuario.md) | Guía de uso de la aplicación para usuarios finales |
+| 📜 [Registro de Cambios](CHANGELOG.md) | Historial de versiones y modificaciones del sistema (v1.3.1) |
+| 📋 [Especificación de Requisitos](docs/Especificacion_Requisitos.md) | Objetivos, RNF, modelo de datos y justificaciones de diseño |
+| 📖 [Documentación Técnica](docs/documentacion-tecnica.md) | Arquitectura MVC, endpoints, seguridad, CI/CD y guía de instalación |
+| 🏗️ [Arquitectura y Seguridad](docs/ARQUITECTURA_Y_SEGURIDAD.md) | Diagramas Mermaid: componentes MVC, secuencia de peticiones y 6 capas de seguridad |
+| 💾 [Gestión de Datos y Versionamiento](docs/BACKUPS_Y_VERSIONAMIENTO.md) | Estrategias de backup, script de restauración de productos y versionamiento |
+| 🤝 [Guía para Colaboradores](docs/CONTRIBUTING.md) | Configuración local, uso de PHPUnit, convenciones de commits y checklist de PR |
+| ⚖️ [Licencia MIT](LICENSE) | Términos legales de propiedad intelectual y uso abierto |
+
 
 ---
 
@@ -85,7 +87,8 @@ http://tudominio.com/
 
 **Credenciales iniciales** (usuario administrador por defecto):
 - Correo: `admin@sodicol.com`
-- Contraseña: Se te asignará temporalmente o deberás restaurar tu copia local de la BD (ver abajo).
+- Contraseña: `1234567890`
+
 
 ---
 
