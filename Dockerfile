@@ -50,6 +50,10 @@ RUN mkdir -p /var/www/html/logs \
     && chown -R www-data:www-data /var/www/html/vendor \
     && chmod 755 /var/www/html/uploads
 
+# Configurar PHP-FPM para preservar variables de entorno del contenedor
+RUN echo "clear_env = no" >> /usr/local/etc/php-fpm.d/www.conf
+
+
 # Script de inicio
 RUN echo '#!/bin/bash\n\
 PORT=${PORT:-80}\n\

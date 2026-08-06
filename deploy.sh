@@ -3,20 +3,26 @@
 
 echo "Iniciando despliegue automático..."
 
-# 1. Asegurar permisos para evitar conflictos con archivos creados por Docker
-echo "[1/4] Ajustando permisos locales..."
+# 1. Ajustar permisos
+echo "[1/5] Ajustando permisos..."
 sudo chown -R $USER:$USER .
 
-# 2. Obtener los últimos cambios de GitHub
-echo "[2/4] Obteniendo cambios de GitHub..."
+# 2. Obtener cambios de GitHub
+echo "[2/5] Obteniendo cambios de GitHub..."
 git fetch origin
 
-# 3. Forzar sincronización exacta con main
-echo "[3/4] Sincronizando con la rama main..."
+# 3. Sincronizar con main
+echo "[3/5] Sincronizando con la rama main..."
 git reset --hard origin/main
 
-# 4. Reconstruir y levantar contenedores
-echo "[4/4] Reconstruyendo y levantando contenedores Docker..."
+# 4. Crear config/.env si no existe
+if [ ! -f config/.env ]; then
+    echo "[4/5] Creando config/.env desde .env.example..."
+    cp .env.example config/.env
+fi
+
+# 5. Reconstruir y levantar contenedores
+echo "[5/5] Reconstruyendo y levantando contenedores Docker..."
 docker compose up -d --build
 
 echo ""

@@ -19,8 +19,14 @@ class EnvLoader
     public static function load(string $path): void
     {
         if (!file_exists($path)) {
-            return;
+            $fallback = dirname(__DIR__) . '/.env.example';
+            if (file_exists($fallback)) {
+                $path = $fallback;
+            } else {
+                return;
+            }
         }
+
 
         $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         foreach ($lines as $line) {
