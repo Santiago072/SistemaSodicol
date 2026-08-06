@@ -1,6 +1,12 @@
 CREATE DATABASE IF NOT EXISTS sistema_sodicol;
 USE sistema_sodicol;
 
+-- Garantizar permisos globales para usuarios de la red Docker
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'root' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO 'sodicol_user'@'%' IDENTIFIED BY 'root' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+
 CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     documento VARCHAR(20) UNIQUE NOT NULL,

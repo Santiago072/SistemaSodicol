@@ -26,18 +26,25 @@ function conexion(): \mysqli
     $db   = !empty($_ENV['DB_NAME']) ? $_ENV['DB_NAME'] : (getenv('DB_NAME') ?: 'sistema_sodicol');
 
 
-    // Intentar conexión con usuario configurado
-    $conn = @mysqli_connect($host, $user, $pass, $db);
+    // Reintentos automáticos (por si MariaDB está terminando de inicializar)
+    $conn = null;
+    for ($i = 0; $i < 3; $i++) {
+        $conn = @mysqli_connect($host, $user, $pass, $db);
+        if ($conn) break;
 
-    // Fallback 1: intentar con sodicol_user
-    if (!$conn && $user !== 'sodicol_user') {
-        $conn = @mysqli_connect($host, 'sodicol_user', 'root', $db);
+        if ($user !== 'sodicol_user') {
+            $conn = @mysqli_connect($host, 'sodicol_user', 'root', $db);
+            if ($conn) break;
+        }
+
+        if ($user !== 'root') {
+            $conn = @mysqli_connect($host, 'root', 'root', $db);
+            if ($conn) break;
+        }
+
+        sleep(1);
     }
 
-    // Fallback 2: intentar con root
-    if (!$conn && $user !== 'root') {
-        $conn = @mysqli_connect($host, 'root', 'root', $db);
-    }
 
     if (!$conn) {
         error_log('Error de conexión a la BD: ' . mysqli_connect_error());
