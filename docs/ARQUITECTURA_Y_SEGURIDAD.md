@@ -14,6 +14,92 @@ El sistema está construido bajo el patrón **Modelo-Vista-Controlador (MVC)**, 
 - **`app/views/`**: Contiene los archivos HTML/PHP de presentación organizados por módulos.
 - **`config/`**: Archivos de configuración del sistema (`EnvLoader.php`, `conexion.php`, `seguridad.php`).
 
+---
+
+## 1.1 Diagrama de Componentes y Responsabilidades
+
+```mermaid
+graph TB
+    subgraph CLIENTE["💻 Cliente / Navegador"]
+        UI["Interfaz Web (HTML5 / Vanilla CSS / AJAX)"]
+    end
+
+    subgraph SERVIDOR["🖥️ Servidor Web (PHP 8.2 + Caddy / Nginx)"]
+        FC["Front Controller\nindex.php"]
+        ENV["Cargador de Entorno\nEnvLoader.php"]
+        SEC["Módulo de Seguridad\nseguridad.php"]
+
+        subgraph MVC["Arquitectura MVC"]
+            CTRL["Controladores\nAuthController · UsuarioController\nCotizacionController · ProductoController"]
+            SERV["Servicios\nFileUploadService"]
+            MOD["Modelos (Repository Pattern)\nUsuarioModel · CotizacionModel\nProductoModel · TareaModel"]
+            VIEW["Vistas HTML / PHP\napp/views/*"]
+        end
+
+        PDF["Motor PDF\nDomPDF"]
+    end
+
+    subgraph BD["🗄️ Base de Datos"]
+        MYSQL["MariaDB 10.11 / MySQL 8.0\nPrepared Statements + Transactions + Locks"]
+    end
+
+    UI -- "Petición HTTP GET / POST" --> FC
+    FC -- "Carga .env" --> ENV
+    FC -- "CSRF / Rate Limit / Auth" --> SEC
+    FC -- "Despacha ruta" --> CTRL
+    CTRL -- "Lógica de subidas" --> SERV
+    CTRL -- "Consulta / Modifica" --> MOD
+    MOD -- "Consultas Preparadas" --> MYSQL
+    CTRL -- "Genera documento" --> PDF
+    CTRL -- "Renderiza datos escapados" --> VIEW
+    VIEW -- "Respuesta HTML" --> UI
+```
+
+---
+
+## 1.2 Flujo de Petición HTTP (Ciclo de Vida)
+
+```mermaid
+sequenceDiagram
+    participant C as Cliente (Navegador)
+    participant FC as Front Controller (index.php)
+    participant SEC as Seguridad (seguridad.php)
+    participant CTRL as Controller
+    participant MOD as Model
+    participant DB as Base de Datos (MySQL)
+
+    C->>FC: GET / POST ?module=x&action=y
+    FC->>SEC: iniciar_sesion_segura()
+    FC->>SEC: verificar_rate_limit()
+
+    alt Petición POST
+        FC->>SEC: verificar_token_csrf($_POST['csrf_token'])
+        alt Token Inválido
+            SEC-->>C: 403 / Error de CSRF
+        end
+    end
+
+    FC->>CTRL: Instancia Controller con mysqli
+    CTRL->>MOD: Ejecuta método de negocio
+    MOD->>DB: Prepared Statement (mysqli_prepare + execute)
+    DB-->>MOD: Conjunto de datos / Afectación
+    MOD-->>CTRL: Retorna array / boolean
+    CTRL->>C: Renderiza vista escapada (escapar_salida)
+```
+
+---
+
+## 1.3 Diagrama de Capas de Seguridad
+
+```mermaid
+graph LR
+    A["⏱️ Rate Limiting\n15 req/min (429 Too Many)"] --> B["🎫 Token CSRF Rotativo\nhash_equals() (Anti-Replay)"]
+    B --> C["🧹 Sanitización de Entrada\nstripslashes() / trim()"]
+    C --> D["🔒 Prepared Statements\n100% mysqli (Anti-SQLi)"]
+    D --> E["🔑 Contraseñas\npassword_hash() BCRYPT"]
+    E --> F["🛡️ Escape de Salida\nhtmlspecialchars() (Anti-XSS)"]
+```
+
 ### Front Controller y Enrutamiento
 Todas las solicitudes web pasan por un único punto de entrada: `index.php`. Este archivo actúa como **Front Controller** e implementa un mapa estricto de rutas.
 - Las URLs mantienen el formato `?module=nombre_modulo&action=nombre_accion`.

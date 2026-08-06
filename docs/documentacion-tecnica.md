@@ -131,16 +131,35 @@ El sistema utiliza la biblioteca **DomPDF** instalada dinámicamente mediante el
 
 ---
 
-## 7. Pruebas Automatizadas
+## 7. Pruebas Automatizadas y CI/CD
 
-El sistema cuenta con un marco de pruebas gestionado vía **PHPUnit**.  
-El entorno y los tests se definen en `phpunit.xml` y garantizan la solidez del núcleo de seguridad y rendimiento de forma nativa.
+### 7.1 Pruebas Unitarias (PHPUnit 10.5)
 
-- Ejecución de pruebas:
+El sistema cuenta con una suite de pruebas unitarias gestionada vía **PHPUnit 10.5**.
+Las pruebas están ubicadas en `tests/Unit/` y su configuración reside en `phpunit.xml`.
+
+- **Cobertura actual:** 27 tests y 33 aserciones (0 fallos).
+- **Pruebas de Seguridad (`SeguridadTest.php`):** Cobertura total para `sanitizar_entrada()`, `escapar_salida()`, `validar_email()`, `validar_numero()` y las funciones CSRF (`generar`, `verificar`, `rotar`).
+- **Pruebas de Autenticación (`AuthControllerTest.php`):** Pruebas con Mocks de `mysqli` para peticiones GET (renderizado y timeout) y POST (CSRF inválido y campos vacíos).
+
 ```bash
-# Vía PHAR o Composer (./vendor/bin/phpunit)
-php phpunit.phar tests/Unit/SeguridadTest.php
+# Ejecutar todas las pruebas unitarias
+composer test
+
+# Ejecutar pruebas con salida descriptiva por test
+composer test-verbose
+
+# Vía binario directo de vendor
+vendor/bin/phpunit --colors=always --testdox
 ```
+
+### 7.2 Integración Continua (GitHub Actions)
+
+El archivo [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) define un pipeline que ejecuta automáticamente la suite de pruebas en cada `push` o `pull_request` sobre la rama `main`.
+
+- **Ambiente:** Ubuntu Latest con PHP 8.2 y extensiones `mbstring`, `mysqli`, `gd`, `dompdf`.
+- **Caché:** Optimización de dependencias vía `actions/cache` para reducir tiempos de build.
+- **Paso estricto:** Validación de `composer.json` y `composer.lock` previa a la ejecución de PHPUnit.
 
 ---
 
