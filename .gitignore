@@ -17,5 +17,8 @@ logs/*.log
 
 # Archivos temporales / desarrollo
 scratch/
+.phpunit.result.cache
+.vscode/
+
 # Scripts de respaldo
 restaurar.php
