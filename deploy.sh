@@ -15,12 +15,13 @@ git fetch origin
 echo "[3/5] Sincronizando con la rama main..."
 git reset --hard origin/main
 
-# 4. Asegurar config/.env actualizado desde .env.example
+# 4. Asegurar config/.env desde .env.example
 echo "[4/5] Generando config/.env desde .env.example..."
 cp -f .env.example config/.env
 
-# 5. Reconstruir y levantar contenedores
-echo "[5/5] Reconstruyendo y levantando contenedores Docker..."
+# 5. Detener contenedores, limpiar volumenes antiguos y reconstruir
+echo "[5/5] Reiniciando volumenes y levantando contenedores Docker..."
+docker compose down -v
 docker compose up -d --build
 
 echo ""
