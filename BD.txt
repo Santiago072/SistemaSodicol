@@ -71,7 +71,8 @@ CREATE TABLE IF NOT EXISTS tareas (
 );
 
 INSERT INTO `usuarios` (`id`, `documento`, `nombre`, `correo`, `password`, `telefono`, `rol`, `estado`) VALUES
-('1', '1234567890', 'Admin', 'admin@sodicol.com', '$2y$10$EOofArNIR1pB.DfysZAhzeB13ImopdK5BVeexCagCl/2jxBo4OMGK', '3000000000', 'admin', 'activo');
+('1', '1234567890', 'Admin', 'admin@sodicol.com', '$2y$10$VBojyYysxDaq2M5bCB0ZzOhL1hdYXP07F1q2UDQlF8RSu0YCCBXsi', '3000000000', 'admin', 'activo');
+
 
 -- Contraseña inicial hasheada con bcrypt
 -- Se recomienda cambiarla tras el primer acceso.
