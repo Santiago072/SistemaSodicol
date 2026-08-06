@@ -5,6 +5,22 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere al [Versionamiento Semántico](https://semver.org/lang/es/).
 
+## [v1.3.0] - 2026-08-06
+### Pruebas Automatizadas, CI/CD y Madurez del Repositorio
+
+#### 🧪 Pruebas Automatizadas
+- **Suite de Pruebas PHPUnit**: Se implementó la infraestructura de pruebas unitarias con PHPUnit 10.5 (`tests/Unit/`), sumando 27 tests y 33 aserciones que garantizan el correcto funcionamiento de las funciones de seguridad y lógica de controladores sin dependencia de base de datos.
+- **Pruebas de Seguridad**: Cobertura completa para `sanitizar_entrada()`, `escapar_salida()`, `validar_email()`, `validar_numero()` y ciclo de vida de tokens CSRF (`generar`, `verificar`, `rotar`).
+- **Pruebas de Autenticación**: Validación unitaria de `AuthController` para rutas GET (renderizado y timeout de sesión) y filtrado de peticiones POST maliciosas (tokens CSRF inválidos y campos vacíos).
+
+#### ⚙️ Integración Continua (CI/CD)
+- **Workflow de GitHub Actions**: Creación de `.github/workflows/ci.yml` configurado para ejecutar automáticamente la suite de pruebas unitarias con PHP 8.2 en cada `push` y `pull_request` a la rama `main`.
+- **Caché y Optimización**: Integración de caché de dependencias Composer para ejecuciones veloces en CI.
+
+#### 📄 Documentación y Legalidad
+- **Licencia MIT**: Incorporación del archivo `LICENSE` formalizando los términos de uso y distribución abierta del proyecto.
+- **Guía de Colaboración**: Creación de `docs/CONTRIBUTING.md` detallando la configuración del entorno local, uso de PHPUnit, reglas de seguridad y estándares de commits en español.
+
 ## [v1.2.9] - 2026-07-06
 ### Corregido
 - **Cálculo Matemático de IVA**: Se corrigió un fallo contable en la generación de PDF donde el sistema omitía el factor de cantidad al calcular el IVA por ítem. Ahora el cálculo aplica correctamente sobre el subtotal (`Precio x Cantidad`), garantizando la precisión del impuesto cobrado.
