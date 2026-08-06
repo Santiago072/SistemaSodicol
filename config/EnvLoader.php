@@ -35,11 +35,10 @@ class EnvLoader
             $key   = trim($key);
             $value = trim($value);
 
-            // No sobreescribir variables de entorno reales del sistema operativo
-            if (!array_key_exists($key, $_ENV) && getenv($key) === false) {
-                $_ENV[$key] = $value;
-                putenv("$key=$value");
-            }
+            // Asignar la variable de entorno y actualizar putenv()
+            $_ENV[$key] = $value;
+            putenv("$key=$value");
+
         }
     }
 }
