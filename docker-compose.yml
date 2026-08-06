@@ -31,9 +31,11 @@ services:
     restart: always
     environment:
       MARIADB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MARIADB_ROOT_HOST: '%'
       MARIADB_DATABASE: ${DB_NAME:-sistema_sodicol}
       MARIADB_USER: ${DB_USER:-sodicol_user}
       MARIADB_PASSWORD: ${DB_PASS:-root}
+
     volumes:
       - db_data:/var/lib/mysql
       - ./BD.txt:/docker-entrypoint-initdb.d/BD.sql
