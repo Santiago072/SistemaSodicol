@@ -1,0 +1,44 @@
+name: CI — Sistema Sodicol
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  phpunit:
+    name: Pruebas Unitarias — PHPUnit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar entorno PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, mysqli, gd, dompdf
+          coverage: none
+
+      - name: Validar composer.json y composer.lock
+        run: composer validate --strict
+
+      - name: Obtener directorio de caché de Composer
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Caché de dependencias de Composer
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Instalar dependencias (composer install)
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Ejecutar pruebas unitarias (PHPUnit)
+        run: vendor/bin/phpunit --colors=always --testdox
