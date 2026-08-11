@@ -9,30 +9,38 @@ La empresa Sodicol Zomac S.A.S realiza actualmente sus cotizaciones de forma man
 
 ---
 
-## 1.1 Diagrama de Ciclo de Vida y Estados del Sistema (Mapeo a Requisitos Funcionales)
+## 1.1 Diagrama de Ciclo de Vida y Estados del Sistema
 
 ```mermaid
-graph LR
-    subgraph COTIZACIONES["📑 Ciclo de Vida de Cotizaciones (RF02, RF03, RF05, RF06, RF07)"]
-        direction LR
-        C1["📝 1. Borrador / En Edición<br/><i>(RF02/RF03: Selección de productos y cálculo de ítems)</i>"]
-        C2["🔒 2. Generada y Registrada<br/><i>(RF05: Bloqueo de tabla y consecutivo único)</i>"]
-        C3["📄 3. Documento PDF Emitido<br/><i>(RF06: Generación formal con DomPDF y desglose de IVA)</i>"]
-        C4["📦 4. Archivada en Historial<br/><i>(RF07: Consulta, filtrado y Live Search)</i>"]
+flowchart TD
+    subgraph COT["1. CICLO DE VIDA DE COTIZACIONES"]
+        C1["📝 BORRADOR\n(Selección de productos)"]
+        C2["🔒 GENERADA\n(Consecutivo bloqueado)"]
+        C3["📄 PDF EMITIDO\n(Documento formal)"]
+        C4["📦 ARCHIVADA\n(Historial y búsqueda)"]
 
-        C1 -->|"Guardar cotización"| C2
-        C2 -->|"Descargar PDF"| C3
-        C3 -->|"Persistencia DB"| C4
+        C1 -->|"Guardar ítems (RF02/RF03)"| C2
+        C2 -->|"Descargar PDF (RF06)"| C3
+        C3 -->|"Persistencia (RF07)"| C4
     end
 
-    subgraph TAREAS["📋 Flujo de Tareas Operativas (RF09, RF10, RF11)"]
-        direction LR
-        T1["⏳ 1. Tarea Pendiente<br/><i>(RF09: Asignada por Admin a Empleado)</i>"]
-        T2["✅ 2. Tarea Completa<br/><i>(RF10: Marcada como realizada en Dashboard)</i>"]
+    subgraph TAR["2. FLUJO DE TAREAS OPERATIVAS"]
+        T1["⏳ PENDIENTE\n(Asignada por Admin)"]
+        T2["✅ COMPLETO\n(Realizada por Empleado)"]
 
-        T1 -->|"RF10: Clic en Completar"| T2
+        T1 -->|"Completar en panel (RF10)"| T2
     end
 ```
+
+| Módulo | Estado | Requisito Funcional | Descripción del Flujo |
+|---|---|---|---|
+| **Cotización** | **📝 BORRADOR** | `RF02 / RF03` | El empleado agrega ítems manuales o selecciona productos del catálogo, calculando subtotales e IVA. |
+| **Cotización** | **🔒 GENERADA** | `RF05` | Se aplica bloqueo de tabla exclusivo para asignar el número consecutivo único y guardar la cotización. |
+| **Cotización** | **📄 PDF EMITIDO** | `RF06` | El motor DomPDF genera el PDF formal con membrete corporativo, desglose de impuestos y firmas. |
+| **Cotización** | **📦 ARCHIVADA** | `RF07` | La cotización queda almacenada en el historial para consulta posterior y búsqueda dinámica (Live Search). |
+| **Tareas** | **⏳ PENDIENTE** | `RF09` | El administrador crea una instrucción de trabajo y la asigna a un empleado. |
+| **Tareas** | **✅ COMPLETO** | `RF10 / RF11` | El empleado finaliza la labor y actualiza el estado directamente desde su panel de control. |
+
 
 
 
