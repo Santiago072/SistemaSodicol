@@ -15,10 +15,10 @@ La empresa Sodicol Zomac S.A.S realiza actualmente sus cotizaciones de forma man
 graph TB
     subgraph COT["📑 1. CICLO DE VIDA DE COTIZACIONES"]
         direction TB
-        C1["📝 <b>1. BORRADOR</b><br>Selección de productos y cálculo IVA"]
-        C2["🔒 <b>2. GENERADA</b><br>Bloqueo de tabla y consecutivo único"]
-        C3["📄 <b>3. PDF EMITIDO</b><br>Documento formal con DomPDF y firmas"]
-        C4["📦 <b>4. ARCHIVADA</b><br>Historial, filtrado y Live Search"]
+        C1["📝 1. BORRADOR"]
+        C2["🔒 2. GENERADA"]
+        C3["📄 3. PDF EMITIDO"]
+        C4["📦 4. ARCHIVADA"]
 
         C1 -->|"Guardar ítems"| C2
         C2 -->|"Descargar PDF"| C3
@@ -27,8 +27,8 @@ graph TB
 
     subgraph TAR["📋 2. FLUJO DE TAREAS OPERATIVAS"]
         direction TB
-        T1["⏳ <b>1. PENDIENTE</b><br>Asignada por Administrador a Empleado"]
-        T2["✅ <b>2. COMPLETO</b><br>Marcada como realizada en Dashboard"]
+        T1["⏳ 1. PENDIENTE"]
+        T2["✅ 2. COMPLETO"]
 
         T1 -->|"Clic en Completar"| T2
     end
