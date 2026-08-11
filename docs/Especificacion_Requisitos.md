@@ -12,27 +12,37 @@ La empresa Sodicol Zomac S.A.S realiza actualmente sus cotizaciones de forma man
 ## 1.1 Diagrama de Ciclo de Vida y Estados del Sistema
 
 ```mermaid
-graph LR
-    subgraph COTIZACIONES["📑 Ciclo de Vida de Cotizaciones"]
-        direction LR
-        C1["📝 1. Borrador / En Edición<br/><i>(Selección de productos y cálculo automático de IVA)</i>"]
-        C2["🔒 2. Generada y Registrada<br/><i>(Bloqueo exclusivo y consecutivo único)</i>"]
-        C3["📄 3. Documento PDF Emitido<br/><i>(Generación formal con DomPDF y firmas)</i>"]
-        C4["📦 4. Archivada en Historial<br/><i>(Consulta, filtrado y Live Search)</i>"]
+graph TB
+    subgraph COT["📑 1. CICLO DE VIDA DE COTIZACIONES"]
+        direction TB
+        C1["📝 <b>1. BORRADOR</b><br>Selección de productos y cálculo IVA"]
+        C2["🔒 <b>2. GENERADA</b><br>Bloqueo de tabla y consecutivo único"]
+        C3["📄 <b>3. PDF EMITIDO</b><br>Documento formal con DomPDF y firmas"]
+        C4["📦 <b>4. ARCHIVADA</b><br>Historial, filtrado y Live Search"]
 
         C1 -->|"Guardar ítems"| C2
-        C2 -->|"Descargar / Ver"| C3
+        C2 -->|"Descargar PDF"| C3
         C3 -->|"Persistencia DB"| C4
     end
 
-    subgraph TAREAS["📋 Flujo de Tareas Operativas"]
-        direction LR
-        T1["⏳ 1. Tarea Pendiente<br/><i>(Asignada por Admin a Empleado)</i>"]
-        T2["✅ 2. Tarea Completa<br/><i>(Marcada como realizada en Dashboard)</i>"]
+    subgraph TAR["📋 2. FLUJO DE TAREAS OPERATIVAS"]
+        direction TB
+        T1["⏳ <b>1. PENDIENTE</b><br>Asignada por Administrador a Empleado"]
+        T2["✅ <b>2. COMPLETO</b><br>Marcada como realizada en Dashboard"]
 
         T1 -->|"Clic en Completar"| T2
     end
+
+    style C1 fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#ffffff
+    style C2 fill:#1e293b,stroke:#fbbf24,stroke-width:2px,color:#ffffff
+    style C3 fill:#1e293b,stroke:#22c55e,stroke-width:2px,color:#ffffff
+    style C4 fill:#1e293b,stroke:#94a3b8,stroke-width:2px,color:#ffffff
+    style T1 fill:#1e293b,stroke:#f59e0b,stroke-width:2px,color:#ffffff
+    style T2 fill:#1e293b,stroke:#10b981,stroke-width:2px,color:#ffffff
+    style COT fill:#0f172a,stroke:#334155,stroke-width:1px,color:#94a3b8
+    style TAR fill:#0f172a,stroke:#334155,stroke-width:1px,color:#94a3b8
 ```
+
 
 
 | Módulo | Estado | Requisito Funcional | Descripción del Flujo |
