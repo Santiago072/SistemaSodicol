@@ -9,6 +9,92 @@ La empresa Sodicol Zomac S.A.S realiza actualmente sus cotizaciones de forma man
 
 ---
 
+## 1.1 Diagrama de Ciclo de Vida y Estados del Sistema
+
+```mermaid
+stateDiagram-v2
+    [*] --> BORRADOR : Empleado inicia cotización\n(agrega ítems / productos)
+    
+    BORRADOR --> GENERADA : Finaliza cotización\n(Bloqueo exclusivo de tabla y consecutivo único)
+    
+    GENERADA --> PDF_EMITIDO : Generación de documento formal\n(DomPDF con desglose de IVA y firmas)
+    
+    PDF_EMITIDO --> [*] : Cotización archivada en historial
+
+    state "Flujo de Tareas Operativas" as Tareas {
+        [*] --> PENDIENTE : Administrador asigna tarea a empleado
+        PENDIENTE --> COMPLETO : Empleado marca labor ejecutada
+        COMPLETO --> [*]
+    }
+```
+
+---
+
+## 1.2 Diagrama Entidad-Relación (Modelo de Datos)
+
+```mermaid
+erDiagram
+    USUARIOS ||--o{ TAREAS : "recibe asignación"
+    USUARIOS ||--o{ COTIZACIONES : "elabora"
+    COTIZACIONES ||--|{ DETALLE_COTIZACION : "contiene ítems"
+    PRODUCTOS ||--o{ DETALLE_COTIZACION : "referencia en catálogo"
+
+    USUARIOS {
+        int id PK
+        string documento UK
+        string nombre
+        string correo UK
+        string password
+        string telefono
+        enum rol "admin, usuario"
+        enum estado "activo, inactivo"
+    }
+
+    PRODUCTOS {
+        int id PK
+        string titulo
+        string foto
+        text descripcion
+        int cantidad
+        enum iva "si, no"
+        decimal precio
+    }
+
+    COTIZACIONES {
+        int id PK
+        string numero_cotizacion UK
+        string cliente_nombre
+        string cliente_correo
+        string cliente_telefono
+        date fecha
+        decimal subtotal
+        decimal total_iva
+        decimal total
+        int usuario_id FK
+    }
+
+    DETALLE_COTIZACION {
+        int id PK
+        int cotizacion_id FK
+        string titulo
+        string foto
+        text descripcion
+        int cantidad
+        enum iva "si, no"
+        decimal precio
+    }
+
+    TAREAS {
+        int id PK
+        int usuario_id FK
+        string descripcion_tarea
+        enum estado "pendiente, completo"
+    }
+```
+
+---
+
+
 ## 2. Requisitos Funcionales (RF)
 
 Estos requisitos definen las funciones específicas que el sistema debe ejecutar según la estructura de módulos propuesta:

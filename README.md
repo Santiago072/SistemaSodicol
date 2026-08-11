@@ -8,12 +8,15 @@ Bienvenido al **Sistema Sodicol**. Es una solución web integral de gestión emp
 |-----------|-------------|
 | 👤 [Manual de Usuario](docs/Manual_de_Usuario.md) | Guía de uso de la aplicación para usuarios finales |
 | 📜 [Registro de Cambios](CHANGELOG.md) | Historial de versiones y modificaciones del sistema (v1.3.1) |
-| 📋 [Especificación de Requisitos](docs/Especificacion_Requisitos.md) | Objetivos, RNF, modelo de datos y justificaciones de diseño |
+| 📋 [Plan de Implementación](docs/PLAN_DE_IMPLEMENTACION.md) | Fases del proyecto, stack tecnológico y arquitectura empresarial |
 | 📖 [Documentación Técnica](docs/documentacion-tecnica.md) | Arquitectura MVC, endpoints, seguridad, CI/CD y guía de instalación |
-| 🏗️ [Arquitectura y Seguridad](docs/ARQUITECTURA_Y_SEGURIDAD.md) | Diagramas Mermaid: componentes MVC, secuencia de peticiones y 6 capas de seguridad |
+| 📋 [Especificación de Requisitos](docs/Especificacion_Requisitos.md) | Objetivos, RNF, modelo de datos y justificaciones de diseño |
+| 🚀 [Manual de Despliegue VPS](docs/DESPLIEGUE_VPS.md) | Guía paso a paso para instalar y actualizar en el VPS con Docker y Caddy/Nginx |
+| 🏗️ [Arquitectura y Componentes](docs/ARQUITECTURA_Y_SEGURIDAD.md) | Diagramas Mermaid: componentes MVC, secuencia de peticiones y 6 capas de seguridad |
 | 💾 [Gestión de Datos y Versionamiento](docs/BACKUPS_Y_VERSIONAMIENTO.md) | Estrategias de backup, script de restauración de productos y versionamiento |
 | 🤝 [Guía para Colaboradores](docs/CONTRIBUTING.md) | Configuración local, uso de PHPUnit, convenciones de commits y checklist de PR |
 | ⚖️ [Licencia MIT](LICENSE) | Términos legales de propiedad intelectual y uso abierto |
+
 
 
 ---
@@ -128,7 +131,49 @@ docker exec -i sodicol_db mariadb -u $DB_USER -p$DB_PASS $DB_NAME < database/sis
 
 ---
 
+## 🏗️ Arquitectura y Componentes
+
+```mermaid
+graph TB
+    subgraph CLIENTE["💻 Cliente / Navegador"]
+        UI["Interfaz Web (HTML5 / Vanilla CSS Modular / AJAX Live Search)"]
+    end
+
+    subgraph SERVIDOR["🖥️ Servidor Web (PHP 8.2 + Caddy / Nginx)"]
+        FC["Front Controller\nindex.php"]
+        ENV["Cargador de Entorno\nEnvLoader.php"]
+        SEC["Módulo de Seguridad\nseguridad.php (CSRF / Rate Limit / Anti-XSS)"]
+
+        subgraph MVC["Arquitectura MVC + SOLID"]
+            CTRL["Controladores (SRP)\nAuthController · UsuarioController\nCotizacionController · ProductoController\nTareaController · PanelController"]
+            SERV["Servicios\nFileUploadService (Validación MIME)"]
+            MOD["Modelos (Repository Pattern)\nUsuarioModel · CotizacionModel\nProductoModel · TareaModel"]
+            VIEW["Vistas HTML / PHP\napp/views/*"]
+        end
+
+        PDF["Motor PDF\nDomPDF"]
+    end
+
+    subgraph BD["🗄️ Base de Datos"]
+        MYSQL["MariaDB 10.11 / MySQL 8.0\nPrepared Statements + Transactions + Locks"]
+    end
+
+    UI -- "Petición HTTP GET / POST" --> FC
+    FC -- "Carga .env" --> ENV
+    FC -- "CSRF / Rate Limit / Auth" --> SEC
+    FC -- "Despacha ruta" --> CTRL
+    CTRL -- "Lógica de subidas" --> SERV
+    CTRL -- "Consulta / Modifica" --> MOD
+    MOD -- "Consultas Preparadas" --> MYSQL
+    CTRL -- "Genera documento" --> PDF
+    CTRL -- "Renderiza datos escapados" --> VIEW
+    VIEW -- "Respuesta HTML" --> UI
+```
+
+---
+
 ## Estructura del proyecto (Patrón MVC)
+
 
 El proyecto utiliza un patrón MVC completo con un único punto de entrada (Front Controller).
 
