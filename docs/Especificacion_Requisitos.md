@@ -9,30 +9,31 @@ La empresa Sodicol Zomac S.A.S realiza actualmente sus cotizaciones de forma man
 
 ---
 
-## 1.1 Diagrama de Ciclo de Vida y Estados del Sistema
+## 1.1 Diagrama de Ciclo de Vida y Estados del Sistema (Mapeo a Requisitos Funcionales)
 
 ```mermaid
 graph LR
-    subgraph COTIZACIONES["📑 Ciclo de Vida de Cotizaciones"]
+    subgraph COTIZACIONES["📑 Ciclo de Vida de Cotizaciones (RF02, RF03, RF05, RF06, RF07)"]
         direction LR
-        C1["📝 1. Borrador / En Edición<br/><i>(Selección de productos y cálculo automático de IVA)</i>"]
-        C2["🔒 2. Generada y Registrada<br/><i>(Bloqueo exclusivo y consecutivo único)</i>"]
-        C3["📄 3. Documento PDF Emitido<br/><i>(Generación formal con DomPDF y firmas)</i>"]
-        C4["📦 4. Archivada en Historial<br/><i>(Consulta, filtrado y Live Search)</i>"]
+        C1["📝 1. Borrador / En Edición<br/><i>(RF02/RF03: Selección de productos y cálculo de ítems)</i>"]
+        C2["🔒 2. Generada y Registrada<br/><i>(RF05: Bloqueo de tabla y consecutivo único)</i>"]
+        C3["📄 3. Documento PDF Emitido<br/><i>(RF06: Generación formal con DomPDF y desglose de IVA)</i>"]
+        C4["📦 4. Archivada en Historial<br/><i>(RF07: Consulta, filtrado y Live Search)</i>"]
 
-        C1 -->|"Guardar ítems"| C2
-        C2 -->|"Descargar / Ver"| C3
+        C1 -->|"Guardar cotización"| C2
+        C2 -->|"Descargar PDF"| C3
         C3 -->|"Persistencia DB"| C4
     end
 
-    subgraph TAREAS["📋 Flujo de Tareas Operativas"]
+    subgraph TAREAS["📋 Flujo de Tareas Operativas (RF09, RF10, RF11)"]
         direction LR
-        T1["⏳ 1. Tarea Pendiente<br/><i>(Asignada por Admin a Empleado)</i>"]
-        T2["✅ 2. Tarea Completa<br/><i>(Marcada como realizada en Dashboard)</i>"]
+        T1["⏳ 1. Tarea Pendiente<br/><i>(RF09: Asignada por Admin a Empleado)</i>"]
+        T2["✅ 2. Tarea Completa<br/><i>(RF10: Marcada como realizada en Dashboard)</i>"]
 
-        T1 -->|"Clic en Completar"| T2
+        T1 -->|"RF10: Clic en Completar"| T2
     end
 ```
+
 
 
 ---
