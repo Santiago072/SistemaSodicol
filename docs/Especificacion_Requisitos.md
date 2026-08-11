@@ -12,21 +12,28 @@ La empresa Sodicol Zomac S.A.S realiza actualmente sus cotizaciones de forma man
 ## 1.1 Diagrama de Ciclo de Vida y Estados del Sistema
 
 ```mermaid
-stateDiagram-v2
-    [*] --> BORRADOR : Empleado inicia cotización\n(agrega ítems / productos)
-    
-    BORRADOR --> GENERADA : Finaliza cotización\n(Bloqueo exclusivo de tabla y consecutivo único)
-    
-    GENERADA --> PDF_EMITIDO : Generación de documento formal\n(DomPDF con desglose de IVA y firmas)
-    
-    PDF_EMITIDO --> [*] : Cotización archivada en historial
+graph LR
+    subgraph COTIZACIONES["📑 Ciclo de Vida de Cotizaciones"]
+        direction LR
+        C1["📝 1. Borrador / En Edición<br/><i>(Selección de productos y cálculo automático de IVA)</i>"]
+        C2["🔒 2. Generada y Registrada<br/><i>(Bloqueo exclusivo y consecutivo único)</i>"]
+        C3["📄 3. Documento PDF Emitido<br/><i>(Generación formal con DomPDF y firmas)</i>"]
+        C4["📦 4. Archivada en Historial<br/><i>(Consulta, filtrado y Live Search)</i>"]
 
-    state "Flujo de Tareas Operativas" as Tareas {
-        [*] --> PENDIENTE : Administrador asigna tarea a empleado
-        PENDIENTE --> COMPLETO : Empleado marca labor ejecutada
-        COMPLETO --> [*]
-    }
+        C1 -->|"Guardar ítems"| C2
+        C2 -->|"Descargar / Ver"| C3
+        C3 -->|"Persistencia DB"| C4
+    end
+
+    subgraph TAREAS["📋 Flujo de Tareas Operativas"]
+        direction LR
+        T1["⏳ 1. Tarea Pendiente<br/><i>(Asignada por Admin a Empleado)</i>"]
+        T2["✅ 2. Tarea Completa<br/><i>(Marcada como realizada en Dashboard)</i>"]
+
+        T1 -->|"Clic en Completar"| T2
+    end
 ```
+
 
 ---
 
