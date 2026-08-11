@@ -14,23 +14,24 @@ La empresa Sodicol Zomac S.A.S realiza actualmente sus cotizaciones de forma man
 ```mermaid
 flowchart TD
     subgraph COT["1. CICLO DE VIDA DE COTIZACIONES"]
-        C1["📝 BORRADOR\n(Selección de productos)"]
-        C2["🔒 GENERADA\n(Consecutivo bloqueado)"]
-        C3["📄 PDF EMITIDO\n(Documento formal)"]
-        C4["📦 ARCHIVADA\n(Historial y búsqueda)"]
+        C1["📝 BORRADOR<br/><b>(Selección de productos)</b>"]
+        C2["🔒 GENERADA<br/><b>(Consecutivo bloqueado)</b>"]
+        C3["📄 PDF EMITIDO<br/><b>(Documento formal)</b>"]
+        C4["📦 ARCHIVADA<br/><b>(Historial y búsqueda)</b>"]
 
-        C1 -->|"Guardar ítems (RF02/RF03)"| C2
-        C2 -->|"Descargar PDF (RF06)"| C3
-        C3 -->|"Persistencia (RF07)"| C4
+        C1 -->|"Guardar ítems<br/>(RF02/RF03)"| C2
+        C2 -->|"Descargar PDF<br/>(RF06)"| C3
+        C3 -->|"Persistencia<br/>(RF07)"| C4
     end
 
     subgraph TAR["2. FLUJO DE TAREAS OPERATIVAS"]
-        T1["⏳ PENDIENTE\n(Asignada por Admin)"]
-        T2["✅ COMPLETO\n(Realizada por Empleado)"]
+        T1["⏳ PENDIENTE<br/><b>(Asignada por Admin)</b>"]
+        T2["✅ COMPLETO<br/><b>(Realizada por Empleado)</b>"]
 
-        T1 -->|"Completar en panel (RF10)"| T2
+        T1 -->|"Completar en panel<br/>(RF10)"| T2
     end
 ```
+
 
 | Módulo | Estado | Requisito Funcional | Descripción del Flujo |
 |---|---|---|---|
