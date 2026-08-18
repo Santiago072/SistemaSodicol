@@ -190,7 +190,10 @@ class CotizacionModel
 
     private function construirWhere(array $filtros): array
     {
-        $condiciones = [];
+        $condiciones = [
+            "numero_cotizacion IS NOT NULL AND numero_cotizacion != ''",
+            "nombre_cliente IS NOT NULL AND nombre_cliente != ''"
+        ];
         $params      = [];
         $types       = '';
 
