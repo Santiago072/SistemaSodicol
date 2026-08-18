@@ -20,10 +20,10 @@ EnvLoader::load(__DIR__ . '/.env');
  */
 function conexion(): \mysqli
 {
-    $host = !empty($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : (getenv('DB_HOST') ?: 'sodicol_db');
-    $user = !empty($_ENV['DB_USER']) ? $_ENV['DB_USER'] : (getenv('DB_USER') ?: 'sodicol_user');
-    $pass = isset($_ENV['DB_PASS']) && $_ENV['DB_PASS'] !== '' ? $_ENV['DB_PASS'] : (getenv('DB_PASS') ?: 'root');
-    $db   = !empty($_ENV['DB_NAME']) ? $_ENV['DB_NAME'] : (getenv('DB_NAME') ?: 'sistema_sodicol');
+    $host = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost';
+    $user = $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'root';
+    $pass = isset($_ENV['DB_PASS']) ? $_ENV['DB_PASS'] : (getenv('DB_PASS') !== false ? getenv('DB_PASS') : '');
+    $db   = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'sistema_sodicol';
 
 
     // Reintentos automáticos (por si MariaDB está terminando de inicializar)
