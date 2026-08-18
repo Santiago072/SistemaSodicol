@@ -19,9 +19,9 @@ git reset --hard origin/main
 echo "[4/5] Generando config/.env desde .env.example..."
 cp -f .env.example config/.env
 
-# 5. Detener contenedores, limpiar volumenes antiguos y reconstruir
-echo "[5/5] Reiniciando volumenes y levantando contenedores Docker..."
-docker compose down -v
+# 5. Detener contenedores y reconstruir (preservando datos)
+echo "[5/5] Reconstruyendo y levantando contenedores Docker..."
+docker compose down
 docker compose up -d --build
 
 echo ""

@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS tareas (
 );
 
 INSERT INTO `usuarios` (`id`, `documento`, `nombre`, `correo`, `password`, `telefono`, `rol`, `estado`) VALUES
-('1', '1234567890', 'Admin', 'admin@sodicol.com', '$2y$10$VBojyYysxDaq2M5bCB0ZzOhL1hdYXP07F1q2UDQlF8RSu0YCCBXsi', '3000000000', 'admin', 'activo');
+('1', '1234567890', 'Admin', 'admin@sodicol.com', '$2y$10$Dw5.22uoL3v3EJ2i4q1qLugxMuAHZlzk/Gv0vSCrvE2BVwuCGvZKW', '3000000000', 'admin', 'activo');
 
 -- Productos iniciales del catálogo
 INSERT INTO `productos` (`id`, `titulo`, `foto`, `descripcion`, `cantidad`, `iva`, `precio`) VALUES
