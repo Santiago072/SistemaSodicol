@@ -20,6 +20,8 @@ $extraHead = $extraHead ?? '';
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="<?= $basePath ?>css/estilos.css?v=<?= time() ?>">
+    <link rel="icon" type="image/png" href="<?= $basePath ?>logo/favicon.png">
+    <link rel="shortcut icon" href="<?= $basePath ?>logo/favicon.ico">
     <title><?= htmlspecialchars($pageTitle) ?></title>
     <?= $extraHead ?>
 </head>

@@ -23,6 +23,10 @@ $tokenCsrf = $csrf_token ?? '';
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="<?= $baseUrl ?>logo/favicon.png">
+    <link rel="shortcut icon" href="<?= $baseUrl ?>logo/favicon.ico">
+
     <style>
         :root {
             --wood-dark: #1b1714;

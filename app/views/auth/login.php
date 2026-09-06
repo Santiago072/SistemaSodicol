@@ -14,6 +14,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="<?= defined('BASE_URL') ? BASE_URL : '/SistemaSodicol/' ?>css/estilos.css">
+    <link rel="icon" type="image/png" href="<?= defined('BASE_URL') ? BASE_URL : '/SistemaSodicol/' ?>logo/favicon.png">
+    <link rel="shortcut icon" href="<?= defined('BASE_URL') ? BASE_URL : '/SistemaSodicol/' ?>logo/favicon.ico">
     <style>
         #btnModo { position: fixed; top: 18px; right: 22px; z-index: 1000; padding: 10px 14px; }
         #btnModo .modo-label { display: none; }
