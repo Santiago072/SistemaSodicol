@@ -78,11 +78,34 @@ if ($action === 'logout') {
 }
 
 // ── Login (sin módulo) ────────────────────────────────────────────────────────
+// ???? Vista Landing / Login (sin mdulo) ????????????????????????????????????????????????????????????????????????
 if ($module === '') {
     require_once __DIR__ . '/app/controllers/AuthController.php';
-    $data = (new AuthController(conexion()))->login();
-    extract($data);
-    include __DIR__ . '/app/views/auth/login.php';
+    $authCtrl = new AuthController(conexion());
+
+    // Si el usuario ya tiene sesin activa, redirigir directo al panel
+    if (!empty($_SESSION['usuario_id'])) {
+        header('Location: ' . BASE_URL . '?module=panel');
+        exit();
+    }
+
+    // Si viene por POST o solicita explcitamente el login clsico
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' || $action === 'login_view') {
+        $data = $authCtrl->login();
+        extract($data);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($mensajeError)) {
+            // Re-renderizar landing con error y modal abierto
+            include __DIR__ . '/app/views/landing/index.php';
+            exit();
+        }
+        include __DIR__ . '/app/views/auth/login.php';
+        exit();
+    }
+
+    // Por defecto: Landing Page institucional
+    $csrf_token = generar_token_csrf();
+    $mensajeError = '';
+    include __DIR__ . '/app/views/landing/index.php';
     exit();
 }
 
